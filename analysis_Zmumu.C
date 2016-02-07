@@ -171,6 +171,22 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Zpt_v_bb_pt_mv1c =new TH2D("Zpt_v_bb_pt_mv1c","Z pT versus di b-jet pT (MV1c)",4000,0,2000,4000,0,2000);
    h_MET = new TH1D("met","MET",4000,0,2000);
 
+   //MET optimization histograms
+   h_met20_bjetn = new TH1D("met20_bjetn","#bjets, MET > 20",12,0,12);
+   h_met30_bjetn = new TH1D("met30_bjetn","#bjets, MET > 30",12,0,12);
+   h_met40_bjetn = new TH1D("met40_bjetn","#bjets, MET > 40",12,0,12);
+   h_met50_bjetn = new TH1D("met50_bjetn","#bjets, MET > 50",12,0,12);
+   h_met60_bjetn = new TH1D("met60_bjetn","#bjets, MET > 60",12,0,12);
+   h_met70_bjetn = new TH1D("met70_bjetn","#bjets, MET > 70",12,0,12);
+   h_met80_bjetn = new TH1D("met80_bjetn","#bjets, MET > 80",12,0,12);
+   h_met90_bjetn = new TH1D("met90_bjetn","#bjets, MET > 90",12,0,12);
+   h_met100_bjetn = new TH1D("met100_bjetn","#bjets, MET > 100",12,0,12);
+   h_met110_bjetn = new TH1D("met110_bjetn","#bjets, MET > 120",12,0,12);
+   h_met120_bjetn = new TH1D("met120_bjetn","#bjets, MET > 130",12,0,12);
+   h_met130_bjetn = new TH1D("met130_bjetn","#bjets, MET > 140",12,0,12);
+   h_met140_bjetn = new TH1D("met140_bjetn","#bjets, MET > 150",12,0,12);
+   h_met150_bjetn = new TH1D("met150_bjetn","#bjets, MET > 160",12,0,12);
+   
    char* rootpath_char;
    rootpath_char = getenv("ROOTCOREBIN");
    string rootpath = string(rootpath_char);
@@ -815,7 +831,22 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
   h_bjet_n->Fill(bjet_v.size(),weight);
-
+  //MET optimization with multiplicity distribution
+  if(met20) h_met20_bjetn->Fill(bjet_v.size(),weight);
+  if(met30) h_met30_bjetn->Fill(bjet_v.size(),weight);
+  if(met40) h_met40_bjetn->Fill(bjet_v.size(),weight);
+  if(met50) h_met50_bjetn->Fill(bjet_v.size(),weight);
+  if(met60) h_met60_bjetn->Fill(bjet_v.size(),weight);
+  if(met70) h_met70_bjetn->Fill(bjet_v.size(),weight);
+  if(met80) h_met80_bjetn->Fill(bjet_v.size(),weight);
+  if(met90) h_met90_bjetn->Fill(bjet_v.size(),weight);
+  if(met100) h_met100_bjetn->Fill(bjet_v.size(),weight);
+  if(met110) h_met110_bjetn->Fill(bjet_v.size(),weight);
+  if(met120) h_met120_bjetn->Fill(bjet_v.size(),weight);
+  if(met130) h_met130_bjetn->Fill(bjet_v.size(),weight);
+  if(met140) h_met140_bjetn->Fill(bjet_v.size(),weight);
+  if(met150) h_met150_bjetn->Fill(bjet_v.size(),weight);
+  
   if(bjet_v.size() >= 1){
     h_bjet_deltaR_Zb->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
     h_bjet_deltaphi_Zb->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
@@ -1061,7 +1092,24 @@ void analysis_Zmumu::Terminate()
   h_Zpt_v_bb_pt_mv1->Write();
   h_Zpt_v_bb_pt_mv1c->Write();
   h_MET->Write();
- 
+
+  //MET optimization
+  
+  h_met20_bjetn->Write();
+  h_met30_bjetn->Write();
+  h_met40_bjetn->Write();
+  h_met50_bjetn->Write();
+  h_met60_bjetn->Write();
+  h_met70_bjetn->Write();
+  h_met80_bjetn->Write();
+  h_met90_bjetn->Write();
+  h_met100_bjetn->Write();
+  h_met110_bjetn->Write();
+  h_met120_bjetn->Write();
+  h_met130_bjetn->Write();
+  h_met140_bjetn->Write();
+  h_met150_bjetn->Write();
+  
   f.Close();
 
 }

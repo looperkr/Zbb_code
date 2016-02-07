@@ -987,8 +987,8 @@ void analysis_Zmumu::Terminate()
   char* enddt = ctime(&end);
   cout << "Ending time: " << enddt << endl;
 
-  TFile f("output.root","recreate");
-  //  TFile f("output_skim.root","recreate");
+  //TFile f("output.root","recreate");
+  TFile f("output_Ztautau5.root","recreate");
 
   h_cutflow->Write();
   h_cutflow_w->Write();

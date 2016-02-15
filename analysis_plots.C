@@ -267,7 +267,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     rebin = 20;
   }
   else if(var_2_plot == "n_bjets"){
-    histo_name = "bjet_n";
+    histo_name = "met100_bjetn";
     x_name = "N_{bjets}";
     x_min = 0.; x_max = 5.;
     y_min = 1; y_max = 100000000;
@@ -475,7 +475,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //====================
   //== Monte Carlo =====
   //====================
-  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_Dec10/";
+  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
 
   //Zmumu_NpX
   string mc_type_zmumu = "Zmumu_Np";
@@ -566,7 +566,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //===== Data =========
   //====================
   //My data
-  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_Dec10/";
+  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
   TFile *fdata;
   string data_name = data_path + "data_hists.root";
   fdata = TFile::Open(data_name.c_str(),"UPDATE");

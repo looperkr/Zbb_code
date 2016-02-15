@@ -59,7 +59,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = true;
+   isMC = false;
    isData = !isMC;
 
    bch_fail = 0;
@@ -790,20 +790,20 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   //  if(finalMET_et/1000. > 70.0) return kFALSE;
   //MET optimization block
-  if(finalMET_et/1000. > 20) met20 = true;
-  if(finalMET_et/1000. > 30) met30 = true;
-  if(finalMET_et/1000. > 40) met40 = true;
-  if(finalMET_et/1000. > 50) met50 = true;
-  if(finalMET_et/1000. > 60) met60 = true;
-  if(finalMET_et/1000. > 70) met70 = true;
-  if(finalMET_et/1000. > 80) met80 = true;
-  if(finalMET_et/1000. > 90) met90 = true;
-  if(finalMET_et/1000. > 100) met100 = true;
-  if(finalMET_et/1000. > 110) met110 = true;
-  if(finalMET_et/1000. > 120) met120 = true;
-  if(finalMET_et/1000. > 130) met130 = true;
-  if(finalMET_et/1000. > 140) met140 = true;
-  if(finalMET_et/1000. > 150) met150 = true;
+  if(finalMET_et/1000. < 20) met20 = true;
+  if(finalMET_et/1000. < 30) met30 = true;
+  if(finalMET_et/1000. < 40) met40 = true;
+  if(finalMET_et/1000. < 50) met50 = true;
+  if(finalMET_et/1000. < 60) met60 = true;
+  if(finalMET_et/1000. < 70) met70 = true;
+  if(finalMET_et/1000. < 80) met80 = true;
+  if(finalMET_et/1000. < 90) met90 = true;
+  if(finalMET_et/1000. < 100) met100 = true;
+  if(finalMET_et/1000. < 110) met110 = true;
+  if(finalMET_et/1000. < 120) met120 = true;
+  if(finalMET_et/1000. < 130) met130 = true;
+  if(finalMET_et/1000. < 140) met140 = true;
+  if(finalMET_et/1000. < 150) met150 = true;
 
   h_Z_mass_MET->Fill(Zmass,weight);
   h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
@@ -988,7 +988,7 @@ void analysis_Zmumu::Terminate()
   cout << "Ending time: " << enddt << endl;
 
   //TFile f("output.root","recreate");
-  TFile f("output_Ztautau5.root","recreate");
+  TFile f("output_data.root","recreate");
 
   h_cutflow->Write();
   h_cutflow_w->Write();

@@ -53,13 +53,15 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    TString option = GetOption();
 
+   output_name = option;
+
    //print current time
    time_t now = time(0);
    char* dt = ctime(&now);
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = false;
+   isMC = true;
    isData = !isMC;
 
    bch_fail = 0;
@@ -172,20 +174,72 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_MET = new TH1D("met","MET",4000,0,2000);
 
    //MET optimization histograms
-   h_met20_bjetn = new TH1D("met20_bjetn","#bjets, MET > 20",12,0,12);
-   h_met30_bjetn = new TH1D("met30_bjetn","#bjets, MET > 30",12,0,12);
-   h_met40_bjetn = new TH1D("met40_bjetn","#bjets, MET > 40",12,0,12);
-   h_met50_bjetn = new TH1D("met50_bjetn","#bjets, MET > 50",12,0,12);
-   h_met60_bjetn = new TH1D("met60_bjetn","#bjets, MET > 60",12,0,12);
-   h_met70_bjetn = new TH1D("met70_bjetn","#bjets, MET > 70",12,0,12);
-   h_met80_bjetn = new TH1D("met80_bjetn","#bjets, MET > 80",12,0,12);
-   h_met90_bjetn = new TH1D("met90_bjetn","#bjets, MET > 90",12,0,12);
-   h_met100_bjetn = new TH1D("met100_bjetn","#bjets, MET > 100",12,0,12);
-   h_met110_bjetn = new TH1D("met110_bjetn","#bjets, MET > 120",12,0,12);
-   h_met120_bjetn = new TH1D("met120_bjetn","#bjets, MET > 130",12,0,12);
-   h_met130_bjetn = new TH1D("met130_bjetn","#bjets, MET > 140",12,0,12);
-   h_met140_bjetn = new TH1D("met140_bjetn","#bjets, MET > 150",12,0,12);
-   h_met150_bjetn = new TH1D("met150_bjetn","#bjets, MET > 160",12,0,12);
+   h_met20_bjetn = new TH1D("met20_bjetn","#bjets, MET < 20",12,0,12);
+   h_met30_bjetn = new TH1D("met30_bjetn","#bjets, MET < 30",12,0,12);
+   h_met40_bjetn = new TH1D("met40_bjetn","#bjets, MET < 40",12,0,12);
+   h_met50_bjetn = new TH1D("met50_bjetn","#bjets, MET < 50",12,0,12);
+   h_met60_bjetn = new TH1D("met60_bjetn","#bjets, MET < 60",12,0,12);
+   h_met70_bjetn = new TH1D("met70_bjetn","#bjets, MET < 70",12,0,12);
+   h_met80_bjetn = new TH1D("met80_bjetn","#bjets, MET < 80",12,0,12);
+   h_met90_bjetn = new TH1D("met90_bjetn","#bjets, MET < 90",12,0,12);
+   h_met100_bjetn = new TH1D("met100_bjetn","#bjets, MET < 100",12,0,12);
+   h_met110_bjetn = new TH1D("met110_bjetn","#bjets, MET < 120",12,0,12);
+   h_met120_bjetn = new TH1D("met120_bjetn","#bjets, MET < 130",12,0,12);
+   h_met130_bjetn = new TH1D("met130_bjetn","#bjets, MET < 140",12,0,12);
+   h_met140_bjetn = new TH1D("met140_bjetn","#bjets, MET < 150",12,0,12);
+   h_met150_bjetn = new TH1D("met150_bjetn","#bjets, MET < 160",12,0,12);
+
+   //MV1/MET optimization histograms
+   h_mv1_85_met40_bjetn = new TH1D("mv1_85_met40_bjetn","#bjets, MET < 40, mv1 85% wp",12,0,12); 
+   h_mv1_80_met40_bjetn = new TH1D("mv1_80_met40_bjetn","#bjets, MET < 40, mv1 80% wp",12,0,12);
+   h_mv1_70_met40_bjetn = new TH1D("mv1_70_met40_bjetn","#bjets, MET < 40, mv1 70% wp",12,0,12);
+   h_mv1_60_met40_bjetn = new TH1D("mv1_60_met40_bjetn","#bjets, MET < 40, mv1 60% wp",12,0,12);
+   h_mv1c_80_met40_bjetn = new TH1D("mv1c_80_met40_bjetn","#bjets, MET < 40, mv1c 80% wp",12,0,12);
+   h_mv1c_70_met40_bjetn = new TH1D("mv1c_70_met40_bjetn","#bjets, MET < 40, mv1c 70% wp",12,0,12);
+   h_mv1c_60_met40_bjetn = new TH1D("mv1c_60_met40_bjetn","#bjets, MET < 40, mv1c 60% wp",12,0,12);
+   h_mv1c_57_met40_bjetn = new TH1D("mv1c_57_met40_bjetn","#bjets, MET < 40, mv1c 57% wp",12,0,12);
+   h_mv1c_50_met40_bjetn = new TH1D("mv1c_50_met40_bjetn","#bjets, MET < 40, mv1c 50% wp",12,0,12);
+
+   h_mv1_85_met50_bjetn = new TH1D("mv1_85_met50_bjetn","#bjets, MET < 50, mv1 85% wp",12,0,12);
+   h_mv1_80_met50_bjetn = new TH1D("mv1_80_met50_bjetn","#bjets, MET < 50, mv1 80% wp",12,0,12);
+   h_mv1_70_met50_bjetn = new TH1D("mv1_70_met50_bjetn","#bjets, MET < 50, mv1 70% wp",12,0,12);
+   h_mv1_60_met50_bjetn = new TH1D("mv1_60_met50_bjetn","#bjets, MET < 50, mv1 60% wp",12,0,12);
+   h_mv1c_80_met50_bjetn = new TH1D("mv1c_80_met50_bjetn","#bjets, MET < 50, mv1c 80% wp",12,0,12);
+   h_mv1c_70_met50_bjetn = new TH1D("mv1c_70_met50_bjetn","#bjets, MET < 50, mv1c 70% wp",12,0,12);
+   h_mv1c_60_met50_bjetn = new TH1D("mv1c_60_met50_bjetn","#bjets, MET < 50, mv1c 60% wp",12,0,12);
+   h_mv1c_57_met50_bjetn = new TH1D("mv1c_57_met50_bjetn","#bjets, MET < 50, mv1c 57% wp",12,0,12);
+   h_mv1c_50_met50_bjetn = new TH1D("mv1c_50_met50_bjetn","#bjets, MET < 50, mv1c 50% wp",12,0,12);
+
+   h_mv1_85_met60_bjetn = new TH1D("mv1_85_met60_bjetn","#bjets, MET < 60, mv1 85% wp",12,0,12);
+   h_mv1_80_met60_bjetn = new TH1D("mv1_80_met60_bjetn","#bjets, MET < 60, mv1 80% wp",12,0,12);
+   h_mv1_70_met60_bjetn = new TH1D("mv1_70_met60_bjetn","#bjets, MET < 60, mv1 70% wp",12,0,12);
+   h_mv1_60_met60_bjetn = new TH1D("mv1_60_met60_bjetn","#bjets, MET < 60, mv1 60% wp",12,0,12);
+   h_mv1c_80_met60_bjetn = new TH1D("mv1c_80_met60_bjetn","#bjets, MET < 60, mv1c 80% wp",12,0,12);
+   h_mv1c_70_met60_bjetn = new TH1D("mv1c_70_met60_bjetn","#bjets, MET < 60, mv1c 70% wp",12,0,12);
+   h_mv1c_60_met60_bjetn = new TH1D("mv1c_60_met60_bjetn","#bjets, MET < 60, mv1c 60% wp",12,0,12);
+   h_mv1c_57_met60_bjetn = new TH1D("mv1c_57_met60_bjetn","#bjets, MET < 60, mv1c 57% wp",12,0,12);
+   h_mv1c_50_met60_bjetn = new TH1D("mv1c_50_met60_bjetn","#bjets, MET < 60, mv1c 50% wp",12,0,12);
+
+   h_mv1_85_met70_bjetn = new TH1D("mv1_85_met70_bjetn","#bjets, MET < 70, mv1 85% wp",12,0,12);
+   h_mv1_80_met70_bjetn = new TH1D("mv1_80_met70_bjetn","#bjets, MET < 70, mv1 80% wp",12,0,12);
+   h_mv1_70_met70_bjetn = new TH1D("mv1_70_met70_bjetn","#bjets, MET < 70, mv1 70% wp",12,0,12);
+   h_mv1_60_met70_bjetn = new TH1D("mv1_60_met70_bjetn","#bjets, MET < 70, mv1 60% wp",12,0,12);
+   h_mv1c_80_met70_bjetn = new TH1D("mv1c_80_met70_bjetn","#bjets, MET < 70, mv1c 80% wp",12,0,12);
+   h_mv1c_70_met70_bjetn = new TH1D("mv1c_70_met70_bjetn","#bjets, MET < 70, mv1c 70% wp",12,0,12);
+   h_mv1c_60_met70_bjetn = new TH1D("mv1c_60_met70_bjetn","#bjets, MET < 70, mv1c 60% wp",12,0,12);
+   h_mv1c_57_met70_bjetn = new TH1D("mv1c_57_met70_bjetn","#bjets, MET < 70, mv1c 57% wp",12,0,12);
+   h_mv1c_50_met70_bjetn = new TH1D("mv1c_50_met70_bjetn","#bjets, MET < 70, mv1c 50% wp",12,0,12);
+
+   h_mv1_85_met80_bjetn = new TH1D("mv1_85_met80_bjetn","#bjets, MET < 80, mv1 85% wp",12,0,12);
+   h_mv1_80_met80_bjetn = new TH1D("mv1_80_met80_bjetn","#bjets, MET < 80, mv1 80% wp",12,0,12);
+   h_mv1_70_met80_bjetn = new TH1D("mv1_70_met80_bjetn","#bjets, MET < 80, mv1 70% wp",12,0,12);
+   h_mv1_60_met80_bjetn = new TH1D("mv1_60_met80_bjetn","#bjets, MET < 80, mv1 60% wp",12,0,12);
+   h_mv1c_80_met80_bjetn = new TH1D("mv1c_80_met80_bjetn","#bjets, MET < 80, mv1c 80% wp",12,0,12);
+   h_mv1c_70_met80_bjetn = new TH1D("mv1c_70_met80_bjetn","#bjets, MET < 80, mv1c 70% wp",12,0,12);
+   h_mv1c_60_met80_bjetn = new TH1D("mv1c_60_met80_bjetn","#bjets, MET < 80, mv1c 60% wp",12,0,12);
+   h_mv1c_57_met80_bjetn = new TH1D("mv1c_57_met80_bjetn","#bjets, MET < 80, mv1c 57% wp",12,0,12);
+   h_mv1c_50_met80_bjetn = new TH1D("mv1c_50_met80_bjetn","#bjets, MET < 80, mv1c 50% wp",12,0,12);
+
    
    char* rootpath_char;
    rootpath_char = getenv("ROOTCOREBIN");
@@ -268,6 +322,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   jet_v.clear();
   bjet_v.clear();
   bjet_v_mv1c.clear();
+  bjet_v_mv1_85.clear();
+  bjet_v_mv1_80.clear();
+  bjet_v_mv1_70.clear();
+  bjet_v_mv1_60.clear();
+  bjet_v_mv1c_80.clear();
+  bjet_v_mv1c_70.clear();
+  bjet_v_mv1c_60.clear();
+  bjet_v_mv1c_57.clear();
+  bjet_v_mv1c_50.clear();
+
   float mcw;
   if(isMC)  mcw = mc_event_weight;
   isTileTrip = kFALSE;
@@ -290,6 +354,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   met130 =false;
   met140 =false;
   met150 =false;
+
+  //b-tag optimization initialization
+  mv180 = false;
+  mv170 = false;
+  mv160 = false;
+  mv1c80 = false;
+  mv1c70 = false;
+  mv1c60 = false;
+  mv1c57 = false;
+  mv1c50 = false;
 
   if(isMC){
     weight *= mcw;
@@ -846,7 +920,104 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(met130) h_met130_bjetn->Fill(bjet_v.size(),weight);
   if(met140) h_met140_bjetn->Fill(bjet_v.size(),weight);
   if(met150) h_met150_bjetn->Fill(bjet_v.size(),weight);
-  
+
+  //btag optimization
+  float mv1_85_wp = 0.1340;
+  float mv1_80_wp = 0.3511;
+  float mv1_70_wp = 0.7892;
+  float mv1_60_wp = 0.9827;
+  float mv1c_80_wp = 0.4051;
+  float mv1c_70_wp = 0.7068;
+  float mv1c_60_wp = 0.8349;
+  float mv1c_57_wp = 0.8641;
+  float mv1c_50_wp = 0.9195;
+
+  for(unsigned int i = 0; i < jet_v.size(); i++){
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_85_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1_85.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1_80.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_70_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1_70.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_60_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1_60.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1c_80.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_70_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1c_70.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_60_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1c_60.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_57_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1c_57.push_back(jet_v[i]);
+    }
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_50_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v_mv1c_50.push_back(jet_v[i]);
+    }
+  }
+
+  if(met40){
+    h_mv1_85_met40_bjetn->Fill(bjet_v_mv1_85.size(),weight);
+    h_mv1_80_met40_bjetn->Fill(bjet_v_mv1_80.size(),weight);
+    h_mv1_70_met40_bjetn->Fill(bjet_v_mv1_70.size(),weight);
+    h_mv1_60_met40_bjetn->Fill(bjet_v_mv1_60.size(),weight);
+    h_mv1c_80_met40_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
+    h_mv1c_70_met40_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
+    h_mv1c_60_met40_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
+    h_mv1c_57_met40_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
+    h_mv1c_50_met40_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
+  }
+  if(met50){
+    h_mv1_85_met50_bjetn->Fill(bjet_v_mv1_85.size(),weight);
+    h_mv1_80_met50_bjetn->Fill(bjet_v_mv1_80.size(),weight);
+    h_mv1_70_met50_bjetn->Fill(bjet_v_mv1_70.size(),weight);
+    h_mv1_60_met50_bjetn->Fill(bjet_v_mv1_60.size(),weight);
+    h_mv1c_80_met50_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
+    h_mv1c_70_met50_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
+    h_mv1c_60_met50_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
+    h_mv1c_57_met50_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
+    h_mv1c_50_met50_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
+  }
+  if(met60){
+    h_mv1_85_met60_bjetn->Fill(bjet_v_mv1_85.size(),weight);
+    h_mv1_80_met60_bjetn->Fill(bjet_v_mv1_80.size(),weight);
+    h_mv1_70_met60_bjetn->Fill(bjet_v_mv1_70.size(),weight);
+    h_mv1_60_met60_bjetn->Fill(bjet_v_mv1_60.size(),weight);
+    h_mv1c_80_met60_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
+    h_mv1c_70_met60_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
+    h_mv1c_60_met60_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
+    h_mv1c_57_met60_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
+    h_mv1c_50_met60_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
+  }
+  if(met70){
+    h_mv1_85_met70_bjetn->Fill(bjet_v_mv1_85.size(),weight);
+    h_mv1_80_met70_bjetn->Fill(bjet_v_mv1_80.size(),weight);
+    h_mv1_70_met70_bjetn->Fill(bjet_v_mv1_70.size(),weight);
+    h_mv1_60_met70_bjetn->Fill(bjet_v_mv1_60.size(),weight);
+    h_mv1c_80_met70_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
+    h_mv1c_70_met70_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
+    h_mv1c_60_met70_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
+    h_mv1c_57_met70_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
+    h_mv1c_50_met70_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
+  }
+  if(met80){
+    h_mv1_85_met80_bjetn->Fill(bjet_v_mv1_85.size(),weight);
+    h_mv1_80_met80_bjetn->Fill(bjet_v_mv1_80.size(),weight);
+    h_mv1_70_met80_bjetn->Fill(bjet_v_mv1_70.size(),weight);
+    h_mv1_60_met80_bjetn->Fill(bjet_v_mv1_60.size(),weight);
+    h_mv1c_80_met80_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
+    h_mv1c_70_met80_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
+    h_mv1c_60_met80_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
+    h_mv1c_57_met80_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
+    h_mv1c_50_met80_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
+  }
+
   if(bjet_v.size() >= 1){
     h_bjet_deltaR_Zb->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
     h_bjet_deltaphi_Zb->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
@@ -988,7 +1159,9 @@ void analysis_Zmumu::Terminate()
   cout << "Ending time: " << enddt << endl;
 
   //TFile f("output.root","recreate");
-  TFile f("output_data.root","recreate");
+  //  TFile f("output_data.root","recreate");
+  cout << "Output file: " << output_name << endl;
+  TFile f(output_name,"recreate");
 
   h_cutflow->Write();
   h_cutflow_w->Write();
@@ -1109,6 +1282,57 @@ void analysis_Zmumu::Terminate()
   h_met130_bjetn->Write();
   h_met140_bjetn->Write();
   h_met150_bjetn->Write();
+
+  //mv1 optimization
+  h_mv1_85_met40_bjetn->Write();
+  h_mv1_80_met40_bjetn->Write();
+  h_mv1_70_met40_bjetn->Write();
+  h_mv1_60_met40_bjetn->Write();
+  h_mv1c_80_met40_bjetn->Write();
+  h_mv1c_70_met40_bjetn->Write();
+  h_mv1c_60_met40_bjetn->Write();
+  h_mv1c_57_met40_bjetn->Write();
+  h_mv1c_50_met40_bjetn->Write();
+
+  h_mv1_85_met50_bjetn->Write();
+  h_mv1_80_met50_bjetn->Write();
+  h_mv1_70_met50_bjetn->Write();
+  h_mv1_60_met50_bjetn->Write();
+  h_mv1c_80_met50_bjetn->Write();
+  h_mv1c_70_met50_bjetn->Write();
+  h_mv1c_60_met50_bjetn->Write();
+  h_mv1c_57_met50_bjetn->Write();
+  h_mv1c_50_met50_bjetn->Write();
+
+  h_mv1_85_met60_bjetn->Write();
+  h_mv1_80_met60_bjetn->Write();
+  h_mv1_70_met60_bjetn->Write();
+  h_mv1_60_met60_bjetn->Write();
+  h_mv1c_80_met60_bjetn->Write();
+  h_mv1c_70_met60_bjetn->Write();
+  h_mv1c_60_met60_bjetn->Write();
+  h_mv1c_57_met60_bjetn->Write();
+  h_mv1c_50_met60_bjetn->Write();
+
+  h_mv1_85_met70_bjetn->Write();
+  h_mv1_80_met70_bjetn->Write();
+  h_mv1_70_met70_bjetn->Write();
+  h_mv1_60_met70_bjetn->Write();
+  h_mv1c_80_met70_bjetn->Write();
+  h_mv1c_70_met70_bjetn->Write();
+  h_mv1c_60_met70_bjetn->Write();
+  h_mv1c_57_met70_bjetn->Write();
+  h_mv1c_50_met70_bjetn->Write();
+
+  h_mv1_85_met80_bjetn->Write();
+  h_mv1_80_met80_bjetn->Write();
+  h_mv1_70_met80_bjetn->Write();
+  h_mv1_60_met80_bjetn->Write();
+  h_mv1c_80_met80_bjetn->Write();
+  h_mv1c_70_met80_bjetn->Write();
+  h_mv1c_60_met80_bjetn->Write();
+  h_mv1c_57_met80_bjetn->Write();
+  h_mv1c_50_met80_bjetn->Write();
   
   f.Close();
 

@@ -3,6 +3,8 @@ import subprocess
 import math
 import matplotlib.pyplot as plt
 
+isMC = False
+
 xsec_dict = {}
 with open('scaling_info.txt', 'r') as xsec_file:
     for line in xsec_file:
@@ -20,7 +22,10 @@ def normalize(hist_file_name,xsec_map,luminosity):
     norm_factor = luminosity/(nevents/xsec_value);
     return norm_factor
 
-path = "./MC_histograms/"
+if isMC:
+    path = "./MC_histograms/"
+else:
+    path = "./data_histograms/"
 cmd = "ls " + path
 files = subprocess.check_output(cmd,shell=True)
 files = files.strip()
@@ -43,15 +48,14 @@ for number in met_lst:
     for file_name in file_lst:
         f = TFile(path+file_name)
         h = f.Get(hist_name)
-        scaling_factor = normalize(file_name,xsec_dict,lumi)
+        if isMC:
+            scaling_factor = normalize(file_name,xsec_dict,lumi)
+            integral = h.GetBinContent(h.FindBin(2))
+            h.Scale(scaling_factor)
         integral = h.GetBinContent(h.FindBin(2))
-        print "Debugging, prescaling integral = " + str(integral) 
-        h.Scale(scaling_factor)
-        integral = h.GetBinContent(h.FindBin(2))
-        print "Debugging, postscaling integral = " + str(integral)
         #integral = h.Integral()
         print integral
-        if file_name[0:9] == "ZmumubbNp":
+        if isMC and file_name[0:9] == "ZmumubbNp":
             sig_integral += integral
         else:
             bkg_integral += integral
@@ -59,12 +63,15 @@ for number in met_lst:
     bkg_lst.append(bkg_integral)
 
 soverb_lst = []
-for i in range(0,len(sig_lst)):
-    soverb = sig_lst[i]/math.sqrt(bkg_lst[i])
-    soverb_lst.append(soverb)
-
-plt.figure(1)
-plt.plot(met_lst,soverb_lst)
-plt.show()
-
-
+if isMC:
+    for i in range(0,len(sig_lst)):
+        soverb = sig_lst[i]/math.sqrt(bkg_lst[i])
+        soverb_lst.append(soverb)
+if isMC:
+    plt.figure(1)
+    plt.plot(met_lst,soverb_lst)
+    plt.show()
+else:
+    plt.figure(1)
+    plt.plot(met_lst,bkg_lst)
+    plt.show()

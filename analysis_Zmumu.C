@@ -61,7 +61,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = true;
+   isMC = false;
    isData = !isMC;
 
    bch_fail = 0;

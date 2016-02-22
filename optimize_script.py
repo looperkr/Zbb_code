@@ -69,9 +69,9 @@ if isMC:
         soverb_lst.append(soverb)
 if isMC:
     plt.figure(1)
-    plt.plot(met_lst,soverb_lst)
+    plt.plot(met_lst,soverb_lst,marker="o")
     plt.show()
 else:
     plt.figure(1)
-    plt.plot(met_lst,bkg_lst)
+    plt.plot(met_lst,bkg_lst,marker="o")
     plt.show()

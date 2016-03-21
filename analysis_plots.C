@@ -57,14 +57,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   double lumi;
   if(scale_to_lumi){
     //luminosity in picobarns
-    //    lumi = 3865.57; //new cutflow sample, my data
-    //    lumi = 3924.93; //new cutflow sample, Nov 2
-    //    lumi = 2296.41; //bug corrected
-    //    lumi = 3394.65; //bug not corrected
-    //lumi = 3019.86; //b-tag sample
-    // lumi = 3664.42; //b-tag 2 sample (includes narrow eta)
-    //    lumi = 3201.51; //first packages run
-    lumi = 3413.06; //second packages run
+    //    lumi = 3413.06; //second packages run
+    lumi = 20239.2; //lumi calculator
+      //    lumi = 21300.0; //nominal 8 TeV
   }
   else{
     lumi = 5000.0;
@@ -378,6 +373,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~MC CROSS SECTIONS~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+//NOTE: starting event numbers have been hardcoded after skimming.
+//Hardcoded event numbers include pileup weights
   double xsec = 0;
   /*~~~~~~~~~~~~~~~~~~~Zmumu_NpX~~~~~~~~~~~~~~~~~~~~~~~~~*/
   //Datasets 147113 through 147118 (AlpgenPythia_Auto_P2011C_ZmumuNpX)
@@ -385,6 +382,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string zmumu_process = "zmumu";
   vector<double> zmumu_xsec;
   double sigma_zmumu[6] = {719.16, 175.74, 58.882, 15.673, 4.0057, 1.2544};
+  double eventn_zmumu[6] = {5939483.5, 6726874.0, 321199.96875, 761755.875, 391626.0625, 117397.882812};
+
   //7 TeV cross sections (for comparing)
   //  double sigma_zmumu[6] = {675.60,153.38,49.369,12.569,3.0427,0.83944};
   double k_factor_zmumu = 1.18;
@@ -399,6 +398,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string zmumubb_process = "zmumubb";
   vector<double> zmumubb_xsec;
   double sigma_zmumubb[4] = {6.5056, 3.2909, 1.2585, 0.61808};
+  double eventn_zmumubb[4] = {1647157.875, 923275.1875, 922702.0625, 837187.125};
   double k_factor_zmumubb = 1.18;
   double eff_zmumubb = 1.0;
   for(int i=0; i < 4; i++){
@@ -411,6 +411,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string zmumucc_process = "zmumucc";
   vector<double> zmumucc_xsec;
   double sigma_zmumucc[4] = {11.795, 4.1254, 3.3694, 1.7003};
+  double eventn_zmumucc[4] = {1016037.6875, 527136.75, 485840.75, 437100.59375};
   double k_factor_zmumucc = 1.18;
   double eff_zmumucc = 1.0;
   for(int i=0; i<4; i++){
@@ -423,6 +424,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string ztautau_process = "ztautau";
   vector<double> ztautau_xsec;
   double sigma_ztautau[6] = {711.89, 155.09, 48.805, 14.140, 3.7711, 1.1122};
+  double eventn_ztautau[6] = {6424578.0, 1335068.5, 405014.65625, 101756.476562, 30000.5507812, 9999.6328125};
   double k_factor_ztautau = 1.2290;
   double eff_ztautau = 1.0;
   for(int i=0; i<6; i++){
@@ -435,6 +437,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string ttbar_process = "ttbar";
   vector<double> ttbar_xsec;
   double sigma_ttbar[1] = {114.49};
+  double eventn_ttbar[1] = {13170119.0};
   double k_factor_ttbar = 1.1994;
   double eff_ttbar = 1.0;
   for(int i=0; i<1; i++){
@@ -448,6 +451,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string singletop_process = "singletop";
   vector<double> singletop_xsec;
   double sigma_singletop[3] = {8.5889, 20.666,0.56430};
+  double eventn_singletop[3] = {246793.453125, 1767192.5, 146963.203125};
   double k_factor_singletop[3] = {1.1035,1.0736,1.0737};
   double eff_singletop = 1.0;
   for(int i=0; i<3; i++){
@@ -462,6 +466,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   vector<double> diboson_xsec;
   //order of cross-sections: WW, ZZ, WZ
   double sigma_diboson[3] = {32.501, 4.9614, 12.008};
+  double eventn_diboson[3] = {2499964.0, 495052.96875 , 1842251.25};
   double k_factor_diboson[3] = {1.6833, 1.5496, 1.9011};
   double eff_diboson[3] ={0.38203,0.24465,0.30546};
   for(int i=0; i<3; i++){
@@ -568,7 +573,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //My data
   string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
   TFile *fdata;
-  string data_name = data_path + "data_hists.root";
+  //  string data_name = data_path + "data_hists.root";
+  string data_name = data_path + "alldata_Mar20.root";
   fdata = TFile::Open(data_name.c_str(),"UPDATE");
   TH1D *h_data = (TH1D*)fdata->Get(histo_name);
   cout << "Data file: " << data_name << endl;
@@ -580,13 +586,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   //Add MC histograms by process: function add_histo is defined in header file
   //Zmumu
-  TH1D *h_zmumu_sum = add_histo(fzmumu,n_files_zmumu,histo_name,zmumu_xsec,cutflow_h_name,lumi,h_zmumu_array,zmumu_process,x_min,x_max);
-  TH1D *h_zmumubb_sum = add_histo(fzmumubb,n_files_zmumubb,histo_name,zmumubb_xsec,cutflow_h_name,lumi,h_zmumubb_array,zmumubb_process,x_min,x_max);
-  TH1D *h_zmumucc_sum = add_histo(fzmumucc,n_files_zmumucc,histo_name,zmumucc_xsec,cutflow_h_name,lumi,h_zmumucc_array,zmumucc_process,x_min,x_max);
-  TH1D *h_ztautau_sum = add_histo(fztautau,n_files_ztautau,histo_name,ztautau_xsec,cutflow_h_name,lumi,h_ztautau_array,ztautau_process,x_min,x_max);
-  TH1D *h_ttbar_sum = add_histo(fttbar,n_files_ttbar,histo_name,ttbar_xsec,cutflow_h_name,lumi,h_ttbar_array,ttbar_process,x_min,x_max);
-  TH1D *h_singletop_sum = add_histo(fsingletop,n_files_singletop,histo_name,singletop_xsec,cutflow_h_name,lumi,h_singletop_array,singletop_process,x_min,x_max);
-  TH1D *h_diboson_sum = add_histo(fdiboson,n_files_diboson,histo_name,diboson_xsec,cutflow_h_name,lumi,h_diboson_array,diboson_process,x_min,x_max);
+  TH1D *h_zmumu_sum = add_histo(fzmumu,n_files_zmumu,histo_name,zmumu_xsec, eventn_zmumu, cutflow_h_name,lumi,h_zmumu_array,zmumu_process,x_min,x_max);
+  TH1D *h_zmumubb_sum = add_histo(fzmumubb,n_files_zmumubb,histo_name,zmumubb_xsec, eventn_zmumubb, cutflow_h_name,lumi,h_zmumubb_array,zmumubb_process,x_min,x_max);
+  TH1D *h_zmumucc_sum = add_histo(fzmumucc,n_files_zmumucc,histo_name,zmumucc_xsec, eventn_zmumucc, cutflow_h_name,lumi,h_zmumucc_array,zmumucc_process,x_min,x_max);
+  TH1D *h_ztautau_sum = add_histo(fztautau,n_files_ztautau,histo_name,ztautau_xsec, eventn_ztautau, cutflow_h_name,lumi,h_ztautau_array,ztautau_process,x_min,x_max);
+  TH1D *h_ttbar_sum = add_histo(fttbar,n_files_ttbar,histo_name,ttbar_xsec, eventn_ttbar, cutflow_h_name,lumi,h_ttbar_array,ttbar_process,x_min,x_max);
+  TH1D *h_singletop_sum = add_histo(fsingletop,n_files_singletop,histo_name,singletop_xsec,eventn_singletop, cutflow_h_name,lumi,h_singletop_array,singletop_process,x_min,x_max);
+  TH1D *h_diboson_sum = add_histo(fdiboson,n_files_diboson,histo_name,diboson_xsec, eventn_diboson, cutflow_h_name,lumi,h_diboson_array,diboson_process,x_min,x_max);
 
   h_zmumu_sum->SetFillColor(kBlue);
   h_zmumubb_sum->SetFillColor(kYellow);
@@ -659,16 +665,18 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
 
   //rescale attempt
-
-  TH1D *h_mc_sum_temp =(TH1D*)h_mc_sum->Clone();
-  h_mc_sum_temp->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_singletop_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_ttbar_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_diboson_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_ztautau_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_zmumucc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_zmumu_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-  h_zmumubb_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+  
+  TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
+  if(!scale_to_lumi){
+    h_mc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_singletop_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_ttbar_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_diboson_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_ztautau_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_zmumucc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_zmumu_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    h_zmumubb_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+  }
 
   sum_stack->Add(h_singletop_sum_clone);
   sum_stack->Add(h_ttbar_sum_clone);
@@ -680,26 +688,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //  h_zmumu_sum_clone->SetFillColor(kBlue);
   //h_zmumubb_sum_clone->SetFillColor(kYellow);
 
-  TH1D *h_mc_sum_forshape = (TH1D*)h_mc_sum->Clone();
-  TH1D *h_data_forshape = (TH1D*)h_data->Clone();
-  double temp_norm = 1.0;
-  //Edits for scaling to data
-  h_mc_sum_forshape->Scale(h_data_forshape->Integral()/h_mc_sum_forshape->Integral());
-  //  h_data_forshape->Scale(temp_norm/h_data_forshape->Integral());
-  double shape_max =  h_data_forshape->GetMaximum();
-  h_mc_sum_forshape->SetMaximum(shape_max*5);
-  h_data_forshape->SetMaximum(shape_max*5);
-
   float mc_events = h_mc_sum->Integral();
   cout << "MC sum: " << mc_events << endl;
   float data_events = h_data->Integral();
   cout << "Data sum: " << data_events << endl;
-  if(!scale_to_lumi){
-    mc_events = h_mc_sum_forshape->Integral();
-    data_events = h_data_forshape->Integral();
-    cout << "MC sum (integral == 1): " << mc_events << endl;
-    cout << "Data sum (integral == 1): " << data_events << endl;
-  }
 
   write_event_numbers(h_zmumu_sum,h_data,histo_name,lumi);
 
@@ -712,9 +704,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
    **********************************/
   string canvas_name = var_2_plot + "canvas";
   TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),800,800);
-  //  TCanvas *c2 = new TCanvas("shapeplot","shapeplot",800,800);
 
-  float mc_max = h_mc_sum->GetMaximum();
+  float mc_max = h_mc_sum_clone->GetMaximum();
   float data_max = h_data->GetMaximum();
   //plot the histogram with the larger number of events first (makes the y-axis range correct)
   if(make_log){
@@ -726,7 +717,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     sum_stack->SetMaximum(y_max);
   }
   sum_stack->SetMinimum(y_min);
-    
 
   cout << "mc max: " << mc_max << endl;
   cout << "data max: " << data_max << endl;
@@ -746,19 +736,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   SetFormats(h_data,x_name,y_name);
 
-  if(scale_to_lumi){
-    sum_stack->Draw("HIST");
-    h_data->Draw("HIST ELP SAME");
-    sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
-    if(var_2_plot == "n_jets" || var_2_plot == "n_bjets"){
-      sum_stack->GetXaxis()->CenterTitle();
-    }
+  sum_stack->Draw("HIST");
+  h_data->Draw("HIST ELP SAME");
+  sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
+  if(var_2_plot == "n_jets" || var_2_plot == "n_bjets"){
+    sum_stack->GetXaxis()->CenterTitle();
   }
-  else{
-    h_mc_sum_forshape->Draw("HIST");
-    h_data_forshape->Draw("HIST P SAME");
-  }
-
+  
   c1->cd();
   TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
   pad2->SetTopMargin(0);
@@ -771,63 +755,35 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   pad2->Draw("9");
   pad2->cd();
 
-  if(scale_to_lumi){
-    h_mc_sum_temp->SetStats(0);
-    h_mc_sum_temp->SetMarkerSize(0.5);
-    h_mc_sum_temp->GetYaxis()->SetTickLength(0.04);
-    h_mc_sum_temp->GetYaxis()->SetNdivisions(305);
-    h_mc_sum_temp->GetXaxis()->SetLabelSize(0.04*3./1.);
-    h_mc_sum_temp->GetXaxis()->SetTitleSize(0.04*3./1.);
-    h_mc_sum_temp->GetYaxis()->SetLabelSize(0.04*3./1.);
-    h_mc_sum_temp->GetYaxis()->SetTitleSize(0.04*3./1.);
-    h_mc_sum_temp->GetXaxis()->SetTitleOffset(1.2);
-    h_mc_sum_temp->GetYaxis()->SetTitleOffset(1.2/2.);
-    h_mc_sum_temp->GetXaxis()->SetTitle("");
-    //change back
-    //    h_mc_sum_temp->GetYaxis()->SetTitle("MC/Data");
-    h_mc_sum_temp->GetYaxis()->SetTitle("Data/MC");
-    h_mc_sum_temp->SetLineColor(kRed);
+
+  h_mc_sum_clone->SetStats(0);
+  h_mc_sum_clone->SetMarkerSize(0.5);
+  h_mc_sum_clone->GetYaxis()->SetTickLength(0.04);
+  h_mc_sum_clone->GetYaxis()->SetNdivisions(305);
+  h_mc_sum_clone->GetXaxis()->SetLabelSize(0.04*3./1.);
+  h_mc_sum_clone->GetXaxis()->SetTitleSize(0.04*3./1.);
+  h_mc_sum_clone->GetYaxis()->SetLabelSize(0.04*3./1.);
+  h_mc_sum_clone->GetYaxis()->SetTitleSize(0.04*3./1.);
+  h_mc_sum_clone->GetXaxis()->SetTitleOffset(1.2);
+  h_mc_sum_clone->GetYaxis()->SetTitleOffset(1.2/2.);
+  h_mc_sum_clone->GetXaxis()->SetTitle("");
+  
+  h_mc_sum_clone->GetYaxis()->SetTitle("Data/MC");
+  h_mc_sum_clone->SetLineColor(kRed);
     
-    // Divide: change this back
-    //    h_mc_sum_temp->Divide(h_data);
-    h_mc_sum_temp->Divide(h_data,h_mc_sum_temp);
-    //    h_mc_sum_temp->Divide(h_mc_sum_temp,h_data);
-    if(var_2_plot == "mu_pt_Z" || var_2_plot == "mu_eta" || var_2_plot == "mu_phi" || var_2_plot == "Z_mass" || var_2_plot == "Z_pt" || var_2_plot == "Z_y"){
-      h_mc_sum_temp->SetMinimum(0.75);
-      h_mc_sum_temp->SetMaximum(1.25);
-    }
-    else{
-      h_mc_sum_temp->SetMinimum(0.45);
-      h_mc_sum_temp->SetMaximum(1.85);
-    }
-    h_mc_sum_temp->SetMarkerStyle(20);
-    if(var_2_plot=="n_jets" || var_2_plot=="n_bjets"){
-      //      h_mc_sum_temp->GetXaxis()->CenterTitle();
-    }
-    h_mc_sum_temp->Draw("ep");
+  h_mc_sum_clone->Divide(h_data,h_mc_sum_clone);
+
+  if(var_2_plot == "mu_pt_Z" || var_2_plot == "mu_eta" || var_2_plot == "mu_phi" || var_2_plot == "Z_mass" || var_2_plot == "Z_y"){
+    h_mc_sum_clone->SetMinimum(0.75);
+    h_mc_sum_clone->SetMaximum(1.25);
   }
   else{
-    TH1D *h_mc_sum_shape_clone = (TH1D*)h_mc_sum_forshape->Clone();
-    h_mc_sum_shape_clone->SetStats(0);
-    h_mc_sum_shape_clone->SetMarkerSize(0.5);
-    h_mc_sum_shape_clone->GetYaxis()->SetTickLength(0.04);
-    h_mc_sum_shape_clone->GetYaxis()->SetNdivisions(305);
-    h_mc_sum_shape_clone->GetXaxis()->SetLabelSize(0.04*3./1.);
-    h_mc_sum_shape_clone->GetXaxis()->SetTitleSize(0.04*3./1.);
-    h_mc_sum_shape_clone->GetYaxis()->SetLabelSize(0.04*3./1.);
-    h_mc_sum_shape_clone->GetYaxis()->SetTitleSize(0.04*3./1.);
-    h_mc_sum_shape_clone->GetXaxis()->SetTitleOffset(1.2);
-    h_mc_sum_shape_clone->GetYaxis()->SetTitleOffset(1.2/2.);
-    h_mc_sum_shape_clone->GetXaxis()->SetTitle("");
-    //Change this back
-    h_mc_sum_shape_clone->GetYaxis()->SetTitle("MC/Data");
-    h_mc_sum_shape_clone->SetLineColor(kRed);
-    h_mc_sum_shape_clone->Divide(h_data_forshape);
-    h_mc_sum_shape_clone->SetMinimum(0.35);
-    h_mc_sum_shape_clone->SetMaximum(1.75);
-    h_mc_sum_shape_clone->SetMarkerStyle(20);
-    h_mc_sum_shape_clone->Draw("hist p");
+    h_mc_sum_clone->SetMinimum(0.45);
+    h_mc_sum_clone->SetMaximum(1.85);
   }
+  h_mc_sum_clone->SetMarkerStyle(20);
+  h_mc_sum_clone->Draw("ep");
+
   pad1->cd();
 
   //  TLegend *legend = new TLegend(0.6,0.70,0.95,0.95);
@@ -841,9 +797,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   legend->AddEntry(h_diboson_sum_clone,"Diboson MC","f");
   legend->AddEntry(h_ttbar_sum_clone,"tt-bar MC","f");
   legend->AddEntry(h_singletop_sum_clone, "single-top MC","f");
-  if(scale_to_lumi){
-    legend->Draw();
-  }
+
+  legend->Draw();
+
   TLatex *tex1 = new TLatex();
   tex1->SetNDC();
   string mc_evt_label = "#font[18]{MC events: " + NumToStr(mc_events) + "}";
@@ -856,5 +812,4 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   c1->cd();
   c1->Update();
-  //  c2->cd();
 }

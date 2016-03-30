@@ -92,7 +92,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "#phi^{#mu}";
     y_name = "Events";
     x_min = -TMath::Pi()-.5; x_max = TMath::Pi()+.5;
-    y_min = 0.1; y_max = 100000000;
+    y_min = 0.1; y_max = 1000000000;
     rebin = 1;
   }
   else if(var_2_plot == "mu_eta"){
@@ -100,7 +100,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "#eta^{#mu}";
     y_name = "Events";
     x_min = -3; x_max = 3;
-    y_min = 0.1; y_max = 100000000;
+    y_min = 0.1; y_max = 1000000000;
     rebin = 1;
   }
   else if(var_2_plot == "dimu_mass"){
@@ -116,7 +116,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "m_{#mu#mu} [GeV]";
     y_name = "Events";
     x_min = 70; x_max = 110;
-    y_min = 1; y_max = 100000000;
+    y_min = 1; y_max = 1000000000;
     rebin = 1;
   }
   else if(var_2_plot == "Z_y"){
@@ -124,7 +124,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "Z rapidity";
     y_name = "Events";
     x_min = -3.5; x_max = 3.5;
-    y_min = 0.1; y_max = 100000000;
+    y_min = 0.1; y_max = 1000000000;
     rebin = 2;
   }
   else if(var_2_plot == "Z_phi"){
@@ -262,7 +262,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     rebin = 20;
   }
   else if(var_2_plot == "n_bjets"){
-    histo_name = "met100_bjetn";
+    histo_name = "bjet_n";
     x_name = "N_{bjets}";
     x_min = 0.; x_max = 5.;
     y_min = 1; y_max = 100000000;
@@ -300,42 +300,42 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "bjet_m_bb";
     x_name = "m(b,b) [GeV]";
     x_min = 0.; x_max = 350;
-    y_min = 0.1; y_max = 40;
+    y_min = 0.1; y_max = 200;
     rebin = 10;
   }
   else if(var_2_plot == "deltaR_bb"){
     histo_name = "bjet_delR_bb";
     x_name = "#Delta R (b,b)";
     x_min = 0.; x_max = 5.5;
-    y_min = 0.1; y_max = 50;
+    y_min = 0.1; y_max = 250;
     rebin = 2;
   }
   else if(var_2_plot == "deltaphi_bb"){
     histo_name ="bjet_delphi_bb";
     x_name = "#Delta#phi (b,b)";
-    x_min = 0.; x_max = 4.;
-    y_min = 0.1; y_max = 50;
+    x_min = 0.; x_max = 3.5;
+    y_min = 0.1; y_max = 300;
     rebin = 2;
   }
   else if(var_2_plot == "deltaR_Zb"){
     histo_name = "bjet_delR_Zb";
     x_name = "#Delta R(Z,b)";
     x_min = 0.; x_max = 5.5;
-    y_min = 0.1; y_max = 1500;
+    y_min = 0.1; y_max = 10000;
     rebin = 2;
   }
   else if(var_2_plot == "deltaphi_Zb"){
     histo_name = "bjet_deltaphi_bZ";
     x_name = "#Delta #phi (Z,b)";
     x_min = 0; x_max = 3.5;
-    y_min = 0.1; y_max = 1200;
+    y_min = 0.1; y_max = 14000;
     rebin = 2;
   }
   else if(var_2_plot == "deltaeta_Zb"){
     histo_name = "bjet_deltaeta_Zb";
     x_name = "#Delta#eta (Z,b)";
     x_min = 0.; x_max = 5.5;
-    y_min = 0.1; y_max = 800;
+    y_min = 0.1; y_max = 6000;
     rebin = 2;
   }
   else if(var_2_plot == "bjet_rank"){
@@ -574,7 +574,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
   TFile *fdata;
   //  string data_name = data_path + "data_hists.root";
-  string data_name = data_path + "alldata_Mar20.root";
+  string data_name = data_path + "alldata_Mar29.root";
   fdata = TFile::Open(data_name.c_str(),"UPDATE");
   TH1D *h_data = (TH1D*)fdata->Get(histo_name);
   cout << "Data file: " << data_name << endl;
@@ -773,7 +773,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     
   h_mc_sum_clone->Divide(h_data,h_mc_sum_clone);
 
-  if(var_2_plot == "mu_pt_Z" || var_2_plot == "mu_eta" || var_2_plot == "mu_phi" || var_2_plot == "Z_mass" || var_2_plot == "Z_y"){
+  if(var_2_plot == "mu_pt_Z" || var_2_plot == "mu_eta" || var_2_plot == "mu_phi" || var_2_plot == "Z_mass" || var_2_plot == "Z_y" || var_2_plot == "Z_phi"){
     h_mc_sum_clone->SetMinimum(0.75);
     h_mc_sum_clone->SetMaximum(1.25);
   }

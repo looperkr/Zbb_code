@@ -144,7 +144,7 @@ void write_table(TH1D * h_mc, TH1D * h_data, TString & process_name){
   tablefile << "==================================================================" << endl;
 }
 
-TH1D * add_histo(TFile ** farray, const int farray_size, TString &h_name, vector<double> &xsec_values, string &cutflow_hist, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
+TH1D * add_histo(TFile ** farray, const int farray_size, TString &h_name, vector<double> &xsec_values, double *eventn_array, string &cutflow_hist, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
   //check to see if file and histogram opens
   if (farray[0]->IsOpen()){
     cout << "File opened." << endl;
@@ -154,26 +154,17 @@ TH1D * add_histo(TFile ** farray, const int farray_size, TString &h_name, vector
   }
   else cout << "ERROR: could not open file." << endl;
 
-  TH1D *h_cutflow;
-  double event_n[farray_size];
-  double norm_factor[farray_size];
 
-  //Open cutflow histogram to get initial event # value (first bin)
-  //Bin to use may change in future: should mc weight be taken into account? (irrelevant atm, alpgen samples' mcw == 1.) 
-  //Bin including mcw and pileup weight: bin 3
-  for(int i=0;i<farray_size;i++){
-    h_cutflow = (TH1D*) farray[i]->Get(cutflow_hist.c_str());
-    //    event_n[i] = h_cutflow->GetBinContent(1);
-    event_n[i] = h_cutflow->GetBinContent(3); //includes pileup weight
-    cout << "Initial event number for " << i << ": " << event_n[i] << endl;
-    cout << "Final number for " << i << ": " << h_cutflow->GetBinContent(17) << endl;
-  }
+  double norm_factor[farray_size];
+  
   //Normalization factor = xsec * lumi * (1/entries)
   for(int i=0;i<farray_size;i++){
-    norm_factor[i] = luminosity/(event_n[i]/xsec_values[i]);
+    norm_factor[i] = luminosity/(eventn_array[i]/xsec_values[i]);
+    cout << "Norm factor: " << norm_factor[i] << endl;
   }
   //Open histograms and scale
   for(int i=0;i<farray_size;i++){
+    cout << "Debug " << i << endl;
     cout << h_name << endl;
     h_array[i] = (TH1D*)farray[i]->Get(h_name);
     h_array[i]->Sumw2();

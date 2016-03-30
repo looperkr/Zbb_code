@@ -71,7 +71,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    n_true_bjets = 0;
    n_passing_jets = 0;
    h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",4000,0,2000);
-   h_mass_nowindow = new TH1D("dimuon_mass","Dimuon mass spectrum",4000,0,2000);
    h_Z_pt = new TH1D("Z_pT", "Z boson pT", 4000, 0, 2000);
    h_Z_y = new TH1D("Z_y", "Z boson rapidity", 240,-6,6);
    h_Z_eta = new TH1D("Z_eta","Z boson #eta", 240,-6,6);
@@ -90,17 +89,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
    h_jet_n = new TH1D("jet_n","number of jets per event",15,0,15);  
-   h_jet_n_tight_eta = new TH1D("jet_n_tight_eta","number of jets per event (|eta| < 2.4)",15,0,15);
-   h_jet_pt_tight_eta = new TH1D("jet_pt_tight_eta","jet pT (|eta| < 2.4)",4000,0,2000);
-   h_jet_y_tight_eta = new TH1D("jet_y_tight_eta","jet rapidity (|eta| < 2.4)",120,-6,6);
-   h_jet_n_35 = new TH1D("jet_n35","#jets (pT > 35 GeV)",15,0,15);
-   h_jet_n_40 = new TH1D("jet_n40","#jets (pT > 40 GeV)",15,0,15);
-   h_jet_n_45 = new TH1D("jet_n45","#jets (pT > 45 GeV)",15,0,15);
-   h_jet_n_50 = new TH1D("jet_n50","#jets (pT > 50 GeV)",15,0,15);
-   h_jet_n_55 = new TH1D("jet_n55","#jets (pT > 55 GeV)",15,0,15);
-   h_jet_n_60 = new TH1D("jet_n60","#jets (pT > 60 GeV)",15,0,15);
-   h_jet_n_100 = new TH1D("jet_n100","#jets (pT > 100 GeV)",15,0,15);
-   h_jet_n_150 = new TH1D("jet_n150","#jets (pT > 150 GeV)",15,0,15);
    h_jet_st = new TH1D("jet_st","ST",4000,0,2000);
    h_jet_mu_ht = new TH1D("jet_mu_ht","HT",4000,0,2000);
    h_leadjet_pt = new TH1D("jet_pt_lead","leading jet pT",4000,0,2000);
@@ -131,63 +119,32 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_jet_mu_ht_MET = new TH1D("jet_ht_MET","HT after MET cut",4000,0,2000);
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
-   h_bjet_n_mv1c = new TH1D("bjet_n_mv1c","Number of b-tagged jets (MV1c)",12,0,12);
    h_bjet_pt = new TH1D("bjet_pt","b-tagged jet pT",4000,0,2000);
-   h_bjet_pt_mv1c = new TH1D("bjet_pt_mv1c","b-tagged jet pT (MV1c)",4000,0,2000);
    h_bjet_lead_pt = new TH1D("bjet_lead_pt","Leading tagged jet pT",4000,0,2000);
-   h_bjet_lead_pt_mv1c = new TH1D("bjet_lead_pt_mv1c","Leading tagged jet pT (MV1c)",4000,0,2000);
    h_bjet_sublead_pt = new TH1D("bjet_sublead_pt","Subleading tagged jet pT",4000,0,2000);
-   h_bjet_sublead_pt_mv1c = new TH1D("bjet_sublead_pt_mv1c","Subleading tagged jet pT (MV1c)",4000,0,2000);
-   h_bjet_mv1_pt = new TH1D("bjet_mv1_pt","pT of jet with highest MV1 weight",4000,0,2000);
-   h_bjet_mv1c_pt = new  TH1D("bjet_mv1c_pt","pT of jet with highest MV1c weight",4000,0,2000);
    h_bjet_y = new TH1D("bjet_y","b-tagged jet rapidity",240,-6,6);
-   h_bjet_y_mv1c = new TH1D("bjet_y_mv1c","b-tagged jet rapidity (MV1c)",240,-6,6);
    h_bjet_m_bb = new TH1D("bjet_m_bb","Dijet mass (two b-tags)",4000,0,2000);
-   h_bjet_m_bb_mv1 = new TH1D("bjet_m_bb_mv1","Diijet mass (two b-tags, highest mv1 weight)",4000,0,2000);
    h_bjet_m_bb_mv1c = new TH1D("bjet_m_bb_mv1c","Diijet mass (two b-tags, highest mv1c weight)",4000,0,2000);
    h_bjet_deltaR_bb = new TH1D("bjet_delR_bb","#Delta R(b,b)",120,0,6);
-   h_bjet_deltaR_bb_mv1 = new TH1D("bjet_delR_bb_mv1","#Delta R(b,b) (MV1)",120,0,6);
    h_bjet_deltaR_bb_mv1c = new TH1D("bjet_delR_bb_mv1c","#Delta R(b,b) (MV1c)",120,0,6);
    h_bjet_deltaphi_bb = new TH1D("bjet_delphi_bb","#Delta#phi(b,b)",160,-4,4);
-   h_bjet_deltaphi_bb_mv1 = new TH1D("bjet_delphi_bb_mv1","#Delta#phi(b,b) (MV1)",160,-4,4);
    h_bjet_deltaphi_bb_mv1c = new TH1D("bjet_delphi_bb_mv1","#Delta#phi(b,b) (MV1)",160,-4,4);
    h_bjet_deltaR_Zb = new TH1D("bjet_delR_Zb","#Delta R(Z,b)",120,0,6);
-   h_bjet_deltaR_Zb_mv1 = new TH1D("bjet_delR_Zb_mv1","#Delta R(Z,b) (MV1)",120,0,6);
    h_bjet_deltaR_Zb_mv1c = new TH1D("bjet_delR_Zb_mv1c","#Delta R(Z,b) (MV1c)",120,0,6);
    h_bjet_deltaphi_Zb = new TH1D("bjet_deltaphi_bZ","#Delta#phi(Z,b)",200,0,10);
-   h_bjet_deltaphi_Zb_mv1 = new TH1D("bjet_deltaphi_bZ_mv1","#Delta#phi(Z,b) (MV1)",200,0,10);
    h_bjet_deltaphi_Zb_mv1c = new TH1D("bjet_deltaphi_bZ_mv1c","#Delta#phi(Z,b) (MV1)",200,0,10);
    h_bjet_deltaeta_Zb = new TH1D("bjet_deltaeta_Zb","#Delta#eta(Z,b)",200,0,10);
-   h_bjet_deltaeta_Zb_mv1 = new TH1D("bjet_deltaeta_Zb_mv1","#Delta#eta(Z,b) (MV1)",200,0,10);
    h_bjet_deltaeta_Zb_mv1c = new TH1D("bjet_deltaeta_Zb_mv1c","#Delta#eta(Z,b) (MV1c)",200,0,10);
    h_bjet_deltaeta_bb = new TH1D("bjet_deltaeta_bb","#Delta#eta(b,b)",200,0,10);
-   h_bjet_deltaeta_bb_mv1 = new TH1D("bjet_deltaeta_bb_mv1","#Delta#eta(b,b) (MV1)",200,0,10);
    h_bjet_deltaeta_bb_mv1c = new TH1D("bjet_deltaeta_bb_mv1c","#Delta#eta(b,b) (MV1c)",200,0,10);
    h_bjet_rank = new TH1D("bjet_rank","p_{T} rank of b-tagged jets",20,0,20);
-   h_bjet_rank_mv1c = new TH1D("bjet_rank_mv1c","p_{T} rank of b-tagged jets (MV1c)",20,0,20);
    h_bjet_pt_bb = new TH1D("bjet_pt_bb","di b-jet pT",4000,0,2000);
-   h_bjet_pt_bb_mv1 = new TH1D("bjet_pt_bb_mv1","di b-jet pT (MV1)",4000,0,2000);
    h_bjet_pt_bb_mv1c = new TH1D("bjet_pt_bb_mv1c","di b-jet pT (MV1c)",4000,0,2000);
    h_Zpt_v_bb_pt = new TH2D("Zpt_v_bb_pt","Z pT versus di b-jet pT",4000,0,2000,4000,0,2000);
-   h_Zpt_v_bb_pt_mv1 =new TH2D("Zpt_v_bb_pt_mv1","Z pT versus di b-jet pT (MV1)",4000,0,2000,4000,0,2000);
    h_Zpt_v_bb_pt_mv1c =new TH2D("Zpt_v_bb_pt_mv1c","Z pT versus di b-jet pT (MV1c)",4000,0,2000,4000,0,2000);
    h_MET = new TH1D("met","MET",4000,0,2000);
-
-   //MET optimization histograms
-   h_met20_bjetn = new TH1D("met20_bjetn","#bjets, MET < 20",12,0,12);
-   h_met30_bjetn = new TH1D("met30_bjetn","#bjets, MET < 30",12,0,12);
-   h_met40_bjetn = new TH1D("met40_bjetn","#bjets, MET < 40",12,0,12);
-   h_met50_bjetn = new TH1D("met50_bjetn","#bjets, MET < 50",12,0,12);
-   h_met60_bjetn = new TH1D("met60_bjetn","#bjets, MET < 60",12,0,12);
-   h_met70_bjetn = new TH1D("met70_bjetn","#bjets, MET < 70",12,0,12);
-   h_met80_bjetn = new TH1D("met80_bjetn","#bjets, MET < 80",12,0,12);
-   h_met90_bjetn = new TH1D("met90_bjetn","#bjets, MET < 90",12,0,12);
-   h_met100_bjetn = new TH1D("met100_bjetn","#bjets, MET < 100",12,0,12);
-   h_met110_bjetn = new TH1D("met110_bjetn","#bjets, MET < 120",12,0,12);
-   h_met120_bjetn = new TH1D("met120_bjetn","#bjets, MET < 130",12,0,12);
-   h_met130_bjetn = new TH1D("met130_bjetn","#bjets, MET < 140",12,0,12);
-   h_met140_bjetn = new TH1D("met140_bjetn","#bjets, MET < 150",12,0,12);
-   h_met150_bjetn = new TH1D("met150_bjetn","#bjets, MET < 160",12,0,12);
+   h_MET_1tag = new TH1D("met_1tag","MET (1 b-tag)",4000,0,2000);
+   h_MET_2tag =new TH1D("met_2tag","MET (2 b-tag)",4000,0,2000);
 
    //MV1/MET optimization histograms
    h_mv1_85_met40_bjetn = new TH1D("mv1_85_met40_bjetn","#bjets, MET < 40, mv1 85% wp",12,0,12); 
@@ -239,6 +196,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1c_60_met80_bjetn = new TH1D("mv1c_60_met80_bjetn","#bjets, MET < 80, mv1c 60% wp",12,0,12);
    h_mv1c_57_met80_bjetn = new TH1D("mv1c_57_met80_bjetn","#bjets, MET < 80, mv1c 57% wp",12,0,12);
    h_mv1c_50_met80_bjetn = new TH1D("mv1c_50_met80_bjetn","#bjets, MET < 80, mv1c 50% wp",12,0,12);
+
 
    
    char* rootpath_char;
@@ -321,16 +279,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   Zmass = 0;
   jet_v.clear();
   bjet_v.clear();
-  bjet_v_mv1c.clear();
-  bjet_v_mv1_85.clear();
-  bjet_v_mv1_80.clear();
-  bjet_v_mv1_70.clear();
-  bjet_v_mv1_60.clear();
-  bjet_v_mv1c_80.clear();
-  bjet_v_mv1c_70.clear();
-  bjet_v_mv1c_60.clear();
-  bjet_v_mv1c_57.clear();
-  bjet_v_mv1c_50.clear();
 
   float mcw;
   if(isMC)  mcw = mc_event_weight;
@@ -340,7 +288,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   double sf = 1.;
 
   //MET optimization initialization
-  met20 = false;
   met30 =false;
   met40 =false;
   met50 =false;
@@ -348,22 +295,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   met70 =false;
   met80 =false;
   met90 =false;
-  met100 =false;
-  met110 =false;
-  met120 =false;
-  met130 =false;
-  met140 =false;
-  met150 =false;
-
-  //b-tag optimization initialization
-  mv180 = false;
-  mv170 = false;
-  mv160 = false;
-  mv1c80 = false;
-  mv1c70 = false;
-  mv1c60 = false;
-  mv1c57 = false;
-  mv1c50 = false;
 
   if(isMC){
     weight *= mcw;
@@ -659,15 +590,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   /*~~~~~~~~~jet selection~~~~~~~~~~~*/
   int jetn_final = 0;
-  int jetn_tight_eta_final = 0;
-  int jetn_35 = 0;
-  int jetn_40 = 0;
-  int jetn_45 = 0;
-  int jetn_50 = 0;
-  int jetn_55 = 0;
-  int jetn_60 = 0;
-  int jetn_100 = 0;
-  int jetn_150 = 0;
   float deltaR_jlep1 = 0 ;
   float deltaR_jlep2 = 0;
 
@@ -755,20 +677,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     jet_v.push_back(jet_pair);
     h_jet_pt->Fill(jet_fourv.Pt()/1000.);
     h_jet_y->Fill(jet_fourv.Rapidity());
-    //tighter eta cuts
-    if(fabs(jet_fourv.Eta()) < 2.4){
-      jetn_tight_eta_final++;
-      h_jet_pt_tight_eta->Fill(jet_fourv.Pt()/1000.);
-      h_jet_y_tight_eta->Fill(jet_fourv.Rapidity());
-    }
-    if(jet_fourv.Pt()/1000. > 35) jetn_35++;
-    if(jet_fourv.Pt()/1000. > 40) jetn_40++;
-    if(jet_fourv.Pt()/1000. > 45) jetn_45++;
-    if(jet_fourv.Pt()/1000. > 50) jetn_50++;
-    if(jet_fourv.Pt()/1000. > 55) jetn_55++;
-    if(jet_fourv.Pt()/1000. > 60) jetn_60++;
-    if(jet_fourv.Pt()/1000. > 100) jetn_100++;
-    if(jet_fourv.Pt()/1000. > 150) jetn_150++;
   }
 
   rebuild_MET();
@@ -787,15 +695,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
 
   h_jet_n->Fill(jetn_final,weight);
-  h_jet_n_tight_eta->Fill(jetn_tight_eta_final,weight);
-  h_jet_n_35->Fill(jetn_35,weight);
-  h_jet_n_40->Fill(jetn_40,weight);
-  h_jet_n_45->Fill(jetn_45,weight);
-  h_jet_n_50->Fill(jetn_50,weight);
-  h_jet_n_55->Fill(jetn_55,weight);
-  h_jet_n_60->Fill(jetn_60,weight);
-  h_jet_n_100->Fill(jetn_100,weight);
-  h_jet_n_150->Fill(jetn_150,weight);
   
   //Add pTs for HT and ST
   //ST: scalar sum of jet pTs
@@ -864,20 +763,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   //  if(finalMET_et/1000. > 70.0) return kFALSE;
   //MET optimization block
-  if(finalMET_et/1000. < 20) met20 = true;
-  if(finalMET_et/1000. < 30) met30 = true;
   if(finalMET_et/1000. < 40) met40 = true;
   if(finalMET_et/1000. < 50) met50 = true;
   if(finalMET_et/1000. < 60) met60 = true;
   if(finalMET_et/1000. < 70) met70 = true;
   if(finalMET_et/1000. < 80) met80 = true;
-  if(finalMET_et/1000. < 90) met90 = true;
-  if(finalMET_et/1000. < 100) met100 = true;
-  if(finalMET_et/1000. < 110) met110 = true;
-  if(finalMET_et/1000. < 120) met120 = true;
-  if(finalMET_et/1000. < 130) met130 = true;
-  if(finalMET_et/1000. < 140) met140 = true;
-  if(finalMET_et/1000. < 150) met150 = true;
 
   h_Z_mass_MET->Fill(Zmass,weight);
   h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
@@ -895,33 +785,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_dijet_m_MET->Fill(dijet_fourv.M()/1000.,weight);
     h_Zpt_v_jj_pt_MET->Fill(Z_fourv.Pt()/1000.,dijet_fourv.Pt()/1000.,weight);
   }
-  //jet_AntiKt4LCTopo_flavor_weight_MV1>0.7892 is 70% working point
-  for(unsigned int i = 0; i < jet_v.size(); i++){
-    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > 0.7892 && fabs(jet_v[i].second.Eta()) < 2.4){
-      bjet_v.push_back(jet_v[i]);
-      h_bjet_rank->Fill(i,weight);
-      h_bjet_pt->Fill(jet_v[i].second.Pt()/1000.,weight);
-      h_bjet_y->Fill(jet_v[i].second.Rapidity(),weight);
-    }
-  }
-  h_bjet_n->Fill(bjet_v.size(),weight);
-  //MET optimization with multiplicity distribution
-  if(met20) h_met20_bjetn->Fill(bjet_v.size(),weight);
-  if(met30) h_met30_bjetn->Fill(bjet_v.size(),weight);
-  if(met40) h_met40_bjetn->Fill(bjet_v.size(),weight);
-  if(met50) h_met50_bjetn->Fill(bjet_v.size(),weight);
-  if(met60) h_met60_bjetn->Fill(bjet_v.size(),weight);
-  if(met70) h_met70_bjetn->Fill(bjet_v.size(),weight);
-  if(met80) h_met80_bjetn->Fill(bjet_v.size(),weight);
-  if(met90) h_met90_bjetn->Fill(bjet_v.size(),weight);
-  if(met100) h_met100_bjetn->Fill(bjet_v.size(),weight);
-  if(met110) h_met110_bjetn->Fill(bjet_v.size(),weight);
-  if(met120) h_met120_bjetn->Fill(bjet_v.size(),weight);
-  if(met130) h_met130_bjetn->Fill(bjet_v.size(),weight);
-  if(met140) h_met140_bjetn->Fill(bjet_v.size(),weight);
-  if(met150) h_met150_bjetn->Fill(bjet_v.size(),weight);
 
-  //btag optimization
+
+  //btag optimization   
+
   float mv1_85_wp = 0.1340;
   float mv1_80_wp = 0.3511;
   float mv1_70_wp = 0.7892;
@@ -931,6 +798,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   float mv1c_60_wp = 0.8349;
   float mv1c_57_wp = 0.8641;
   float mv1c_50_wp = 0.9195;
+
+  for(unsigned int i = 0; i < jet_v.size(); i++){
+    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
+      bjet_v.push_back(jet_v[i]);
+      h_bjet_rank->Fill(i,weight);
+      h_bjet_pt->Fill(jet_v[i].second.Pt()/1000.,weight);
+      h_bjet_y->Fill(jet_v[i].second.Rapidity(),weight);
+    }
+  }
+  h_bjet_n->Fill(bjet_v.size(),weight);
 
   for(unsigned int i = 0; i < jet_v.size(); i++){
     if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_85_wp && fabs(jet_v[i].second.Eta()) < 2.4){
@@ -962,7 +839,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
 
-  if(met40){
+  if(met40 && (entry%10 == 0 || entry%10 == 5)){
     h_mv1_85_met40_bjetn->Fill(bjet_v_mv1_85.size(),weight);
     h_mv1_80_met40_bjetn->Fill(bjet_v_mv1_80.size(),weight);
     h_mv1_70_met40_bjetn->Fill(bjet_v_mv1_70.size(),weight);
@@ -973,7 +850,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_mv1c_57_met40_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
     h_mv1c_50_met40_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
   }
-  if(met50){
+  if(met50 && (entry%10 == 1 || entry%10 == 6 )){
     h_mv1_85_met50_bjetn->Fill(bjet_v_mv1_85.size(),weight);
     h_mv1_80_met50_bjetn->Fill(bjet_v_mv1_80.size(),weight);
     h_mv1_70_met50_bjetn->Fill(bjet_v_mv1_70.size(),weight);
@@ -984,7 +861,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_mv1c_57_met50_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
     h_mv1c_50_met50_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
   }
-  if(met60){
+  if(met60 && (entry%10 == 2 || entry%10 == 7)){
     h_mv1_85_met60_bjetn->Fill(bjet_v_mv1_85.size(),weight);
     h_mv1_80_met60_bjetn->Fill(bjet_v_mv1_80.size(),weight);
     h_mv1_70_met60_bjetn->Fill(bjet_v_mv1_70.size(),weight);
@@ -995,7 +872,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_mv1c_57_met60_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
     h_mv1c_50_met60_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
   }
-  if(met70){
+  if(met70 && (entry%10 == 3 || entry%10 == 8)){
     h_mv1_85_met70_bjetn->Fill(bjet_v_mv1_85.size(),weight);
     h_mv1_80_met70_bjetn->Fill(bjet_v_mv1_80.size(),weight);
     h_mv1_70_met70_bjetn->Fill(bjet_v_mv1_70.size(),weight);
@@ -1006,7 +883,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_mv1c_57_met70_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
     h_mv1c_50_met70_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
   }
-  if(met80){
+  if(met80 && (entry%10 == 4 || entry%10 == 9)){
     h_mv1_85_met80_bjetn->Fill(bjet_v_mv1_85.size(),weight);
     h_mv1_80_met80_bjetn->Fill(bjet_v_mv1_80.size(),weight);
     h_mv1_70_met80_bjetn->Fill(bjet_v_mv1_70.size(),weight);
@@ -1024,6 +901,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_bjet_lead_pt->Fill(bjet_v[0].second.Pt()/1000.,weight);
     double delta_eta_Zb = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
     h_bjet_deltaeta_Zb->Fill(delta_eta_Zb,weight);
+    h_MET_1tag->Fill(finalMET_et/1000.);
   }
   if(bjet_v.size() >= 2){
     h_bjet_deltaR_bb->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
@@ -1035,13 +913,14 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     double delta_eta_bb = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
     h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
     h_Zpt_v_bb_pt->Fill(Z_fourv.Pt()/1000.,b_jets_sum.Pt()/1000.,weight);
+    h_MET_2tag->Fill(finalMET_et/1000.);
   }
-  //re-sort b-jets by mv1 weight
+  //re-sort b-jets by mv1c weight
   int s;
   pair<int,TLorentzVector> tmp_s;
   for(unsigned int b = 1; b < bjet_v.size(); b++){
     s = b;
-    while(s > 0 && jet_AntiKt4LCTopo_flavor_weight_MV1->at(bjet_v[s-1].first) < jet_AntiKt4LCTopo_flavor_weight_MV1->at(bjet_v[s].first)){
+    while(s > 0 && jet_AntiKt4LCTopo_flavor_weight_MV1c->at(bjet_v[s-1].first) < jet_AntiKt4LCTopo_flavor_weight_MV1c->at(bjet_v[s].first)){
       tmp_s = bjet_v[s];
       bjet_v[s] = bjet_v[s-1];
       bjet_v[s-1] = tmp_s;
@@ -1049,66 +928,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
   if(bjet_v.size() >= 1){
-    h_bjet_deltaR_Zb_mv1->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
-    h_bjet_deltaphi_Zb_mv1->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
-    double delta_eta_Zb_mv1 = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
-    h_bjet_deltaeta_Zb_mv1->Fill(delta_eta_Zb_mv1,weight);
-  }
-  if(bjet_v.size() >= 2){
-    h_bjet_deltaR_bb_mv1->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
-    h_bjet_deltaphi_bb_mv1->Fill(fabs(bjet_v[0].second.DeltaPhi(bjet_v[1].second)),weight);
-    TLorentzVector b_jets_sum_mv1 = bjet_v[0].second + bjet_v[1].second;
-    h_bjet_m_bb_mv1->Fill(b_jets_sum_mv1.M()/1000.,weight);
-    h_bjet_pt_bb_mv1->Fill(b_jets_sum_mv1.Pt()/1000.,weight);
-    double delta_eta_bb_mv1 = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
-    h_bjet_deltaeta_bb_mv1->Fill(delta_eta_bb_mv1,weight);
-    h_Zpt_v_bb_pt_mv1->Fill(Z_fourv.Pt()/1000.,b_jets_sum_mv1.Pt()/1000.,weight);
-  }
-
-  /*MV1c version of b-tagging section*/
-  //jet_AntiKt4LCTopo_flavor_weight_MV1c>0.7068 is 70% working point
-  for(unsigned int i = 0; i < jet_v.size(); i++){
-    if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > 0.7068 && fabs(jet_v[i].second.Eta()) < 2.4){
-      bjet_v_mv1c.push_back(jet_v[i]);
-      h_bjet_rank_mv1c->Fill(i,weight);
-      h_bjet_pt_mv1c->Fill(jet_v[i].second.Pt()/1000.,weight);
-      h_bjet_y_mv1c->Fill(jet_v[i].second.Rapidity(),weight);
-    }
-  }
-  h_bjet_n_mv1c->Fill(bjet_v_mv1c.size(),weight);
-  if(bjet_v_mv1c.size() >= 1){
     h_bjet_deltaR_Zb_mv1c->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
     h_bjet_deltaphi_Zb_mv1c->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
-    h_bjet_lead_pt_mv1c->Fill(bjet_v[0].second.Pt()/1000.,weight);
-  }
-  if(bjet_v.size() >= 2){
-     h_bjet_sublead_pt_mv1c->Fill(bjet_v[1].second.Pt()/1000.,weight);
-  }
-  //re-sort by mv1c weight
-  int c;
-  pair<int,TLorentzVector> tmp_c;
-  for(unsigned int bc = 1; bc < bjet_v_mv1c.size(); bc++){
-    c = bc;
-    while(c > 0 && jet_AntiKt4LCTopo_flavor_weight_MV1->at(bjet_v_mv1c[c-1].first) < jet_AntiKt4LCTopo_flavor_weight_MV1->at(bjet_v_mv1c[c].first)){
-      tmp_c = bjet_v_mv1c[c];
-      bjet_v_mv1c[c] = bjet_v_mv1c[c-1];
-      bjet_v_mv1c[c-1] = tmp_c;
-      c--;
-    }
-  }
-  if(bjet_v_mv1c.size() >= 1){
-    h_bjet_deltaR_Zb_mv1c->Fill(bjet_v_mv1c[0].second.DeltaR(Z_fourv),weight);
-    h_bjet_deltaphi_Zb_mv1c->Fill(fabs(bjet_v_mv1c[0].second.DeltaPhi(Z_fourv)),weight);
-    double delta_eta_Zb_mv1c = fabs(Z_fourv.Eta() - bjet_v_mv1c[0].second.Eta());
+    double delta_eta_Zb_mv1c = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
     h_bjet_deltaeta_Zb_mv1c->Fill(delta_eta_Zb_mv1c,weight);
   }
-  if(bjet_v_mv1c.size() >= 2){
-    h_bjet_deltaR_bb_mv1c->Fill(bjet_v_mv1c[0].second.DeltaR(bjet_v_mv1c[1].second),weight);
-    h_bjet_deltaphi_bb_mv1c->Fill(fabs(bjet_v_mv1c[0].second.DeltaPhi(bjet_v_mv1c[1].second)),weight);
-    TLorentzVector b_jets_sum_mv1c = bjet_v_mv1c[0].second + bjet_v_mv1c[1].second;
+  if(bjet_v.size() >= 2){
+    h_bjet_deltaR_bb_mv1c->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
+    h_bjet_deltaphi_bb_mv1c->Fill(fabs(bjet_v[0].second.DeltaPhi(bjet_v[1].second)),weight);
+    TLorentzVector b_jets_sum_mv1c = bjet_v[0].second + bjet_v[1].second;
     h_bjet_m_bb_mv1c->Fill(b_jets_sum_mv1c.M()/1000.,weight);
     h_bjet_pt_bb_mv1c->Fill(b_jets_sum_mv1c.Pt()/1000.,weight);
-    double delta_eta_bb_mv1c = fabs(bjet_v_mv1c[0].second.Eta()-bjet_v_mv1c[1].second.Eta());
+    double delta_eta_bb_mv1c = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
     h_bjet_deltaeta_bb_mv1c->Fill(delta_eta_bb_mv1c,weight);
     h_Zpt_v_bb_pt_mv1c->Fill(Z_fourv.Pt()/1000.,b_jets_sum_mv1c.Pt()/1000.,weight);
   }
@@ -1166,7 +997,6 @@ void analysis_Zmumu::Terminate()
   h_cutflow->Write();
   h_cutflow_w->Write();
   h_Z_mumu->Write();
-  h_mass_nowindow->Write();
   h_Z_pt->Write();
   h_Z_y->Write();
   h_Z_eta->Write();
@@ -1183,17 +1013,6 @@ void analysis_Zmumu::Terminate()
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();
-  h_jet_n_tight_eta->Write();
-  h_jet_pt_tight_eta->Write();
-  h_jet_y_tight_eta->Write();
-  h_jet_n_35->Write();
-  h_jet_n_40->Write();
-  h_jet_n_45->Write();
-  h_jet_n_50->Write();
-  h_jet_n_55->Write();
-  h_jet_n_60->Write();
-  h_jet_n_100->Write();
-  h_jet_n_150->Write();
   h_jet_st->Write();
   h_jet_mu_ht->Write();
   h_leadjet_pt->Write();
@@ -1224,64 +1043,32 @@ void analysis_Zmumu::Terminate()
   h_jet_mu_ht_MET->Write();
 
   h_bjet_n->Write();
-  h_bjet_n_mv1c->Write();
   h_bjet_pt->Write();
-  h_bjet_pt_mv1c->Write();
   h_bjet_lead_pt->Write();
-  h_bjet_lead_pt_mv1c->Write();
   h_bjet_sublead_pt->Write();
-  h_bjet_sublead_pt_mv1c->Write();
-  h_bjet_mv1_pt->Write();
-  h_bjet_mv1c_pt->Write();
   h_bjet_y->Write();
-  h_bjet_y_mv1c->Write();
   h_bjet_m_bb->Write();
-  h_bjet_m_bb_mv1->Write();
   h_bjet_m_bb_mv1c->Write();
   h_bjet_deltaR_bb->Write();
-  h_bjet_deltaR_bb_mv1->Write();
   h_bjet_deltaR_bb_mv1c->Write();
   h_bjet_deltaphi_bb->Write();
-  h_bjet_deltaphi_bb_mv1->Write();
   h_bjet_deltaphi_bb_mv1c->Write();
   h_bjet_deltaR_Zb->Write();
-  h_bjet_deltaR_Zb_mv1->Write();
   h_bjet_deltaR_Zb_mv1c->Write();
   h_bjet_deltaphi_Zb->Write();
-  h_bjet_deltaphi_Zb_mv1->Write();
   h_bjet_deltaphi_Zb_mv1c->Write();
   h_bjet_deltaeta_Zb->Write();
-  h_bjet_deltaeta_Zb_mv1->Write();
   h_bjet_deltaeta_Zb_mv1c->Write();
   h_bjet_deltaeta_bb->Write();
-  h_bjet_deltaeta_bb_mv1->Write();
   h_bjet_deltaeta_bb_mv1c->Write();
   h_bjet_rank->Write();
-  h_bjet_rank_mv1c->Write();
   h_bjet_pt_bb->Write();
-  h_bjet_pt_bb_mv1->Write();
   h_bjet_pt_bb_mv1c->Write();
   h_Zpt_v_bb_pt->Write();
-  h_Zpt_v_bb_pt_mv1->Write();
   h_Zpt_v_bb_pt_mv1c->Write();
   h_MET->Write();
-
-  //MET optimization
-  
-  h_met20_bjetn->Write();
-  h_met30_bjetn->Write();
-  h_met40_bjetn->Write();
-  h_met50_bjetn->Write();
-  h_met60_bjetn->Write();
-  h_met70_bjetn->Write();
-  h_met80_bjetn->Write();
-  h_met90_bjetn->Write();
-  h_met100_bjetn->Write();
-  h_met110_bjetn->Write();
-  h_met120_bjetn->Write();
-  h_met130_bjetn->Write();
-  h_met140_bjetn->Write();
-  h_met150_bjetn->Write();
+  h_MET_1tag->Write();
+  h_MET_2tag->Write();
 
   //mv1 optimization
   h_mv1_85_met40_bjetn->Write();

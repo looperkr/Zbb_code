@@ -1,9 +1,4 @@
 #define analysis_Zmumu_cxx
-// The class definition in analysis_Zmumu.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector(). This class is derived
-// from the ROOT class TSelector. For more information on the TSelector
-// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
-
 // The following methods are defined in this file:
 //    Begin():        called every time a loop on the tree starts,
 //                    a convenient place to create your histograms.
@@ -51,6 +46,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
 
+  //  cutflow_txt.open("cutflowjet_pt.txt",ios::out);
+
    TString option = GetOption();
 
    output_name = option;
@@ -63,14 +60,25 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
    isMC = false;
    isData = !isMC;
+   isArantxa = true;
+   isGrid = true;
 
-   bch_fail = 0;
+   //   run_evt_set = {};
+
+   bch_bad = false; //true when bch flagged as bad
 
    n_TRT = 0;
    n_events = 0;
    n_true_bjets = 0;
    n_passing_jets = 0;
-   h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",4000,0,2000);
+   //   h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",4000,0,2000);
+   h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_0j = new TH1D("Z_mass_0j","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_1j = new TH1D("Z_mass_1j","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_2j = new TH1D("Z_mass_2j","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_3j = new TH1D("Z_mass_3j","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_4j = new TH1D("Z_mass_4j","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_5j = new TH1D("Z_mass_5j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_pt = new TH1D("Z_pT", "Z boson pT", 4000, 0, 2000);
    h_Z_y = new TH1D("Z_y", "Z boson rapidity", 240,-6,6);
    h_Z_eta = new TH1D("Z_eta","Z boson #eta", 240,-6,6);
@@ -83,6 +91,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mu_phi = new TH1D("mu_phi","Single muon #phi",128,-2*TMath::Pi(),2*TMath::Pi());
    h_cutflow = new TH1F("ICUTZ","ICUTZ",50,0.,50.);
    h_cutflow_w = new TH1F("ICUTZ_w","ICUTZ_w",50,0.,50.);
+   h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",80,0.,40.);
    h_pileup = new TH1D("pileup","pileup",80,0.,40.);
    h_avg_pileup = new TH1D("avg_pileup","average pileup",80,0.,40.);
    h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",1000,0.,2.5);
@@ -197,8 +206,26 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1c_57_met80_bjetn = new TH1D("mv1c_57_met80_bjetn","#bjets, MET < 80, mv1c 57% wp",12,0,12);
    h_mv1c_50_met80_bjetn = new TH1D("mv1c_50_met80_bjetn","#bjets, MET < 80, mv1c 50% wp",12,0,12);
 
+   //crosscheck histograms
+   h_d0 = new TH1D("d0","d0",100,-50,50);
+   h_d0sig = new TH1D("d0sig","d0sig",100,-50,50);
+   h_z0 = new TH1D("z0","z0",100,-50,50);
+   h_z0sintheta = new TH1D("z0sintheta","z0sintheta",100,-50,50);
+   h_nvertices = new TH1D("nvtx","nvtx",50,0,50);
+   h_nmuons = new TH1D("nmu","nmu",50,0,50);
+   h_vx_z = new TH1D("vx_z","vx_z",100,-50,50);
 
-   
+   h_d0_aftercut = new TH1D("d0_ac","d0_ac",100,-50,50);
+   h_d0sig_aftercut = new TH1D("d0sig_ac","d0sig_ac",100,-50,50);
+   h_z0_aftercut = new TH1D("z0_ac","z0_ac",100,-50,50);
+   h_z0sintheta_aftercut = new TH1D("z0sintheta_ac","z0sintheta_ac",100,-50,50);
+   h_nvertices_aftercut = new TH1D("nvtx_ac","nvtx_ac",50,0,50);
+   h_vx_z_rw = new TH1D("vx_z_rw","vx_z_rw",100,-50,50);
+
+   //comparison vector
+   cutflowjet_v.clear();
+   cutflow_event.clear();
+
    char* rootpath_char;
    rootpath_char = getenv("ROOTCOREBIN");
    string rootpath = string(rootpath_char);
@@ -219,6 +246,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_pileupTool->AddLumiCalcFile("packages/ilumicalc_2012_AllYear_All_Good.root");
    m_pileupTool->EnableDebugging(true);
    m_pileupTool->Initialize();
+   /*~~~~~~~~~~~Z Vertex Reweighting~~~~~~~~~~~~~*/
+   ZVertexTool = new VertexPositionReweightingTool(VertexPositionReweightingTool::MC12a,"packages/egammaAnalysisUtils/share/zvtx_weights_2011_2012.root");
    /*~~~~~~~~~~Muon Efficiency Corrections~~~~~~~~~~~~~*/
    //Using Medium+ working point file, may want to confirm
    m_MCPsf = new Analysis::AnalysisMuonConfigurableScaleFactors("","MuonsChain_MediumPlus_2012_SF.txt.gz","MeV",Analysis::AnalysisMuonConfigurableScaleFactors::AverageOverPeriods);
@@ -240,7 +269,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    /*~~~~~~~BCH Cleaning Tool~~~~~~~~~~~~~~~~~~~~~~*/
    thebchTool = new BCHTool::BCHCleaningToolRoot();
-   //   thebchTool->InitializeTool(isData,m_treader,"share/FractionsRejectedJetsMC.root");
    string bchTool_string = rootpath + "/../BCHCleaningTool/share/FractionsRejectedJetsMC.root";
    thebchTool->InitializeTool(isData,m_treader,bchTool_string.c_str());
    /*~~~~~~~~~~~MET Utility~~~~~~~~~~~~~*/
@@ -271,7 +299,21 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   fChain->GetTree()->GetEntry(entry);
 
-  n_events++;
+  //  cutflow_txt << "Event #: " << EventNumber << "-----------------------------------------" << endl;
+
+  pair<UInt_t,UInt_t> run_event_number; 
+  run_event_number.first = RunNumber;
+  run_event_number.second = EventNumber;
+  is_in = run_evt_set.find(run_event_number) != run_evt_set.end();
+  if(is_in){
+    cout << "#############################################################" << endl;
+    cout << "DUPLICATE EVENT: " << run_event_number.first << ", " << run_event_number.second << endl;
+    cout << "#############################################################" << endl;
+    return kFALSE;
+  }
+  run_evt_set.insert(run_event_number);
+
+  //  n_events++;
   good_mu_v.clear();
   good_mu_v_index.clear();
   Z_fourv.Clear();
@@ -287,6 +329,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   weight = 1.;
   double sf = 1.;
 
+  bch_bad = false;
   //MET optimization initialization
   met30 =false;
   met40 =false;
@@ -300,7 +343,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     weight *= mcw;
   }
 
-
   //cutflow variables
   icut = 0; //resets at the beginning of each event: keeps track of which cut you're on
   h_cutflow->Fill((Float_t)icut,1);
@@ -313,7 +355,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "No cut, MC weight only";
     icut++;
   }
-  else if(isData){
+
+  //Trigger selection
+  if(!EF_mu18_tight_mu8_EFFS) return kFALSE;
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  h_cutflow->Fill((Float_t)icut);
+  cutdes[icut] = "Trigger";
+  icut++;
+
+  if(isData){
     //Good runs list
     if(!(grl.HasRunLumiBlock(RunNumber,lbn))) return kFALSE;
     h_cutflow->Fill((Float_t)icut,1);
@@ -323,6 +373,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   float pileupweight;
   //pileup reweighting
+  h_pileup_norw->Fill(actualIntPerXing,weight);
   if(isMC){
     averageIntPerXing = (isSimulation && lbn==1 && int(averageIntPerXing+0.5)==1) ? 0. : averageIntPerXing;
     m_pileupTool->SetRandomSeed(314159 + mc_channel_number*2718 + EventNumber);
@@ -338,7 +389,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_pileup->Fill(actualIntPerXing,weight);
   h_avg_pileup->Fill(averageIntPerXing,weight);
 
-
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
   //hfor (overlap removal)
   if(isMC){
@@ -351,10 +401,30 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
+  //Z vertex reweighting
+  for(int i = 0; i < vxp_n; i++){
+    h_vx_z->Fill(vxp_z->at(i),weight);
+  }
+  if(isMC){
+    float vx_z = 0;
+    for(int imc = 0; imc < mc_n; imc++){
+      vx_z = mc_vx_z->at(imc);
+      if(vx_z != 0) break;
+    }
+    weight *= ZVertexTool->GetWeight(vx_z);
+    h_cutflow->Fill((Float_t)icut);
+    h_cutflow_w->Fill((Float_t)icut,weight);
+    cutdes[icut] = "Z vertex reweighting";
+    icut++;
+  }
+
+  /*
+  h_nvertices->Fill(vxp_n,weight);
   //vtx: >=1 vertex, with >=3 tracks 
   bool good_vtx = false;
   if(vxp_n > 0){
     for(int i = 0; i < vxp_n; i++){
+      h_vx_z_rw->Fill(vxp_z->at(i),weight);
       if(vxp_nTracks->at(i) >= 3) good_vtx = true;
     }
   }
@@ -363,24 +433,60 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_cutflow_w->Fill((Float_t)icut,weight);
   cutdes[icut] = "Vertex";
   icut++;
-
-  //trigger: EF_mu24i_tight || EF_mu36_tight
-  //  if(!(EF_mu24i_tight || EF_mu36_tight)) return kFALSE;
-  if(!EF_mu18_tight_mu8_EFFS) return kFALSE;
-  h_cutflow_w->Fill((Float_t)icut,weight);
-  h_cutflow->Fill((Float_t)icut);
-  cutdes[icut] = "Trigger";
-  icut++;
+  h_nvertices_aftercut->Fill(vxp_n,weight);
+*/
 
   if(isData){
     isTileTrip=m_treader->checkEvent(RunNumber,lbn,EventNumber);
   }
-  if((!isTileTrip && isData) || larError==2 || tileError==2 || (coreFlags&0x40000)!=0) return kFALSE;
+  //separating out cuts for cutflow
+  if(larError == 2) return kFALSE;
   h_cutflow->Fill((Float_t)icut);
   h_cutflow_w->Fill((Float_t)icut,weight);
-  cutdes[icut] = "Bad events";
+  cutdes[icut] = "LAr Error";
   icut++;
 
+  if(tileError == 2) return kFALSE;
+  h_cutflow->Fill((Float_t)icut);
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  cutdes[icut] = "Tile Error";
+  icut++;
+
+  if(coreFlags&0x40000!=0) return kFALSE;
+  h_cutflow->Fill((Float_t)icut);
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  cutdes[icut] = "Core flag";
+  icut++;
+
+
+  h_nvertices->Fill(vxp_n,weight);
+  //vtx: >=1 vertex, with >=3 tracks
+  bool good_vtx = false;
+  if(vxp_n > 0){
+    if(vxp_nTracks->at(0) >= 3) good_vtx = true;
+    for(int i = 0; i < vxp_n; i++){
+      h_vx_z_rw->Fill(vxp_z->at(i),weight);
+      // if(vxp_nTracks->at(i) >= 3) good_vtx = true;
+    }
+  }
+  if(!good_vtx) return kFALSE;
+  h_cutflow->Fill((Float_t)icut);
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  cutdes[icut] = "Vertex";
+  icut++;
+  h_nvertices_aftercut->Fill(vxp_n,weight);
+
+  if(!isTileTrip && isData) return kFALSE;
+  h_cutflow->Fill((Float_t)icut);
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  cutdes[icut] = "Tile Trip";
+  icut++;
+
+  /*  if((!isTileTrip && isData) || larError==2 || tileError==2 || coreFlags&0x40000!=0) return kFALSE;
+  h_cutflow->Fill((Float_t)icut);
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  cutdes[icut] = "Bad events (tile trip; lar/tile error)";
+  icut++;*/
 
   //muon selections: good muon
   //3rd chain
@@ -398,7 +504,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   double m_ptMS_smeared;
 
   const int muoncf_n = 10;
-  int muon_cf [muoncf_n] = {};
+  int muon_cf [muoncf_n] = {0};
 
   MuonPtContainer.clear();
   MuonMSPtContainer.clear();
@@ -445,11 +551,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     MuonMSPtContainer.push_back(m_ptMS_smeared);
 
     //Medium+ selection                                                                                                                           
-    if (!(((mu_author->at(imu)==11&&mu_nprecisionLayers->at(imu)>2&&fabs(mu_eta->at(imu))>2.5)||
+    if (!((
+	   (mu_author->at(imu)==11&&mu_nprecisionLayers->at(imu)>2&&fabs(mu_eta->at(imu))>2.5)||
            (mu_author->at(imu)==6)||
            (mu_author->at(imu)==12&&mu_momentumBalanceSignificance->at(imu)<4)||
            (mu_author->at(imu)==13&&mu_momentumBalanceSignificance->at(imu)<4&&mu_isCombinedMuon->at(imu))
-           ) && !(mu_isStandAloneMuon->at(imu)))) continue;
+           ) 
+	  && !(mu_isStandAloneMuon->at(imu)))) continue;
     muon_cf[0]++;
     //ID track selection (as described in muon CP Twiki) 
     if(!(mu_nPixHits->at(imu)+mu_nPixelDeadSensors->at(imu) > 0)) continue;
@@ -465,7 +573,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
     muon_cf[4]++; //TRT req.
     //IP significance < 3
-    if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;    
+    h_d0sig_aftercut->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
+    if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
+    h_d0sig->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     muon_cf[5]++;
     //isolation: ptcone20/pt <= 0.1 
     if(!(mu_ptcone20->at(imu)/mu_pt->at(imu) <= 0.1)) continue;
@@ -474,71 +584,77 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(!(fabs(mu_eta->at(imu)) < 2.4)) continue;
     muon_cf[7]++;
     //impact parameter < 0.5 mm
-    if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
+    h_z0->Fill(mu_trackz0pvunbiased->at(imu));
+    h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
+    if(!isArantxa){
+      if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
+    }
+    h_z0_aftercut->Fill(mu_trackz0pvunbiased->at(imu));
+    h_z0sintheta_aftercut->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
     //pt > 25 GeV
     h_mu_pt_nocut->Fill(mu_pt->at(imu)/1000.,weight);
     h_mu_phi_nocut->Fill(mu_phi->at(imu),weight);
     h_mu_eta_nocut->Fill(mu_eta->at(imu),weight);
-    if(m_ptCB_smeared/1000. > 7.0 && !mucut1){
+    if(m_ptCB_smeared/1000. > 20.0 && !mucut1){
       muon_cf[8]++;
       mucut1 = true;
     }
-    if(!(m_ptCB_smeared/1000. > 25.)) continue;
-    //if(!(mu_pt->at(imu)/1000. > 20.)) continue;
-    /*    mu_fourv.SetPx(mu_px->at(imu));
-    mu_fourv.SetPy(mu_py->at(imu));
-    mu_fourv.SetPz(mu_pz->at(imu));
-    mu_fourv.SetE(mu_E->at(imu));
-    */
+    if(isArantxa){
+      if(!(mu_pt->at(imu)/1000. > 20.)) continue; //Arantxa's cut
+    }
+    else{
+      if(!(m_ptCB_smeared/1000. > 25.)) continue;
+    }
     mu_fourv.SetPtEtaPhiM(m_ptCB_smeared, m_eta, m_phi, m_mass);
     good_mu_v.push_back(mu_fourv);
     good_mu_v_index.push_back(imu);
     
   }
   //Muon selection cutflow
-  if(muon_cf[0] > 0){
+  //Changed >0 to >1 to require at least two 3rd chain muons that pass cuts
+  if(muon_cf[0] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
   cutdes[icut] = "Medium+";
   icut++;
-  if(muon_cf[1] > 0){
+  if(muon_cf[1] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
   cutdes[icut] = "Pixel req.";
   icut++;
-  if(muon_cf[2] > 0){
+  if(muon_cf[2] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
   cutdes[icut] = "SCT req.";
   icut++;
-  if(muon_cf[3] > 0){
+  if(muon_cf[3] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }    
   cutdes[icut] = "Hole req.";
   icut++;
-  if(muon_cf[4] > 0){
+  if(muon_cf[4] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
   cutdes[icut] = "TRT req.";
   icut++;
-  if(muon_cf[5] > 0){
+  if(muon_cf[5] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
   cutdes[icut] = "d0 significance";
   icut++;
-  if(muon_cf[6] > 0){
+  if(muon_cf[6] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }    
   cutdes[icut] = "Isolation req.";
   icut++;
-  if(muon_cf[7] > 0){
+  if(muon_cf[7] > 1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
@@ -548,15 +664,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
   }
-  cutdes[icut] = "AT LEAST 1 GOOD MUON with pT> 7 GeV (includes eta cut)";
+  cutdes[icut] = "AT LEAST 1 GOOD MUON with pT> 20 GeV (includes eta cut)";
   icut++;
   
+  h_nmuons->Fill(good_mu_v.size(),weight);
+
   /*~~~~~~~~~build Z~~~~~~~~~~~~*/
   //require exactly two muons
   if(good_mu_v.size() == 2){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
-    cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
+    if(isArantxa)cutdes[icut] = "Exactly 2 good muons with pT > 20 GeV";
+    else cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
     icut++;
   }
   else return kFALSE;
@@ -573,38 +692,114 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   else return kFALSE;
 
-  if(Zmass > 76 && Zmass < 106 && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){
+  if(isArantxa){
+    Zwindow_min = 71.0;
+    Zwindow_max = 111.0;
+  }
+  else{
+    Zwindow_min = 76.0;
+    Zwindow_max = 106.0;
+    //Zwindow_min = 60.0;
+    //Zwindow_max = 10000.0;
+  }
+
+  if(Zmass > Zwindow_min && Zmass < Zwindow_max && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){
     //muon scale factor
     if(isMC){
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu1_ind),good_mu_v.at(0));
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu2_ind),good_mu_v.at(1));
       weight *= sf;
     }
+    //    h_Z_mumu->Fill(Zmass,weight);
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
-    cutdes[icut] = "Mass cut:  76 <MZ <106 GeV";
+    if(isArantxa) cutdes[icut] = "Mass cut:  71 < MZ < 111 GeV";
+    else cutdes[icut] = "Mass cut:  76 < MZ < 106 GeV";
     icut++;
-    icut_max = icut;
+    //    icut_max = icut;
   }
   else return kFALSE;
+
+  //deltaR(mu,mu) > 0.2
+  if(isArantxa){
+    if(good_mu_v.at(0).DeltaR(good_mu_v.at(1)) > 0.2){
+      h_cutflow_w->Fill(Float_t(icut),weight);
+      h_cutflow->Fill(Float_t(icut));
+      cutdes[icut] = "DeltaR(mu,mu) > 0.2";
+      icut++;
+    }
+    else return kFALSE;
+  }
+
+  //Fill inclusive Z histograms
+  h_Z_mumu->Fill(Zmass,weight);
+  h_Z_pt->Fill(Z_fourv.Pt()/1000.,weight);
+  h_Z_y->Fill(Z_fourv.Rapidity(),weight);
+  h_Z_eta->Fill(Z_fourv.Eta(),weight);
+  h_Z_phi->Fill(Z_fourv.Phi(),weight);
+  h_mu_pt->Fill(good_mu_v.at(0).Pt()/1000.,weight);
+  h_mu_pt->Fill(good_mu_v.at(1).Pt()/1000.,weight);
+  h_mu_eta->Fill(good_mu_v.at(0).Eta(),weight);
+  h_mu_eta->Fill(good_mu_v.at(1).Eta(),weight);
+  h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
+  h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
+
+  n_events++;
 
   /*~~~~~~~~~jet selection~~~~~~~~~~~*/
   int jetn_final = 0;
   float deltaR_jlep1 = 0 ;
   float deltaR_jlep2 = 0;
 
-  thebchTool->SetSeed(EventNumber);
+  //BadLooseMinus jet veto
+  /*for(int ijet = 0; ijet < jet_AntiKt4LCTopo_n; ijet++){
+    if(jet_AntiKt4LCTopo_isBadLooseMinus->at(ijet) ){
+      cout << "BAD LOOSE MINUS FAILURE! EVENT NUMBER: " << EventNumber << endl;
+      return kFALSE;
+    }
+  }
+  
+  h_cutflow_w->Fill(Float_t(icut),weight);
+  h_cutflow->Fill(Float_t(icut));
+  cutdes[icut] = "isBadLooseMinus";
+  icut++;
+  */
+
+  //Hot Tile Cell Veto
+  float j_fmax;
+  float j_smax;
+  float j_eta;
+  float j_phi;
+  bool in_hotruns = false;
+  bool _etaphi28 = false;
+  unsigned int hot_runs[9] = {202660,202668,202712,202740,202965,202987,202991,203027,203169};
+  for(int r = 0; r < 9; r++){
+    if(RunNumber == hot_runs[r]) in_hotruns = true;
+  }
+  /*
+  for(int ijet = 0; ijet < jet_AntiKt4LCTopo_n; ijet++){
+    j_fmax = jet_AntiKt4LCTopo_fracSamplingMax->at(ijet);
+    j_smax = jet_AntiKt4LCTopo_SamplingMax->at(ijet);
+    j_eta = jet_AntiKt4LCTopo_eta->at(ijet);
+    j_phi = jet_AntiKt4LCTopo_phi->at(ijet);
+    if(j_eta > -0.2 && j_eta < -0.1 && j_phi > 2.65 && j_phi < 2.75) _etaphi28=true;
+    if(j_fmax > 0.6 && j_smax==13 && _etaphi28 && in_hotruns) return kFALSE; 
+  }
+  */
+
+  //  thebchTool->SetSeed(EventNumber);
+  if(isMC) thebchTool->SetSeed(314159+mc_channel_number*2718+EventNumber);
   int runnumber_bch;
   int luminumber_bch;
   bool toolFlag = false;
   if(isMC){ //MC
     runnumber_bch = m_pileupTool->GetRandomRunNumber(RunNumber,averageIntPerXing);
+    //    runnumber_bch = m_pileupTool->GetRandomRunNumber(RunNumber);
     luminumber_bch = 0.;
     if(runnumber_bch > 0){
       luminumber_bch = m_pileupTool->GetRandomLumiBlockNumber(runnumber_bch);
     }
     else{
-      bch_fail++;
       return kFALSE;
     }
   }
@@ -613,7 +808,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     luminumber_bch = lbn;
   }
 
-
+  bool badlooseveto = false;
+  bool hottilecellveto = false;
+  
   for(int ijet = 0; ijet < jet_AntiKt4LCTopo_n; ijet++){
     //JES variables
     double Eraw = jet_AntiKt4LCTopo_constscale_E->at(ijet);
@@ -644,30 +841,58 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //    jet_fourv.SetPtEtaPhiE(jet_AntiKt4LCTopo_pt->at(ijet),jet_AntiKt4LCTopo_eta->at(ijet),jet_AntiKt4LCTopo_phi->at(ijet),jet_AntiKt4LCTopo_E->at(ijet));
     jet_fourv = myJES->ApplyJetAreaOffsetOriginEtaJESGSC(Eraw,eta_det,phi,m,eta_origin,phi_origin,m_origin,Ax,Ay,Az,Ae,rho,trackWIDTH,nTrk,fTile0,fEM3,Nseg,mu,NPV);
 
+    //Cutflow printouts
+    /*
+    if(n_events < 25){
+      cutflowjet_v.push_back(jet_fourv);
+      cutflow_event.push_back(n_events);
+    }
+    */
+
     JetPtContainer.push_back(jet_fourv.Pt());
     JetEtaContainer.push_back(jet_fourv.Eta());
     JetPhiContainer.push_back(jet_fourv.Phi());
     JetEContainer.push_back(jet_fourv.E());
 
-    //BCH flag
-
-    if(runnumber_bch > 0){
-      toolFlag = thebchTool->IsInMaskedRegion(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi());
+    //Bad Loose Minus jet veto
+    if(jet_AntiKt4LCTopo_isBadLooseMinus->at(ijet) && jet_fourv.Pt()/1000. > 20.0){
+      badlooseveto = true;
+      //      cout << "jet pT: " << jet_fourv.Pt() << endl;
+      //cout << "BadLoose: event number " << EventNumber << endl;
     }
-    if(toolFlag) return kFALSE; //Discard event if jet falls in masked region of the calorimeter
 
+    //Hot tile cell veto
+    j_fmax = jet_AntiKt4LCTopo_fracSamplingMax->at(ijet);
+    j_smax = jet_AntiKt4LCTopo_SamplingMax->at(ijet);
+    j_eta = jet_AntiKt4LCTopo_eta->at(ijet);
+    j_phi = jet_AntiKt4LCTopo_phi->at(ijet);
+    if(j_eta > -0.2 && j_eta < -0.1 && j_phi > 2.65 && j_phi < 2.75) _etaphi28=true;
+    if(j_fmax > 0.6 && j_smax==13 && _etaphi28 && in_hotruns) hottilecellveto=true;
 
     //jet overlap removal
     deltaR_jlep1 = jet_fourv.DeltaR(good_mu_v.at(0));
     deltaR_jlep2 = jet_fourv.DeltaR(good_mu_v.at(1));
-    if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) continue;
+    if(isArantxa){
+      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) continue;
+    }
+    else{
+      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) continue;
+    }
+
+    //BCH flag
+    /*    if(runnumber_bch > 0){
+      toolFlag = thebchTool->IsInMaskedRegion(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi());
+      }*/ //old implementation
+    toolFlag = thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt());
+    //    if(toolFlag) return kFALSE; //Discard event if jet falls in masked region of the calorimeter
+    //    if(toolFlag) bch_bad = true;
 
     //pT > 30 GeV
-    if(!(jet_fourv.Pt()/1000. > 30)) continue;
+    if(!(jet_fourv.Pt()/1000. > 30.0)) continue;
     //    if(!(fabs(jet_fourv.Eta()) < 4.4)) continue;
     if(!(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 4.4)) continue;
     //    if((fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4 && jet_fourv.Pt()/1000. < 50) && jet_AntiKt4LCTopo_jvtxf->at(ijet) <= 0.5) continue;
-    if(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4 && jet_fourv.Pt()/1000. < 50){
+    if(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4 && jet_fourv.Pt()/1000. < 50.){
       if(!(fabs(jet_AntiKt4LCTopo_jvtxf->at(ijet)) > 0.5)) continue;
     }
     jetn_final++;
@@ -679,20 +904,51 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_jet_y->Fill(jet_fourv.Rapidity());
   }
 
+  //Bad loose jet veto
+  if(badlooseveto) return kFALSE;
+  h_cutflow_w->Fill(Float_t(icut),weight);
+  h_cutflow->Fill(Float_t(icut));
+  cutdes[icut] = "isBadLooseMinus";
+  icut++;
+
+  //Hot Tile Cell veto
+  if(hottilecellveto){
+    //    cout << "Failed hot cell veto: Event # " << EventNumber << endl;
+    return kFALSE;
+  }
+
+  //BCH tool veto
+  if(toolFlag){
+    //    cout << "Failed BCH tool veto: Event # " << EventNumber << endl;
+    return kFALSE;
+  }
+
   rebuild_MET();
   h_MET->Fill(finalMET_et/1000.,weight);
-  //Fill histograms (selections complete)
-  h_Z_mumu->Fill(Zmass,weight);
-  h_Z_pt->Fill(Z_fourv.Pt()/1000.,weight);
-  h_Z_y->Fill(Z_fourv.Rapidity(),weight);
-  h_Z_eta->Fill(Z_fourv.Eta(),weight);
-  h_Z_phi->Fill(Z_fourv.Phi(),weight);
-  h_mu_pt->Fill(good_mu_v.at(0).Pt()/1000.,weight);
-  h_mu_pt->Fill(good_mu_v.at(1).Pt()/1000.,weight);
-  h_mu_eta->Fill(good_mu_v.at(0).Eta(),weight);
-  h_mu_eta->Fill(good_mu_v.at(1).Eta(),weight);
-  h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
-  h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
+  //Fill Z+jets histograms (selections complete)
+
+  if(EventNumber < 100){
+    cutflowjet_v.push_back(jet_fourv);
+    cutflow_event.push_back(EventNumber);
+    //    cutflow_txt << "Jet (E,px,py,pz): " << jet_fourv.E() << " " << jet_fourv.Px() << " " << jet_fourv.Py() << " " << jet_fourv.Pz() << endl;
+  }
+
+  h_Z_mass_0j->Fill(Zmass,weight);
+  if(jet_v.size() >= 1){
+    h_Z_mass_1j->Fill(Zmass,weight);
+   }
+  if(jet_v.size() >= 2){
+    h_Z_mass_2j->Fill(Zmass,weight);
+   }
+  if(jet_v.size() >= 3){
+    h_Z_mass_3j->Fill(Zmass,weight);
+   }
+  if(jet_v.size() >= 4){
+    h_Z_mass_4j->Fill(Zmass,weight);
+   }
+  if(jet_v.size() >= 5){
+    h_Z_mass_5j->Fill(Zmass,weight);
+  }
 
   h_jet_n->Fill(jetn_final,weight);
   
@@ -726,12 +982,53 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
 
+  //jet cutflow
+  if(jet_v.size() == 0){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+  }
+  cutdes[icut] = "Njets == 0";
+  icut++;
+  if(jet_v.size() == 1){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+  }
+  cutdes[icut] = "Njets == 1";
+  icut++;
+  if(jet_v.size() == 2){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+  }
+  cutdes[icut] = "Njets == 2";
+  icut++;
+  if(jet_v.size() == 3){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+  }
+  cutdes[icut] = "Njets == 3";
+  icut++;
+  if(jet_v.size() == 4){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+  }
+  cutdes[icut] = "Njets == 4";
+  icut++;
+  if(jet_v.size() >= 5){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+  }
+  cutdes[icut] = "Njets >= 5";
+  icut++;
+  icut_max = icut;
+
   if(jet_v.size() > 0){
-    h_leadjet_pt->Fill(jet_v[0].second.Pt()/1000.,weight);
-    h_leadjet_y->Fill(jet_v[0].second.Rapidity(),weight);
+    //    h_leadjet_pt->Fill(jet_v[0].second.Pt()/1000.,weight);
+    //h_leadjet_y->Fill(jet_v[0].second.Rapidity(),weight);
   }
 
   if(jet_v.size() > 1){
+    h_leadjet_pt->Fill(jet_v[0].second.Pt()/1000.,weight);
+    h_leadjet_y->Fill(jet_v[0].second.Rapidity(),weight);
     TLorentzVector tmp_4v = jet_v[0].second + jet_v[1].second;
     h_subjet_pt->Fill(jet_v[1].second.Pt()/1000.,weight);
     h_subjet_y->Fill(jet_v[1].second.Rapidity(),weight);
@@ -761,7 +1058,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   //apply MET cut
 
-  //  if(finalMET_et/1000. > 70.0) return kFALSE;
+  if(finalMET_et/1000. > 70.0) return kFALSE;
   //MET optimization block
   if(finalMET_et/1000. < 40) met40 = true;
   if(finalMET_et/1000. < 50) met50 = true;
@@ -960,9 +1257,26 @@ void analysis_Zmumu::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
+  //  cutflow_txt.close();
 
-  //ofstream results_txt;
-  //results_txt.open("results.txt", ios::out | ios::app);
+  string output_name_string;
+  vector<string> output_split;
+  string output_split_str;
+  vector<string> fname_split;
+  ofstream results_txt;
+  string cf_filename;
+
+  if(!isGrid){
+    output_name_string = string(output_name.Data());
+    output_split = splitstring(output_name_string,'/');
+    output_split_str = output_split.back();
+    fname_split = splitstring(output_split_str,'_');
+    
+    cf_filename = "./cutflows/" + fname_split.front() + ".txt";
+    cout << "cutflow file name: " << cf_filename << endl;
+    results_txt.open(cf_filename.c_str(), ios::out);
+  }
+
   cout << "Number of events processed: " << n_events << endl;
   cout << "Number of Z bosons (includes BCH flag cut): " << h_Z_mumu->GetEntries() << endl;
   
@@ -971,11 +1285,6 @@ void analysis_Zmumu::Terminate()
   for(int i=0; i < icut_max; i++){
     cout << "Cut Z " << setw(3) << i << " : " << setw(30) << cutdes[i] << " : " << h_cutflow->GetBinContent(i+1) << endl;
   }  
-  //for(int i=0; i < icut_max; i++){
-  // results_txt << h_cutflow->GetBinContent(i+1) << ";";
-  // }
-  //results_txt << endl;
-  //results_txt.close();
 
   cout << "Cutflow values (weighted)" << endl;
   cout << "---------------------------------------------------------" << endl;
@@ -983,17 +1292,32 @@ void analysis_Zmumu::Terminate()
     cout << "Cut Z " << setw(3) << i << " : " << setw(30) << cutdes[i] << " : " << h_cutflow_w->GetBinContent(i+1) << endl;
   }
 
-  cout << "bch failures: " << bch_fail << endl;
+  cout << "pT comparison" << endl;
+  for(int i=0; i < cutflowjet_v.size(); i++){
+    cout << "Event #: " << cutflow_event.at(i) << endl;
+    cout << "Jet (E,px,py,pz): " << cutflowjet_v.at(i).E() << " " << cutflowjet_v.at(i).Px() << " " << cutflowjet_v.at(i).Py() << " " << cutflowjet_v.at(i).Pz() << endl;
+    cout << "--------------------------------------------" << endl;
+  }
+
+  if(!isGrid){
+    results_txt << "Cutflow values (weighted)" << endl;
+    for(int i=0; i < icut_max; i++){
+      results_txt << "Cut Z " << setw(3) << i << " : " << setw(30) << cutdes[i] << " : " << h_cutflow_w->GetBinContent(i+1) << endl;
+    }
+    results_txt.close();
+  }
 
   time_t end = time(0);
   char* enddt = ctime(&end);
   cout << "Ending time: " << enddt << endl;
 
-  //TFile f("output.root","recreate");
-  //  TFile f("output_data.root","recreate");
+  if(isGrid){
+    output_name = "output.root";
+  }
+
   cout << "Output file: " << output_name << endl;
   TFile f(output_name,"recreate");
-
+ 
   h_cutflow->Write();
   h_cutflow_w->Write();
   h_Z_mumu->Write();
@@ -1007,6 +1331,7 @@ void analysis_Zmumu::Terminate()
   h_mu_eta_nocut->Write();
   h_mu_phi->Write();
   h_mu_phi_nocut->Write();
+  h_pileup_norw->Write();
   h_pileup->Write();
   h_avg_pileup->Write();
   h_pileupSF->Write();
@@ -1031,6 +1356,13 @@ void analysis_Zmumu::Terminate()
   h_4jet_pt->Write();
   h_4jet_y->Write();
   h_Zpt_v_jj_pt->Write();
+
+  h_Z_mass_0j->Write();
+  h_Z_mass_1j->Write();
+  h_Z_mass_2j->Write();
+  h_Z_mass_3j->Write();
+  h_Z_mass_4j->Write();
+  h_Z_mass_5j->Write();
 
   h_Z_mass_MET->Write();
   h_Z_pt_MET->Write();
@@ -1120,11 +1452,35 @@ void analysis_Zmumu::Terminate()
   h_mv1c_60_met80_bjetn->Write();
   h_mv1c_57_met80_bjetn->Write();
   h_mv1c_50_met80_bjetn->Write();
+
+  h_d0->Write();
+  h_d0sig->Write();
+  h_z0->Write();
+  h_z0sintheta->Write();
+  h_nvertices->Write();
+  h_nmuons->Write();
+  h_vx_z->Write();
+
+  h_d0_aftercut->Write();
+  h_d0sig_aftercut->Write();
+  h_z0_aftercut->Write();
+  h_z0sintheta_aftercut->Write();
+  h_nvertices_aftercut->Write();
+  h_vx_z_rw->Write();
   
   f.Close();
 
 }
 
+vector<string> analysis_Zmumu::splitstring(const string &s, char delim){
+  stringstream ss(s);
+  string item;
+  vector<string> tokens;
+  while(getline(ss,item,delim)){
+    tokens.push_back(item);
+  }
+  return tokens;
+}
 
 //For JES package
 int analysis_Zmumu::Nsegments(float jet_eta, float jet_phi){

@@ -46,7 +46,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
 
-  //  cutflow_txt.open("cutflowjet_pt.txt",ios::out);
 
    TString option = GetOption();
 
@@ -69,6 +68,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    n_TRT = 0;
    n_events = 0;
+   n_zevents = 0;
    n_true_bjets = 0;
    n_passing_jets = 0;
    //   h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",4000,0,2000);
@@ -225,6 +225,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //comparison vector
    cutflowjet_v.clear();
    cutflow_event.clear();
+   onejet_eventn.clear();
+
+   icut_max = 19;
 
    char* rootpath_char;
    rootpath_char = getenv("ROOTCOREBIN");
@@ -298,8 +301,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
 
   fChain->GetTree()->GetEntry(entry);
-
-  //  cutflow_txt << "Event #: " << EventNumber << "-----------------------------------------" << endl;
+  
 
   pair<UInt_t,UInt_t> run_event_number; 
   run_event_number.first = RunNumber;
@@ -313,7 +315,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   run_evt_set.insert(run_event_number);
 
-  //  n_events++;
+  n_events++;
   good_mu_v.clear();
   good_mu_v_index.clear();
   Z_fourv.Clear();
@@ -744,26 +746,12 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
 
-  n_events++;
+  n_zevents++;
 
   /*~~~~~~~~~jet selection~~~~~~~~~~~*/
   int jetn_final = 0;
   float deltaR_jlep1 = 0 ;
   float deltaR_jlep2 = 0;
-
-  //BadLooseMinus jet veto
-  /*for(int ijet = 0; ijet < jet_AntiKt4LCTopo_n; ijet++){
-    if(jet_AntiKt4LCTopo_isBadLooseMinus->at(ijet) ){
-      cout << "BAD LOOSE MINUS FAILURE! EVENT NUMBER: " << EventNumber << endl;
-      return kFALSE;
-    }
-  }
-  
-  h_cutflow_w->Fill(Float_t(icut),weight);
-  h_cutflow->Fill(Float_t(icut));
-  cutdes[icut] = "isBadLooseMinus";
-  icut++;
-  */
 
   //Hot Tile Cell Veto
   float j_fmax;
@@ -776,17 +764,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   for(int r = 0; r < 9; r++){
     if(RunNumber == hot_runs[r]) in_hotruns = true;
   }
-  /*
-  for(int ijet = 0; ijet < jet_AntiKt4LCTopo_n; ijet++){
-    j_fmax = jet_AntiKt4LCTopo_fracSamplingMax->at(ijet);
-    j_smax = jet_AntiKt4LCTopo_SamplingMax->at(ijet);
-    j_eta = jet_AntiKt4LCTopo_eta->at(ijet);
-    j_phi = jet_AntiKt4LCTopo_phi->at(ijet);
-    if(j_eta > -0.2 && j_eta < -0.1 && j_phi > 2.65 && j_phi < 2.75) _etaphi28=true;
-    if(j_fmax > 0.6 && j_smax==13 && _etaphi28 && in_hotruns) return kFALSE; 
-  }
-  */
-
   //  thebchTool->SetSeed(EventNumber);
   if(isMC) thebchTool->SetSeed(314159+mc_channel_number*2718+EventNumber);
   int runnumber_bch;
@@ -794,7 +771,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   bool toolFlag = false;
   if(isMC){ //MC
     runnumber_bch = m_pileupTool->GetRandomRunNumber(RunNumber,averageIntPerXing);
-    //    runnumber_bch = m_pileupTool->GetRandomRunNumber(RunNumber);
     luminumber_bch = 0.;
     if(runnumber_bch > 0){
       luminumber_bch = m_pileupTool->GetRandomLumiBlockNumber(runnumber_bch);
@@ -836,18 +812,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     for(unsigned int j= 0; j<vxp_nTracks->size();j++){
       if(vxp_nTracks->at(j) >= 2) NPV++;
     }
-
+  
     jet_fourv.Clear();
-    //    jet_fourv.SetPtEtaPhiE(jet_AntiKt4LCTopo_pt->at(ijet),jet_AntiKt4LCTopo_eta->at(ijet),jet_AntiKt4LCTopo_phi->at(ijet),jet_AntiKt4LCTopo_E->at(ijet));
     jet_fourv = myJES->ApplyJetAreaOffsetOriginEtaJESGSC(Eraw,eta_det,phi,m,eta_origin,phi_origin,m_origin,Ax,Ay,Az,Ae,rho,trackWIDTH,nTrk,fTile0,fEM3,Nseg,mu,NPV);
 
-    //Cutflow printouts
-    /*
-    if(n_events < 25){
-      cutflowjet_v.push_back(jet_fourv);
-      cutflow_event.push_back(n_events);
-    }
-    */
 
     JetPtContainer.push_back(jet_fourv.Pt());
     JetEtaContainer.push_back(jet_fourv.Eta());
@@ -857,8 +825,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //Bad Loose Minus jet veto
     if(jet_AntiKt4LCTopo_isBadLooseMinus->at(ijet) && jet_fourv.Pt()/1000. > 20.0){
       badlooseveto = true;
-      //      cout << "jet pT: " << jet_fourv.Pt() << endl;
-      //cout << "BadLoose: event number " << EventNumber << endl;
     }
 
     //Hot tile cell veto
@@ -873,27 +839,28 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     deltaR_jlep1 = jet_fourv.DeltaR(good_mu_v.at(0));
     deltaR_jlep2 = jet_fourv.DeltaR(good_mu_v.at(1));
     if(isArantxa){
-      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) continue;
+      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) {
+	continue;
+      }
     }
     else{
-      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) continue;
+      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5){
+	continue;
+      }
     }
 
     //BCH flag
-    /*    if(runnumber_bch > 0){
-      toolFlag = thebchTool->IsInMaskedRegion(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi());
-      }*/ //old implementation
     toolFlag = thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt());
-    //    if(toolFlag) return kFALSE; //Discard event if jet falls in masked region of the calorimeter
-    //    if(toolFlag) bch_bad = true;
 
     //pT > 30 GeV
     if(!(jet_fourv.Pt()/1000. > 30.0)) continue;
-    //    if(!(fabs(jet_fourv.Eta()) < 4.4)) continue;
     if(!(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 4.4)) continue;
-    //    if((fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4 && jet_fourv.Pt()/1000. < 50) && jet_AntiKt4LCTopo_jvtxf->at(ijet) <= 0.5) continue;
+
+    //JVF
     if(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4 && jet_fourv.Pt()/1000. < 50.){
-      if(!(fabs(jet_AntiKt4LCTopo_jvtxf->at(ijet)) > 0.5)) continue;
+      if(!(fabs(jet_AntiKt4LCTopo_jvtxf->at(ijet)) > 0.5)){
+	continue;
+      }
     }
     jetn_final++;
     n_passing_jets++;
@@ -913,25 +880,25 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   //Hot Tile Cell veto
   if(hottilecellveto){
-    //    cout << "Failed hot cell veto: Event # " << EventNumber << endl;
     return kFALSE;
   }
+  h_cutflow_w->Fill(Float_t(icut),weight);
+  h_cutflow->Fill(Float_t(icut));
+  cutdes[icut] = "HotTile";
+  icut++;
 
   //BCH tool veto
   if(toolFlag){
-    //    cout << "Failed BCH tool veto: Event # " << EventNumber << endl;
     return kFALSE;
   }
+  h_cutflow_w->Fill(Float_t(icut),weight);
+  h_cutflow->Fill(Float_t(icut));
+  cutdes[icut] = "BCH";
+  icut++;
 
   rebuild_MET();
   h_MET->Fill(finalMET_et/1000.,weight);
   //Fill Z+jets histograms (selections complete)
-
-  if(EventNumber < 100){
-    cutflowjet_v.push_back(jet_fourv);
-    cutflow_event.push_back(EventNumber);
-    //    cutflow_txt << "Jet (E,px,py,pz): " << jet_fourv.E() << " " << jet_fourv.Px() << " " << jet_fourv.Py() << " " << jet_fourv.Pz() << endl;
-  }
 
   h_Z_mass_0j->Fill(Zmass,weight);
   if(jet_v.size() >= 1){
@@ -1004,12 +971,30 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(jet_v.size() == 3){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
+    for(int j=0; j<3;j++){
+      cutflowpair.first = jet_v[j].second;
+      cutflowpair.second = jet_AntiKt4LCTopo_jvtxf->at(jet_v[j].first);
+      mappair.first = EventNumber;
+      mappair.second = cutflowpair;
+      cutflowjet_map.insert(mappair);
+    }
+    /*    jetcf_pair.first = 3;
+    jetcf_pair.second = EventNumber;
+    onejet_eventn.push_back(jetcf_pair);
+    cutflowjet_v.push_back(jet_v[0].second);*/
   }
   cutdes[icut] = "Njets == 3";
   icut++;
   if(jet_v.size() == 4){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
+    for(int j=0; j<4;j++){
+      cutflowpair.first= jet_v[j].second;
+      cutflowpair.second = jet_AntiKt4LCTopo_jvtxf->at(jet_v[j].first);
+      mappair.first = EventNumber;
+      mappair.second = cutflowpair;
+      cutflowjet_map.insert(mappair);
+    }
   }
   cutdes[icut] = "Njets == 4";
   icut++;
@@ -1257,7 +1242,6 @@ void analysis_Zmumu::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
-  //  cutflow_txt.close();
 
   string output_name_string;
   vector<string> output_split;
@@ -1292,11 +1276,17 @@ void analysis_Zmumu::Terminate()
     cout << "Cut Z " << setw(3) << i << " : " << setw(30) << cutdes[i] << " : " << h_cutflow_w->GetBinContent(i+1) << endl;
   }
 
-  cout << "pT comparison" << endl;
-  for(int i=0; i < cutflowjet_v.size(); i++){
-    cout << "Event #: " << cutflow_event.at(i) << endl;
+  /*  cout << "Event numbers and pT: 3 and 4 jet bin" << endl;
+  for(unsigned int i = 0; i < onejet_eventn.size(); i++){
+    cout << "Jet multiplicity: " << onejet_eventn[i].first << "; EventNumber: " << onejet_eventn[i].second << endl;
     cout << "Jet (E,px,py,pz): " << cutflowjet_v.at(i).E() << " " << cutflowjet_v.at(i).Px() << " " << cutflowjet_v.at(i).Py() << " " << cutflowjet_v.at(i).Pz() << endl;
-    cout << "--------------------------------------------" << endl;
+    cout << "--------------------------------------------------------" << endl;
+    }*/
+  cout << "Event numbers and pT: 3 and 4 jet bin" << endl;
+  for(multimap<UInt_t,pair<TLorentzVector,float> >::iterator it = cutflowjet_map.begin();
+      it != cutflowjet_map.end();
+      ++it){
+    cout << "Event Number: " << (*it).first << ", jet(pT,eta,jvf): " << (*it).second.first.Pt() << "," << (*it).second.first.Eta() << "," << (*it).second.second << endl;
   }
 
   if(!isGrid){

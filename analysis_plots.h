@@ -144,36 +144,60 @@ void write_table(TH1D * h_mc, TH1D * h_data, TString & process_name){
   tablefile << "==================================================================" << endl;
 }
 
-TH1D * add_histo(TFile ** farray, const int farray_size, TString &h_name, vector<double> &xsec_values, double *eventn_array, string &cutflow_hist, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
+TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TString &h_name, vector<double> &xsec_values,TFile ** cfarray, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
   //check to see if file and histogram opens
   if (farray[0]->IsOpen()){
     cout << "File opened." << endl;
     TH1D * histo_check = (TH1D*)farray[0]->Get(h_name);
+    //cout << h_name << endl;
     if(histo_check) cout << "Histogram opened." << endl;
     else cout << "Histogram failed to open." << endl;
   }
   else cout << "ERROR: could not open file." << endl;
 
-
+  string cutflow_location;
+  double eventn_before_hfor[farray_size];
+  double eventn_after_hfor[farray_size]; //hfor numbers do not include pileup reweighting (and shouldn't!)
+  double eventn_array[farray_size]; //total number of events in sample with pileup reweighting
   double norm_factor[farray_size];
-  
-  //Normalization factor = xsec * lumi * (1/entries)
+ 
   for(int i=0;i<farray_size;i++){
-    norm_factor[i] = luminosity/(eventn_array[i]/xsec_values[i]);
-    cout << "Norm factor: " << norm_factor[i] << endl;
+    TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ");
+    eventn_array[i] = h_cutflow->GetBinContent(3);
+    //  eventn_before_hfor[i] = h_cutflow->GetBinContent(1);
+    //cout.precision(8);
+    //eventn_after_hfor[i] = h_cutflow->GetBinContent(4);
   }
+  //calculate k-factor for HFOR
+  //event numbers don't include pileup reweighting
+  double eff_xsec[farray_size];
+  double k_hfor[farray_size];
+  for(int i=0;i<farray_size;i++){
+    //eff_xsec[i] = (xsec_values[i]*eventn_after_hfor[i])/eventn_before_hfor[i];
+    //cout << file_name[i] << ", cross-section (with k-factors): " << xsec_values[i] << ", Effective cross-section (HFOR): " << eff_xsec[i] << endl;
+    //    k_hfor[i] = xsec_values[i]/eff_xsec[i];
+    // k_hfor[i] = eff_xsec[i]/xsec_values[i];
+    //cout << file_name[i] << ", hfor k-factor: " << k_hfor[i] << endl;
+  }
+
+  //Normalization factor = xsec * lumi * (1/entries)
+  //entries includes the pileup reweighting
+  for(int i=0;i<farray_size;i++){
+    //    norm_factor[i] = (luminosity*xsec_values[i]*k_hfor[i])/eventn_array[i];
+    norm_factor[i] = luminosity/(eventn_array[i]/xsec_values[i]);
+    //    cout << "Norm factor: " << norm_factor[i] << endl;
+  }
+  double events_before_scaling = 0;
   //Open histograms and scale
   for(int i=0;i<farray_size;i++){
-    cout << "Debug " << i << endl;
-    cout << h_name << endl;
     h_array[i] = (TH1D*)farray[i]->Get(h_name);
+    events_before_scaling += h_array[i]->Integral();
     h_array[i]->Sumw2();
-    cout << "Integral before scaling for histogram " << i << ": " << h_array[i]->Integral() << endl;
     h_array[i]->Scale(norm_factor[i]);
-    cout << "Integral after scaling for histogram " << i << ": " << h_array[i]->Integral() << endl;
   }
-  
   TString sum_name = process_str + "_sum";
+  cout.precision(8);
+  cout << sum_name << " before scaling: " << events_before_scaling << endl;
   TH1D *h_sum = (TH1D*)h_array[0]->Clone();
   h_sum->SetName(sum_name);
   h_sum->Sumw2();

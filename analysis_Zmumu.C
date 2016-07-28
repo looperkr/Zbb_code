@@ -59,8 +59,12 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
    isMC = false;
    isData = !isMC;
-   isArantxa = true;
-   isGrid = true;
+   isArantxa = false;
+   isGrid = false;
+
+   //trigger matching counter 
+   m_event_counter = 0;
+   //   muon_matched = false; //set to true when trigger matching returns true
 
    //   run_evt_set = {};
 
@@ -71,14 +75,17 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    n_zevents = 0;
    n_true_bjets = 0;
    n_passing_jets = 0;
-   //   h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",4000,0,2000);
+   eventcheckcut = -1;
    h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Zmumu_hottile = new TH1D("Z_mass_hottile","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_0j = new TH1D("Z_mass_0j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_1j = new TH1D("Z_mass_1j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_2j = new TH1D("Z_mass_2j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_3j = new TH1D("Z_mass_3j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_4j = new TH1D("Z_mass_4j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_5j = new TH1D("Z_mass_5j","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mass_exactly0j = new TH1D("Z_mass_exactly0j","Dimuon mass spectrum (Z window), njets == 0",20000,0,10000);
+   h_Z_mass_exactly1j = new TH1D("Z_mass_exactly1j","Dimuon mass spectrum (Z window), njets == 1",20000,0,10000);
    h_Z_pt = new TH1D("Z_pT", "Z boson pT", 4000, 0, 2000);
    h_Z_y = new TH1D("Z_y", "Z boson rapidity", 240,-6,6);
    h_Z_eta = new TH1D("Z_eta","Z boson #eta", 240,-6,6);
@@ -299,6 +306,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
+  //  if(m_event_counter == 0) initTriggerMatch();
+  //m_event_counter++;
 
   fChain->GetTree()->GetEntry(entry);
   
@@ -316,6 +325,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   run_evt_set.insert(run_event_number);
 
   n_events++;
+  //  muon_matched = false;
   good_mu_v.clear();
   good_mu_v_index.clear();
   Z_fourv.Clear();
@@ -358,12 +368,17 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
-  //Trigger selection
-  if(!EF_mu18_tight_mu8_EFFS) return kFALSE;
-  h_cutflow_w->Fill((Float_t)icut,weight);
-  h_cutflow->Fill((Float_t)icut);
-  cutdes[icut] = "Trigger";
-  icut++;
+  //hfor (overlap removal)
+  if(isMC){
+    //    if(top_hfor_type == 4 || top_hfor_type < 0){
+    if(top_hfor_type == 4){
+      return kFALSE;
+  }
+    h_cutflow->Fill((Float_t)icut);
+    h_cutflow_w->Fill((Float_t)icut,weight);
+    cutdes[icut] = "HFOR overlap removal";
+    icut++;
+  }
 
   if(isData){
     //Good runs list
@@ -392,16 +407,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_avg_pileup->Fill(averageIntPerXing,weight);
 
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
-  //hfor (overlap removal)
-  if(isMC){
-    if(top_hfor_type == 4){
-      return kFALSE;
-    }
-    h_cutflow->Fill((Float_t)icut);
-    h_cutflow_w->Fill((Float_t)icut,weight);
-    cutdes[icut] = "HFOR overlap removal";
-    icut++;
-  }
 
   //Z vertex reweighting
   for(int i = 0; i < vxp_n; i++){
@@ -419,6 +424,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "Z vertex reweighting";
     icut++;
   }
+
+  //Trigger                                                                                                                                                                                                               
+  if(!EF_mu18_tight_mu8_EFFS) return kFALSE;
+  h_cutflow_w->Fill((Float_t)icut,weight);
+  h_cutflow->Fill((Float_t)icut);
+  cutdes[icut] = "Trigger";
+  icut++;
 
   /*
   h_nvertices->Fill(vxp_n,weight);
@@ -568,7 +580,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     muon_cf[2]++; // sct req.
     if(!(mu_nPixHoles->at(imu)+mu_nSCTHoles->at(imu) < 3)) continue;
     muon_cf[3]++; //hole req.
-    if((fabs(mu_eta->at(imu)) >= 0.1) && (fabs(mu_eta->at(imu)) < 1.9)){
+    if((fabs(mu_eta->at(imu)) > 0.1) && (fabs(mu_eta->at(imu)) < 1.9)){
       n_TRT = mu_nTRTHits->at(imu) + mu_nTRTOutliers->at(imu);
       if(!(n_TRT > 5)) continue;
       if(!(mu_nTRTOutliers->at(imu) < 0.9*n_TRT)) continue;
@@ -576,11 +588,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     muon_cf[4]++; //TRT req.
     //IP significance < 3
     h_d0sig_aftercut->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
+    
     if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
+    
     h_d0sig->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     muon_cf[5]++;
-    //isolation: ptcone20/pt <= 0.1 
-    if(!(mu_ptcone20->at(imu)/mu_pt->at(imu) <= 0.1)) continue;
+    //isolation: ptcone20/pt < 0.1 
+    if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
     muon_cf[6]++;
     //|eta| < 2.4
     if(!(fabs(mu_eta->at(imu)) < 2.4)) continue;
@@ -602,12 +616,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       mucut1 = true;
     }
     if(isArantxa){
-      if(!(mu_pt->at(imu)/1000. > 20.)) continue; //Arantxa's cut
+      if(!(m_ptCB_smeared/1000. > 20.)) continue; //Arantxa's cut
     }
     else{
       if(!(m_ptCB_smeared/1000. > 25.)) continue;
     }
     mu_fourv.SetPtEtaPhiM(m_ptCB_smeared, m_eta, m_phi, m_mass);
+    //    if(muonTriggerMatchTool->match(mu_fourv.Eta(),mu_fourv.Phi(),"EF_mu18_tight_mu8_EFFS")){
+      //      muon_matched = true;
+    // }
     good_mu_v.push_back(mu_fourv);
     good_mu_v_index.push_back(imu);
     
@@ -682,6 +699,14 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   else return kFALSE;
 
+  /*  if(muon_matched){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+    cutdes[icut] = "At least one muon was trigger matched";
+    icut++;
+  }
+  else return kFALSE;
+  */
   int mu1_ind = good_mu_v_index.at(0);
   int mu2_ind = good_mu_v_index.at(1);
   Z_fourv = good_mu_v.at(0) + good_mu_v.at(1);
@@ -850,7 +875,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
 
     //BCH flag
-    toolFlag = thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt());
+    //toolFlag = thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt());
+    //    if(thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt())) toolFlag = true;
+    /*
+    if(EventNumber == 91972557){
+      run_bch_v.push_back(runnumber_bch);
+      lbn_bch_v.push_back(luminumber_bch);
+      eta_bch_v.push_back(jet_fourv.Eta());
+      phi_bch_v.push_back(jet_fourv.Phi());
+      BCH_CORR_CELL_v.push_back(jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet));
+      emfrac_v.push_back(jet_AntiKt4LCTopo_emfrac->at(ijet));
+      pt_bch_v.push_back(jet_fourv.Pt());
+      }*/
 
     //pT > 30 GeV
     if(!(jet_fourv.Pt()/1000. > 30.0)) continue;
@@ -862,6 +898,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	continue;
       }
     }
+
+    if(thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt())) toolFlag = true;
+    if(EventNumber == 91972557){
+      run_bch_v.push_back(runnumber_bch);
+      lbn_bch_v.push_back(luminumber_bch);
+      eta_bch_v.push_back(jet_fourv.Eta());
+      phi_bch_v.push_back(jet_fourv.Phi());
+      BCH_CORR_CELL_v.push_back(jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet));
+      emfrac_v.push_back(jet_AntiKt4LCTopo_emfrac->at(ijet));
+      pt_bch_v.push_back(jet_fourv.Pt());
+      }
+
     jetn_final++;
     n_passing_jets++;
     jet_pair.first = ijet;
@@ -871,6 +919,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_jet_y->Fill(jet_fourv.Rapidity());
   }
 
+  //Check event 91972557  
+  if(EventNumber == 91972557){
+    for(int j = 0; j < jet_v.size(); j++){
+      eventcheck_pair.first = jet_v[j].second;
+      eventcheck_pair.second = jet_AntiKt4LCTopo_jvtxf->at(jet_v[j].first);
+      eventmap_pair.first = EventNumber;
+      eventmap_pair.second = eventcheck_pair;
+      eventcheck_map.insert(eventmap_pair);
+    }
+  }
+
+  if(EventNumber == 91972557) eventcheckcut = icut;
   //Bad loose jet veto
   if(badlooseveto) return kFALSE;
   h_cutflow_w->Fill(Float_t(icut),weight);
@@ -878,6 +938,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "isBadLooseMinus";
   icut++;
 
+  if(EventNumber == 91972557) eventcheckcut = icut;
   //Hot Tile Cell veto
   if(hottilecellveto){
     return kFALSE;
@@ -887,20 +948,27 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "HotTile";
   icut++;
 
+  h_Zmumu_hottile->Fill(Zmass,weight);
+
+  if(EventNumber == 91972557) eventcheckcut = icut;
   //BCH tool veto
   if(toolFlag){
     return kFALSE;
   }
+
   h_cutflow_w->Fill(Float_t(icut),weight);
   h_cutflow->Fill(Float_t(icut));
   cutdes[icut] = "BCH";
   icut++;
 
+  if(EventNumber == 91972557) eventcheckcut = icut;
   rebuild_MET();
   h_MET->Fill(finalMET_et/1000.,weight);
   //Fill Z+jets histograms (selections complete)
 
   h_Z_mass_0j->Fill(Zmass,weight);
+  if(jet_v.size() == 0) h_Z_mass_exactly0j->Fill(Zmass,weight);
+  if(jet_v.size() == 1) h_Z_mass_exactly1j->Fill(Zmass,weight);
   if(jet_v.size() >= 1){
     h_Z_mass_1j->Fill(Zmass,weight);
    }
@@ -1289,6 +1357,18 @@ void analysis_Zmumu::Terminate()
     cout << "Event Number: " << (*it).first << ", jet(pT,eta,jvf): " << (*it).second.first.Pt() << "," << (*it).second.first.Eta() << "," << (*it).second.second << endl;
   }
 
+  /*  cout << "Check event number 91972557" << endl;
+  cout << "cut failed: " << eventcheckcut << endl;
+  for(multimap<UInt_t,pair<TLorentzVector,float> >::iterator it = eventcheck_map.begin();
+      it != eventcheck_map.end();
+      ++it){
+    cout << "Event Number: " << (*it).first << ", jet(pT,eta,jvf): " << (*it).second.first.Pt() << "," << (*it).second.first.Eta() << "," << (*it).second.second << endl;
+    }*/
+  cout << "Check BCH: event number 91972557" << endl;
+  for(unsigned int x=0; x < run_bch_v.size(); x++){
+    cout << "(run, lbn, eta, phi, BCH_CORR_CELL, emfrac,pt): " << run_bch_v.at(x) << " " << lbn_bch_v.at(x) << " " << eta_bch_v.at(x) << " " << phi_bch_v.at(x) << " " << BCH_CORR_CELL_v.at(x) << " " << emfrac_v.at(x) << " " << pt_bch_v.at(x) << endl;
+  }
+
   if(!isGrid){
     results_txt << "Cutflow values (weighted)" << endl;
     for(int i=0; i < icut_max; i++){
@@ -1311,6 +1391,7 @@ void analysis_Zmumu::Terminate()
   h_cutflow->Write();
   h_cutflow_w->Write();
   h_Z_mumu->Write();
+  h_Zmumu_hottile->Write();
   h_Z_pt->Write();
   h_Z_y->Write();
   h_Z_eta->Write();
@@ -1353,6 +1434,8 @@ void analysis_Zmumu::Terminate()
   h_Z_mass_3j->Write();
   h_Z_mass_4j->Write();
   h_Z_mass_5j->Write();
+  h_Z_mass_exactly0j->Write();
+  h_Z_mass_exactly1j->Write();
 
   h_Z_mass_MET->Write();
   h_Z_pt_MET->Write();
@@ -1499,6 +1582,52 @@ int analysis_Zmumu::Nsegments(float jet_eta, float jet_phi){
   return Nseg;
 
 }
+//For trigger matching
+/*
+void analysis_Zmumu::initTriggerMatch(){
+  //Code taken from https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerObjectMatching
+  triggerNavigationVariables = new TriggerNavigationVariables();
+  triggerNavigationVariables->set_trig_DB_SMK(trig_DB_SMK);
+  triggerNavigationVariables->set_trig_Nav_n(trig_Nav_n);
+  triggerNavigationVariables->set_trig_Nav_chain_ChainId(trig_Nav_chain_ChainId);
+  triggerNavigationVariables->set_trig_Nav_chain_RoIType(trig_Nav_chain_RoIType);
+  triggerNavigationVariables->set_trig_Nav_chain_RoIIndex(trig_Nav_chain_RoIIndex);*/
+/* muon *//*
+  triggerNavigationVariables->set_trig_RoI_EF_mu_Muon_ROI(trig_RoI_EF_mu_Muon_ROI);
+  triggerNavigationVariables->set_trig_RoI_EF_mu_TrigMuonEFInfoContainer(trig_RoI_EF_mu_TrigMuonEFInfoContainer);
+  triggerNavigationVariables->set_trig_RoI_EF_mu_TrigMuonEFInfoContainerStatus(trig_RoI_EF_mu_TrigMuonEFInfoContainerStatus);
+  triggerNavigationVariables->set_trig_RoI_L2_mu_CombinedMuonFeature(trig_RoI_L2_mu_CombinedMuonFeature);
+  triggerNavigationVariables->set_trig_RoI_L2_mu_CombinedMuonFeatureStatus(trig_RoI_L2_mu_CombinedMuonFeatureStatus);
+  triggerNavigationVariables->set_trig_RoI_L2_mu_MuonFeature(trig_RoI_L2_mu_MuonFeature);
+  triggerNavigationVariables->set_trig_RoI_L2_mu_Muon_ROI(trig_RoI_L2_mu_Muon_ROI);
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_CB_pt(trig_EF_trigmuonef_track_CB_pt);
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_CB_eta(trig_EF_trigmuonef_track_CB_eta);
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_CB_phi(trig_EF_trigmuonef_track_CB_phi);
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_SA_pt(trig_EF_trigmuonef_track_SA_pt);
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_SA_eta(trig_EF_trigmuonef_track_SA_eta);
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_SA_phi(trig_EF_trigmuonef_track_SA_phi);
+  triggerNavigationVariables->set_trig_EF_trigmugirl_track_CB_pt(trig_EF_trigmugirl_track_CB_pt);
+  triggerNavigationVariables->set_trig_EF_trigmugirl_track_CB_eta(trig_EF_trigmugirl_track_CB_eta);
+  triggerNavigationVariables->set_trig_EF_trigmugirl_track_CB_phi(trig_EF_trigmugirl_track_CB_phi);
+  triggerNavigationVariables->set_trig_L2_combmuonfeature_eta(trig_L2_combmuonfeature_eta);
+  triggerNavigationVariables->set_trig_L2_combmuonfeature_phi(trig_L2_combmuonfeature_phi);
+  triggerNavigationVariables->set_trig_L2_muonfeature_eta(trig_L2_muonfeature_eta);
+  triggerNavigationVariables->set_trig_L2_muonfeature_phi(trig_L2_muonfeature_phi);
+  triggerNavigationVariables->set_trig_L1_mu_eta(trig_L1_mu_eta);
+  triggerNavigationVariables->set_trig_L1_mu_phi(trig_L1_mu_phi);
+  triggerNavigationVariables->set_trig_L1_mu_thrName(trig_L1_mu_thrName);
+  triggerNavigationVariables->set_trig_RoI_EF_mu_TrigMuonEFIsolationContainer(trig_RoI_EF_mu_TrigMuonEFIsolationContainer); // for 2012 isolated trigger
+  triggerNavigationVariables->set_trig_RoI_EF_mu_TrigMuonEFIsolationContainerStatus(trig_RoI_EF_mu_TrigMuonEFIsolationContainerStatus); // for 2012 isolated trigger
+  triggerNavigationVariables->set_trig_EF_trigmuonef_track_MuonType(trig_EF_trigmuonef_track_MuonType);  // for full scan trigger matching in 2012
+
+  if(not triggerNavigationVariables->isValid()){
+    cerr << "TRIGGER MATCHING VARIABLES NOT CORRECTLY SET" << endl;
+  }
+
+  muonTriggerMatchTool = new MuonTriggerMatching(triggerNavigationVariables);
+}
+*/
+
 //for missing ET tool
 void analysis_Zmumu::rebuild_MET(){
   m_metRebuild->reset();

@@ -163,7 +163,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
  
   for(int i=0;i<farray_size;i++){
     TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ");
-    eventn_array[i] = h_cutflow->GetBinContent(3);
+    eventn_array[i] = h_cutflow->GetBinContent(5);
     //  eventn_before_hfor[i] = h_cutflow->GetBinContent(1);
     //cout.precision(8);
     //eventn_after_hfor[i] = h_cutflow->GetBinContent(4);

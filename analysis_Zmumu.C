@@ -57,10 +57,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = false;
+   isMC = true;
    isData = !isMC;
    isArantxa = false;
-   isGrid = false;
+   isGrid = true;
 
    //trigger matching counter 
    m_event_counter = 0;
@@ -86,6 +86,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_5j = new TH1D("Z_mass_5j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_exactly0j = new TH1D("Z_mass_exactly0j","Dimuon mass spectrum (Z window), njets == 0",20000,0,10000);
    h_Z_mass_exactly1j = new TH1D("Z_mass_exactly1j","Dimuon mass spectrum (Z window), njets == 1",20000,0,10000);
+   h_Z_mass_1b = new TH1D("Z_mass_1b","Dimuon mass spectrum (Z window), nbjets >= 1",20000,0,10000);
+   h_Z_mass_2b = new TH1D("Z_mass_2b","Dimuon mass spectrum (Z window), nbjets >= 2",20000,0,10000);
    h_Z_pt = new TH1D("Z_pT", "Z boson pT", 4000, 0, 2000);
    h_Z_y = new TH1D("Z_y", "Z boson rapidity", 240,-6,6);
    h_Z_eta = new TH1D("Z_eta","Z boson #eta", 240,-6,6);
@@ -370,12 +372,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   //hfor (overlap removal)
   if(isMC){
-    //    if(top_hfor_type == 4 || top_hfor_type < 0){
-    if(top_hfor_type == 4){
-      return kFALSE;
-  }
-    h_cutflow->Fill((Float_t)icut);
-    h_cutflow_w->Fill((Float_t)icut,weight);
+    if(top_hfor_type != 4){
+      h_cutflow->Fill((Float_t)icut);
+      h_cutflow_w->Fill((Float_t)icut,weight);
+    }
     cutdes[icut] = "HFOR overlap removal";
     icut++;
   }
@@ -422,6 +422,17 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_cutflow->Fill((Float_t)icut);
     h_cutflow_w->Fill((Float_t)icut,weight);
     cutdes[icut] = "Z vertex reweighting";
+    icut++;
+  }
+
+  //HFOR (overlap removal)
+  if(isMC){
+    if(top_hfor_type == 4){
+      return kFALSE;
+    }
+    h_cutflow->Fill((Float_t)icut);
+    h_cutflow_w->Fill((Float_t)icut,weight);
+    cutdes[icut] = "HFOR overlap removal (after PU and Z vertex reweighting)";
     icut++;
   }
 
@@ -1252,6 +1263,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     double delta_eta_Zb = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
     h_bjet_deltaeta_Zb->Fill(delta_eta_Zb,weight);
     h_MET_1tag->Fill(finalMET_et/1000.);
+    h_Z_mass_1b->Fill(Zmass,weight);
   }
   if(bjet_v.size() >= 2){
     h_bjet_deltaR_bb->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
@@ -1264,6 +1276,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
     h_Zpt_v_bb_pt->Fill(Z_fourv.Pt()/1000.,b_jets_sum.Pt()/1000.,weight);
     h_MET_2tag->Fill(finalMET_et/1000.);
+    h_Z_mass_2b->Fill(Zmass,weight);
   }
   //re-sort b-jets by mv1c weight
   int s;
@@ -1350,13 +1363,13 @@ void analysis_Zmumu::Terminate()
     cout << "Jet (E,px,py,pz): " << cutflowjet_v.at(i).E() << " " << cutflowjet_v.at(i).Px() << " " << cutflowjet_v.at(i).Py() << " " << cutflowjet_v.at(i).Pz() << endl;
     cout << "--------------------------------------------------------" << endl;
     }*/
-  cout << "Event numbers and pT: 3 and 4 jet bin" << endl;
+  /*  cout << "Event numbers and pT: 3 and 4 jet bin" << endl;
   for(multimap<UInt_t,pair<TLorentzVector,float> >::iterator it = cutflowjet_map.begin();
       it != cutflowjet_map.end();
       ++it){
     cout << "Event Number: " << (*it).first << ", jet(pT,eta,jvf): " << (*it).second.first.Pt() << "," << (*it).second.first.Eta() << "," << (*it).second.second << endl;
   }
-
+*/
   /*  cout << "Check event number 91972557" << endl;
   cout << "cut failed: " << eventcheckcut << endl;
   for(multimap<UInt_t,pair<TLorentzVector,float> >::iterator it = eventcheck_map.begin();
@@ -1364,11 +1377,11 @@ void analysis_Zmumu::Terminate()
       ++it){
     cout << "Event Number: " << (*it).first << ", jet(pT,eta,jvf): " << (*it).second.first.Pt() << "," << (*it).second.first.Eta() << "," << (*it).second.second << endl;
     }*/
-  cout << "Check BCH: event number 91972557" << endl;
+  /*cout << "Check BCH: event number 91972557" << endl;
   for(unsigned int x=0; x < run_bch_v.size(); x++){
     cout << "(run, lbn, eta, phi, BCH_CORR_CELL, emfrac,pt): " << run_bch_v.at(x) << " " << lbn_bch_v.at(x) << " " << eta_bch_v.at(x) << " " << phi_bch_v.at(x) << " " << BCH_CORR_CELL_v.at(x) << " " << emfrac_v.at(x) << " " << pt_bch_v.at(x) << endl;
   }
-
+  */
   if(!isGrid){
     results_txt << "Cutflow values (weighted)" << endl;
     for(int i=0; i < icut_max; i++){
@@ -1436,6 +1449,8 @@ void analysis_Zmumu::Terminate()
   h_Z_mass_5j->Write();
   h_Z_mass_exactly0j->Write();
   h_Z_mass_exactly1j->Write();
+  h_Z_mass_1b->Write();
+  h_Z_mass_2b->Write();
 
   h_Z_mass_MET->Write();
   h_Z_pt_MET->Write();

@@ -60,7 +60,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    isMC = true;
    isData = !isMC;
    isArantxa = false;
-   isGrid = true;
+   isGrid = false;
 
    //trigger matching counter 
    m_event_counter = 0;
@@ -735,8 +735,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     Zwindow_max = 111.0;
   }
   else{
-    Zwindow_min = 76.0;
-    Zwindow_max = 106.0;
+    Zwindow_min = 83.5;
+    Zwindow_max = 98.5;
+    //    Zwindow_min = 76.0;
+    //Zwindow_max = 106.0;
     //Zwindow_min = 60.0;
     //Zwindow_max = 10000.0;
   }

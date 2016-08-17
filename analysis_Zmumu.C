@@ -60,7 +60,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    isMC = true;
    isData = !isMC;
    isArantxa = false;
-   isGrid = false;
+   isGrid = true;
+   isMJ = false;
 
    //trigger matching counter 
    m_event_counter = 0;
@@ -78,6 +79,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    eventcheckcut = -1;
    h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Zmumu_hottile = new TH1D("Z_mass_hottile","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_m_mumu = new TH1D("m_mumu","Dimuon mass spectrum (no window cut)",20000,0,10000);
    h_Z_mass_0j = new TH1D("Z_mass_0j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_1j = new TH1D("Z_mass_1j","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mass_2j = new TH1D("Z_mass_2j","Dimuon mass spectrum (Z window)",20000,0,10000);
@@ -96,6 +98,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mu_pt_nocut = new TH1D("mu_pt_nocut","Single muon pT (full range)",4000,0,2000);
    h_mu_eta_nocut = new TH1D("mu_eta_nocut","Single muon #eta (no pT or Z cuts)",120,-6,6);
    h_mu_eta = new TH1D("mu_eta", "Single muon #eta",120,-6,6);
+   h_mu_iso = new TH1D("mu_iso","Muon isolation (no cut applied)",1000,0,1);
+   h_mu_iso_cut = new TH1D("mu_iso_cut","Muon isolation (after cut applied)",1000,0,1);
    h_mu_phi_nocut = new TH1D("mu_phi_nocut","Single muon #phi (no pT or Z cuts)",128,-2*TMath::Pi(),2*TMath::Pi());
    h_mu_phi = new TH1D("mu_phi","Single muon #phi",128,-2*TMath::Pi(),2*TMath::Pi());
    h_cutflow = new TH1F("ICUTZ","ICUTZ",50,0.,50.);
@@ -286,6 +290,13 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    /*~~~~~~~~~~~MET Utility~~~~~~~~~~~~~*/
    m_metRebuild= new METUtility;
    m_metRebuild->configMissingET(true,false); //is2012, isSTVF 
+   /*~~~~~~~~~~~~B-jet calibration~~~~~~~*/
+   //   Analysis::CalibrationDataInterfaceROOT calib("MV1c", "BTagCalibration.env");
+   calib = new Analysis::CalibrationDataInterfaceROOT("MV1c","packages/CalibrationDataInterface/share/BTagCalibration.env");
+   //Analysis::CalibrationDataVariables ajet;
+   ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";
+   //Analysis::Uncertainty uncertainty = Analysis::Total;
+
 }
 
 Bool_t analysis_Zmumu::Process(Long64_t entry)
@@ -600,21 +611,29 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //IP significance < 3
     h_d0sig_aftercut->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     
-    if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
+    if(!isMJ && !(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
     
     h_d0sig->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     muon_cf[5]++;
-    //isolation: ptcone20/pt < 0.1 
-    if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
-    muon_cf[6]++;
+    //isolation: ptcone20/pt < 0.1
+    h_mu_iso->Fill(mu_ptcone20->at(imu)/m_ptCB_smeared);
+    if(!isMJ){
+      if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
+      muon_cf[6]++;
+    }
+    else if(mu_ptcone20->at(imu)/m_ptCB_smeared< 0.1) continue; //invert cut for multijet background
+    h_mu_iso_cut->Fill(mu_ptcone20->at(imu)/m_ptCB_smeared);
     //|eta| < 2.4
     if(!(fabs(mu_eta->at(imu)) < 2.4)) continue;
     muon_cf[7]++;
     //impact parameter < 0.5 mm
-    h_z0->Fill(mu_trackz0pvunbiased->at(imu));
-    h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
-    if(!isArantxa){
-      if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
+    if(!isMJ){
+      h_z0->Fill(mu_trackz0pvunbiased->at(imu));
+      h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
+      if(!isArantxa){
+	//if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
+	if(!(fabs(mu_trackz0pvunbiased->at(imu)) < 1.0)) continue; //changed to match 7 TeV cut (old cut was for staco muons? may want to optimize)
+      }
     }
     h_z0_aftercut->Fill(mu_trackz0pvunbiased->at(imu));
     h_z0sintheta_aftercut->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
@@ -743,6 +762,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //Zwindow_max = 10000.0;
   }
 
+  h_m_mumu->Fill(Zmass,weight); // dimuon spectrum before mass window selection
   if(Zmass > Zwindow_min && Zmass < Zwindow_max && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){
     //muon scale factor
     if(isMC){
@@ -887,20 +907,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       }
     }
 
-    //BCH flag
-    //toolFlag = thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt());
-    //    if(thebchTool->IsBadMediumBCH(runnumber_bch,luminumber_bch,jet_fourv.Eta(),jet_fourv.Phi(),jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet),jet_AntiKt4LCTopo_emfrac->at(ijet),jet_fourv.Pt())) toolFlag = true;
-    /*
-    if(EventNumber == 91972557){
-      run_bch_v.push_back(runnumber_bch);
-      lbn_bch_v.push_back(luminumber_bch);
-      eta_bch_v.push_back(jet_fourv.Eta());
-      phi_bch_v.push_back(jet_fourv.Phi());
-      BCH_CORR_CELL_v.push_back(jet_AntiKt4LCTopo_BCH_CORR_CELL->at(ijet));
-      emfrac_v.push_back(jet_AntiKt4LCTopo_emfrac->at(ijet));
-      pt_bch_v.push_back(jet_fourv.Pt());
-      }*/
-
     //pT > 30 GeV
     if(!(jet_fourv.Pt()/1000. > 30.0)) continue;
     if(!(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 4.4)) continue;
@@ -930,6 +936,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     jet_v.push_back(jet_pair);
     h_jet_pt->Fill(jet_fourv.Pt()/1000.);
     h_jet_y->Fill(jet_fourv.Rapidity());
+
   }
 
   //Check event 91972557  
@@ -1162,7 +1169,32 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   float mv1c_57_wp = 0.8641;
   float mv1c_50_wp = 0.9195;
 
+  string label;
+  int jet_i;
   for(unsigned int i = 0; i < jet_v.size(); i++){
+    if(isMC){
+      jet_i = jet_v[i].first;
+      ajet.jetPt =jet_fourv.Pt(); //MeV
+      ajet.jetEta = jet_AntiKt4LCTopo_constscale_eta->at(jet_i);
+      if (abs(ajet.jetEta) > 2.5) continue;
+      switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_i)){
+      case 5:
+        label = "B";
+        break;
+      case 4:
+        label = "C";
+        break;
+      case 15 :
+        label = "T";
+        break;
+      default :
+        label = "Light";
+      }
+      res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty);
+      resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty);
+      if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
+      else weight*=resineff.first;
+    }
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v.push_back(jet_v[i]);
       h_bjet_rank->Fill(i,weight);
@@ -1406,6 +1438,7 @@ void analysis_Zmumu::Terminate()
   h_cutflow->Write();
   h_cutflow_w->Write();
   h_Z_mumu->Write();
+  h_m_mumu->Write();
   h_Zmumu_hottile->Write();
   h_Z_pt->Write();
   h_Z_y->Write();
@@ -1415,6 +1448,8 @@ void analysis_Zmumu::Terminate()
   h_mu_pt_nocut->Write();
   h_mu_eta->Write();
   h_mu_eta_nocut->Write();
+  h_mu_iso->Write();
+  h_mu_iso_cut->Write();
   h_mu_phi->Write();
   h_mu_phi_nocut->Write();
   h_pileup_norw->Write();

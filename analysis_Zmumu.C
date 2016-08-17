@@ -761,6 +761,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //Zwindow_min = 60.0;
     //Zwindow_max = 10000.0;
   }
+  if(isMJ){
+    Zwindow_min = 0.0;
+    Zwindow_max = 200.0;
+  }
 
   h_m_mumu->Fill(Zmass,weight); // dimuon spectrum before mass window selection
   if(Zmass > Zwindow_min && Zmass < Zwindow_max && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){

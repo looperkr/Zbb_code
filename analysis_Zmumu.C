@@ -77,6 +77,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    n_true_bjets = 0;
    n_passing_jets = 0;
    eventcheckcut = -1;
+   h_triggerSF_size = new TH1D("triggerSF","triggerSF",20000,0,5);
    h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Zmumu_hottile = new TH1D("Z_mass_hottile","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_m_mumu = new TH1D("m_mumu","Dimuon mass spectrum (no window cut)",20000,0,10000);
@@ -129,6 +130,22 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_4jet_pt = new TH1D("fourth_jet_pt","4th jet pT",4000,0,2000);
    h_4jet_y = new TH1D("fourth_jet_y","4th jet y",240,-6,6);
    h_Zpt_v_jj_pt = new TH2D("Zpt_v_jj_pt","Z pT v. dijet pT",4000,0,2000,4000,0,2000);
+
+   //light jet distributions in tracking volume: |eta| < 2.4
+   h_jet_n_tighteta = new TH1D("jet_n_tighteta","number of jets per event (|#eta| < 2.4)",15,0,15);
+   h_jet_pt_tighteta = new TH1D("jet_pt_tighteta","jet pT (|#eta| < 2.4)",4000,0,2000);
+   h_jet_y_tighteta = new TH1D("jet_y_tighteta","jet rapidity (|#eta| < 2.4)",120,-6,6);
+   h_jet_st_tighteta = new TH1D("jet_st_tighteta","ST (|#eta| < 2.4)",4000,0,2000);
+   h_jet_mu_ht_tighteta = new TH1D("jet_mu_ht_tighteta","HT (|#eta| < 2.4)",4000,0,2000);
+   h_leadjet_pt_tighteta = new TH1D("jet_pt_lead_tighteta","leading jet pT (|#eta| < 2.4)",4000,0,2000);
+   h_leadjet_y_tighteta = new TH1D("jet_y_lead_tighteta","leading jet y (|#eta| < 2.4)",240,-6,6);
+   h_subjet_pt_tighteta = new TH1D("jet_pt_sublead_tighteta","subleading jet pT (|#eta| < 2.4)",4000,0,2000);
+   h_subjet_y_tighteta = new TH1D("jet_y_sublead_tighteta","subleading jet y (|#eta| < 2.4)",240,-6,6);
+   h_dijet_m_tighteta = new TH1D("dijet_m_tighteta","dijet mass (|#eta| < 2.4)",4000,0,2000);
+   h_dijet_dR_tighteta = new TH1D("dijet_dR_tighteta","#Delta R between jets (|#eta| < 2.4)",110,0,5.5);
+   h_dijet_dphi_tighteta = new TH1D("dijet_dphi_tighteta","#Delta#phi between jets (|#eta| < 2.4)",160,-4,4);
+   h_dijet_dy_tighteta = new TH1D("dijet_dy_tighteta","#Delta y between jets (|#eta| < 2.4)",200,-5,5);
+   h_dijet_deta_tighteta = new TH1D("dijet_deta_tighteta","#Delta #eta between jets (|#eta| < 2.4)",200,-5,5);
 
    h_Z_mass_MET = new TH1D("Z_mass_MET","Z mass after MET cut",4000,0,2000);
    h_Z_pt_MET = new TH1D("Z_pt_MET","Z pT after MET cut",4000,0,2000);
@@ -291,11 +308,13 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_metRebuild= new METUtility;
    m_metRebuild->configMissingET(true,false); //is2012, isSTVF 
    /*~~~~~~~~~~~~B-jet calibration~~~~~~~*/
-   //   Analysis::CalibrationDataInterfaceROOT calib("MV1c", "BTagCalibration.env");
+   //comment out until new skims:
+   /*
    calib = new Analysis::CalibrationDataInterfaceROOT("MV1c","packages/CalibrationDataInterface/share/BTagCalibration.env");
-   //Analysis::CalibrationDataVariables ajet;
-   ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";
+   ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";*/
    //Analysis::Uncertainty uncertainty = Analysis::Total;
+   /*~~~~~~~~~~~Muon trigger SF~~~~~~~~*/
+   my_muonTrigSFTool = new LeptonTriggerSF(2012,"packages/TrigMuonEfficiency/share","muon_trigger_sf_2012_AtoL.p1328.root", "packages/ElectronEfficiencyCorrection/data", "rel17p2.v07" );
 
 }
 
@@ -729,6 +748,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   else return kFALSE;
 
+  //TriggerSF (is this in the right spot???)
+  if(isMC){
+    double RunNumberPileupSF=m_pileupTool->GetRandomRunNumber(RunNumber,averageIntPerXing);
+    vector<muon_quality> muonQualities;
+    muonQualities.push_back(muon_quality(2));  //2 means medium+
+    muonQualities.push_back(muon_quality(2));
+    pair<Double_t,Double_t> sfEvt_trig = my_muonTrigSFTool->GetTriggerSF(RunNumberPileupSF, kFALSE, good_mu_v, muonQualities, string("mu18_tight_mu8_EFFS"));
+    weight*= sfEvt_trig.first;
+    h_triggerSF_size->Fill(sfEvt_trig.first);
+  }
   /*  if(muon_matched){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
@@ -754,10 +783,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     Zwindow_max = 111.0;
   }
   else{
-    Zwindow_min = 83.5;
-    Zwindow_max = 98.5;
-    //    Zwindow_min = 76.0;
-    //Zwindow_max = 106.0;
+    //    Zwindow_min = 83.5;
+    //Zwindow_max = 98.5;
+    Zwindow_min = 76.0;
+    Zwindow_max = 106.0;
     //Zwindow_min = 60.0;
     //Zwindow_max = 10000.0;
   }
@@ -812,6 +841,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   /*~~~~~~~~~jet selection~~~~~~~~~~~*/
   int jetn_final = 0;
+  int jetn_final_tight = 0;
   float deltaR_jlep1 = 0 ;
   float deltaR_jlep2 = 0;
 
@@ -913,6 +943,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
     //pT > 30 GeV
     if(!(jet_fourv.Pt()/1000. > 30.0)) continue;
+    //eta < 4.4
     if(!(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 4.4)) continue;
 
     //JVF
@@ -940,6 +971,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     jet_v.push_back(jet_pair);
     h_jet_pt->Fill(jet_fourv.Pt()/1000.);
     h_jet_y->Fill(jet_fourv.Rapidity());
+
+    //tighter eta selection: |eta| < 2.4
+    if(!(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4)) continue;
+    jetn_final_tight++;
+    jet_pair_tight.first = ijet;
+    jet_pair_tight.second = jet_fourv;
+    jet_v_tight.push_back(jet_pair_tight);
+    h_jet_pt_tighteta->Fill(jet_fourv.Pt()/1000.);
+    h_jet_y_tighteta->Fill(jet_fourv.Rapidity());
 
   }
 
@@ -1010,12 +1050,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
 
   h_jet_n->Fill(jetn_final,weight);
-  
+  h_jet_n_tighteta->Fill(jetn_final_tight,weight);
+
   //Add pTs for HT and ST
   //ST: scalar sum of jet pTs
   //HT: scalar sum of jet and lepton pTs
   float st = 0;
   float ht = 0;
+  float st_tight = 0;
+  float ht_tight = 0;
   for(unsigned int njet = 0; njet < jet_v.size(); njet++){
     st += jet_v[njet].second.Pt();
   }
@@ -1028,6 +1071,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_jet_mu_ht->Fill(ht/1000.,weight);
   }
   
+  for(unsigned int njet = 0; njet < jet_v_tight.size(); njet++){
+    st_tight += jet_v_tight[njet].second.Pt();
+  }
+  ht_tight += st_tight;
+  ht += good_mu_v[0].Pt();
+  ht += good_mu_v[1].Pt();
+
+  if(jet_v_tight.size() > 0){
+    h_jet_st_tighteta->Fill(st_tight/1000.,weight);
+    h_jet_mu_ht_tighteta->Fill(ht_tight/1000.,weight);
+  }
+
   //sort jets by pT
   int j;
   pair<int,TLorentzVector> tmp;
@@ -1037,6 +1092,17 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       tmp = jet_v[j];
       jet_v[j] = jet_v[j-1];
       jet_v[j-1] = tmp;
+      j--;
+    }
+  }
+
+  //sort tight jets by pT
+  for(unsigned int njet = 1; njet < jet_v_tight.size(); njet++){
+    j = njet;
+    while(j > 0 && jet_v_tight[j-1].second.Pt() < jet_v_tight[j].second.Pt()){
+      tmp = jet_v_tight[j];
+      jet_v_tight[j] = jet_v_tight[j-1];
+      jet_v_tight[j-1] = tmp;
       j--;
     }
   }
@@ -1099,25 +1165,28 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   icut_max = icut;
 
   if(jet_v.size() > 0){
-    //    h_leadjet_pt->Fill(jet_v[0].second.Pt()/1000.,weight);
-    //h_leadjet_y->Fill(jet_v[0].second.Rapidity(),weight);
-  }
-
-  if(jet_v.size() > 1){
     h_leadjet_pt->Fill(jet_v[0].second.Pt()/1000.,weight);
     h_leadjet_y->Fill(jet_v[0].second.Rapidity(),weight);
+  }
+
+  double del_eta;
+  double del_phi;
+  double del_y;
+  double del_r_eta;
+  double del_r_y;
+  if(jet_v.size() > 1){
     TLorentzVector tmp_4v = jet_v[0].second + jet_v[1].second;
     h_subjet_pt->Fill(jet_v[1].second.Pt()/1000.,weight);
     h_subjet_y->Fill(jet_v[1].second.Rapidity(),weight);
     h_dijet_m->Fill((tmp_4v.M())/1000.,weight);
     h_dijet_dR->Fill(jet_v[1].second.DeltaR(jet_v[0].second),weight);
     h_dijet_dphi->Fill(fabs(jet_v[1].second.DeltaPhi(jet_v[0].second)),weight);
-    float del_eta = jet_AntiKt4LCTopo_eta->at(jet_v[0].first) - jet_AntiKt4LCTopo_eta->at(jet_v[1].first);
-    float del_phi = fabs(jet_AntiKt4LCTopo_phi->at(jet_v[0].first) - jet_AntiKt4LCTopo_phi->at(jet_v[1].first));
+    del_eta = jet_AntiKt4LCTopo_eta->at(jet_v[0].first) - jet_AntiKt4LCTopo_eta->at(jet_v[1].first);
+    del_phi = fabs(jet_AntiKt4LCTopo_phi->at(jet_v[0].first) - jet_AntiKt4LCTopo_phi->at(jet_v[1].first));
     if(del_phi > TMath::Pi()) del_phi = (2*TMath::Pi()) - del_phi;
-    float del_y = jet_v[1].second.Rapidity()-jet_v[0].second.Rapidity();
-    float del_r_eta = TMath::Sqrt(TMath::Power(fabs(del_eta),2) + TMath::Power(del_phi,2));
-    float del_r_y = TMath::Sqrt(TMath::Power(del_y,2) + TMath::Power(del_phi,2));
+    del_y = jet_v[1].second.Rapidity()-jet_v[0].second.Rapidity();
+    del_r_eta = TMath::Sqrt(TMath::Power(fabs(del_eta),2) + TMath::Power(del_phi,2));
+    del_r_y = TMath::Sqrt(TMath::Power(del_y,2) + TMath::Power(del_phi,2));
     h_dijet_dy->Fill(fabs(del_y),weight);
     h_dijet_deta->Fill(fabs(del_eta),weight);
     h_dijet_dR_eta->Fill(del_r_eta,weight);
@@ -1133,6 +1202,24 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_4jet_y->Fill(jet_v[3].second.Rapidity(),weight);
   }
 
+  if(jet_v_tight.size() > 0){
+    h_leadjet_pt_tighteta->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+    h_leadjet_y_tighteta->Fill(jet_v_tight[0].second.Rapidity(),weight);
+  }
+  if(jet_v_tight.size() > 1){
+    TLorentzVector tmp_4v_tight = jet_v_tight[0].second + jet_v_tight[1].second;
+    h_subjet_pt_tighteta->Fill(jet_v_tight[1].second.Pt()/1000.,weight);
+    h_subjet_y_tighteta->Fill(jet_v_tight[1].second.Pt()/1000.,weight);
+    h_dijet_m_tighteta->Fill((tmp_4v_tight.M())/1000.,weight);
+    h_dijet_dR_tighteta->Fill(jet_v_tight[1].second.DeltaR(jet_v_tight[0].second),weight);
+    h_dijet_dphi_tighteta->Fill(fabs(jet_v_tight[1].second.DeltaPhi(jet_v_tight[0].second)),weight);
+    del_eta = jet_AntiKt4LCTopo_eta->at(jet_v_tight[0].first) - jet_AntiKt4LCTopo_eta->at(jet_v_tight[1].first);
+    del_phi = fabs(jet_AntiKt4LCTopo_phi->at(jet_v_tight[0].first) - jet_AntiKt4LCTopo_phi->at(jet_v_tight[1].first));
+    if(del_phi > TMath::Pi()) del_phi = (2*TMath::Pi()) - del_phi;
+    del_y = jet_v_tight[1].second.Rapidity()-jet_v_tight[0].second.Rapidity();
+    h_dijet_dy_tighteta->Fill(fabs(del_y),weight);
+    h_dijet_deta_tighteta->Fill(fabs(del_eta),weight);
+  }
   //apply MET cut
 
   if(finalMET_et/1000. > 70.0) return kFALSE;
@@ -1175,8 +1262,12 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   string label;
   int jet_i;
+  //bjet calibration
+  //comment out until new skims are complete
+  
   for(unsigned int i = 0; i < jet_v.size(); i++){
-    if(isMC){
+  /*  
+  if(isMC){
       jet_i = jet_v[i].first;
       ajet.jetPt =jet_fourv.Pt(); //MeV
       ajet.jetEta = jet_AntiKt4LCTopo_constscale_eta->at(jet_i);
@@ -1199,6 +1290,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
       else weight*=resineff.first;
     }
+  */
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v.push_back(jet_v[i]);
       h_bjet_rank->Fill(i,weight);
@@ -1206,6 +1298,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       h_bjet_y->Fill(jet_v[i].second.Rapidity(),weight);
     }
   }
+
   h_bjet_n->Fill(bjet_v.size(),weight);
 
   for(unsigned int i = 0; i < jet_v.size(); i++){
@@ -1441,6 +1534,7 @@ void analysis_Zmumu::Terminate()
  
   h_cutflow->Write();
   h_cutflow_w->Write();
+  h_triggerSF_size->Write();
   h_Z_mumu->Write();
   h_m_mumu->Write();
   h_Zmumu_hottile->Write();
@@ -1481,6 +1575,20 @@ void analysis_Zmumu::Terminate()
   h_4jet_pt->Write();
   h_4jet_y->Write();
   h_Zpt_v_jj_pt->Write();
+  h_jet_n_tighteta->Write();
+  h_jet_pt_tighteta->Write();
+  h_jet_y_tighteta->Write();
+  h_jet_st_tighteta->Write();
+  h_jet_mu_ht_tighteta->Write();
+  h_leadjet_pt_tighteta->Write();
+  h_leadjet_y_tighteta->Write();
+  h_subjet_pt_tighteta->Write();
+  h_subjet_y_tighteta->Write();
+  h_dijet_m_tighteta->Write();
+  h_dijet_dR_tighteta->Write();
+  h_dijet_dphi_tighteta->Write();
+  h_dijet_dy_tighteta->Write();
+  h_dijet_deta_tighteta->Write();
 
   h_Z_mass_0j->Write();
   h_Z_mass_1j->Write();

@@ -65,7 +65,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     //    lumi = 3275.01; //period D
     //lumi = 2525.51; //period E
     //    lumi = 1278.5; //period G
-    //    lumi = 1452.42; // period H
+    //lumi = 1452.42; // period H
     //    lumi = 1021.54; //period I
     //    lumi = 2609.89; //period J
     //  lumi = 846.306; //period L
@@ -79,6 +79,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   TString y_name;     //y-axis label
   double x_min, x_max, y_min, y_max; //axis min and max values
   int rebin;
+  double ratiomin = 0.45; //default values, some are changed
+  double ratiomax = 1.85;
 
   //Plot options for chosen variable
   if(var_2_plot == "mu_pt"){
@@ -119,7 +121,27 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "Z_mass"; //after Z mass window cut
     x_name = "m_{#mu#mu} [GeV]";
     y_name = "Events";
-    x_min = 60; x_max = 120;
+    x_min = 70; x_max = 110;
+    y_min = 1; y_max = 1000000000;
+    rebin = 2;
+    ratiomin = 0.8;
+    ratiomax = 1.4;
+  }
+  else if(var_2_plot == "Z_mass_nopw"){
+    histo_name = "Z_mass_nopw"; //after Z mass window cut
+    x_name = "m_{#mu#mu} [GeV]";
+    y_name = "Events";
+    x_min = 70; x_max = 110;
+    y_min = 1; y_max = 1000000000;
+    rebin = 2;
+    ratiomin = 0.8;
+    ratiomax = 1.4;
+  }
+  else if(var_2_plot == "m_mumu"){
+    histo_name = "m_mumu"; // before Z mass window cut
+    x_name = "m_{#mu#mu} [GeV]";
+    y_name = "Events";
+    x_min = 40; x_max = 200;
     y_min = 1; y_max = 1000000000;
     rebin = 2;
   }
@@ -128,6 +150,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "m_{#mu#mu} [GeV]";
     y_name = "Events";
     x_min = 60; x_max = 120;
+    y_min = 1; y_max = 1000000000;
+    rebin = 2;
+  }
+  else if(var_2_plot == "Z_mass_MET"){
+    histo_name = "Z_mass_MET";
+    x_name = "m_{#mu#mu} [GeV]";
+    y_name = "Events";
+    x_min = 70; x_max = 110;
     y_min = 1; y_max = 1000000000;
     rebin = 2;
   }
@@ -160,6 +190,19 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     }
     rebin = 2;
   }
+  else if(var_2_plot == "Z_y_nopw"){
+    histo_name = "Z_y_nopw";
+    x_name = "Z rapidity";
+    y_name = "Events";
+    x_min = -3.5; x_max = 3.5;
+    if(make_log){
+      y_min = 0.1; y_max = 1000000000;
+    }
+    else{
+      y_min = 0.1; y_max = 100000;
+    }
+    rebin = 2;
+  }
   else if(var_2_plot == "Z_eta"){
     histo_name = "Z_eta";
     x_name = "Z pseudorapidity";
@@ -182,8 +225,23 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     y_min = 0.1; y_max = 100000000;
     rebin = 1;
   }
+  else if(var_2_plot == "Z_phi_nopw"){
+    histo_name = "Z_phi_nopw";
+    x_name = "#phi^{Z}";
+    y_name = "Events";
+    x_min = -TMath::Pi()-.5; x_max = TMath::Pi()+.5;
+    y_min = 0.1; y_max = 100000000;
+    rebin = 1;
+  }
   else if(var_2_plot == "Z_pt"){
     histo_name = "Z_pT";
+    x_name = "Z p_{T}";
+    x_min = 0; x_max = 800.;
+    y_min = 0.1; y_max = 100000000;
+    rebin = 100;
+  }
+  else if(var_2_plot == "Z_pt_nopw"){
+    histo_name = "Z_pT_nopw";
     x_name = "Z p_{T}";
     x_min = 0; x_max = 800.;
     y_min = 0.1; y_max = 100000000;
@@ -196,8 +254,22 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     y_min = 0.1; y_max = 100000000;
     rebin = 10;
   }
+  else if(var_2_plot == "met_1tag"){
+    histo_name = "met_1tag";
+    x_name = "MET (>= 1 b)";
+    x_min = 0; x_max = 200.;
+    y_min = 0.1; y_max = 100000000;
+    rebin = 10;
+  }
   else if(var_2_plot == "n_jets"){
     histo_name = "jet_n";
+    x_name = "#jets/event";
+    x_min = 0; x_max = 7;
+    y_min = 1.; y_max = 100000000;
+    rebin = 1;
+  }
+  else if(var_2_plot == "n_jets_tight"){
+    histo_name = "jet_n_tighteta";
     x_name = "#jets/event";
     x_min = 0; x_max = 7;
     y_min = 1.; y_max = 100000000;
@@ -224,6 +296,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     y_min = 0.1; y_max = 10000000;
     rebin = 20;
   }
+  else if(var_2_plot == "jet_pt_tight"){
+    histo_name = "jet_pt_tighteta";
+    x_name = "jet pT [GeV]";
+    x_min = 0.; x_max = 500.;
+    y_min = 0.1; y_max = 10000000;
+    rebin = 20;
+  }
   else if(var_2_plot == "jet_pt_eta"){
     histo_name = "jet_pt_tight_eta";
     x_name = "jet pT (|#eta| < 2.4) [GeV]";
@@ -238,54 +317,26 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     y_min = 0.1; y_max = 1000000000;
     rebin = 50;
   }
-  else if(var_2_plot == "jet_n_35"){
-    histo_name = "jet_n35";
-    x_name = "#jets/event (pT > 35 GeV)";
-    x_min = 0; x_max = 12;
+  else if(var_2_plot == "lead_jet_pt_tight"){
+    histo_name = "jet_pt_lead_tighteta";
+    x_name = "leading jet pT [GeV]";
+    x_min = 0.; x_max = 600.;
     y_min = 0.1; y_max = 1000000000;
-    rebin = 1;
-  }
-  else if(var_2_plot =="jet_n_40"){
-    histo_name = "jet_n40";
-    x_name = "#jets/event (pT > 40 GeV)";
-    x_min =0; x_max = 12;
-    y_min =0.1; y_max = 1000000000;
-    rebin = 1;
-  }
-  else if(var_2_plot =="jet_n_45"){
-    histo_name = "jet_n45";
-    x_name = "#jets/event (pT > 45 GeV)";
-    x_min =0; x_max = 12;
-    y_min =0.1; y_max = 1000000000;
-    rebin = 1;
-  }
-  else if(var_2_plot =="jet_n_50"){
-    histo_name = "jet_n50";
-    x_name = "#jets/event (pT > 50 GeV)";
-    x_min =0; x_max = 12;
-    y_min =0.1; y_max = 1000000000;
-    rebin =1;
-  }
-  else if(var_2_plot =="jet_n_55"){
-    histo_name = "jet_n55";
-    x_name = "#jets/event (pT > 55 GeV)";
-    x_min =0; x_max = 12;
-    y_min =0.0001; y_max = 1000000000;
-    rebin =1;
-  }
-  else if(var_2_plot =="jet_n_60"){
-    histo_name = "jet_n60";
-    x_name = "#jets/event (pT > 60 GeV)";
-    x_min =0; x_max = 12;
-    y_min =0.0001; y_max = 1000000000;
-    rebin =1;
+    rebin = 50;
   }
   else if(var_2_plot == "jet_y"){
     histo_name = "jet_y";
     x_name = "jet rapidity";
     x_min = -5; x_max = 5;
     y_min = 0.1; y_max = 1000000000;
-    rebin =1;
+    rebin = 4;
+  }
+  else if(var_2_plot == "jet_y_tight"){
+    histo_name = "jet_y_tighteta";
+    x_name = "jet rapidity";
+    x_min = -3.5; x_max = 3.5;
+    y_min = 0.1; y_max = 1000000000;
+    rebin =4;
   }
   else if(var_2_plot == "leadjet_y"){
     histo_name = "jet_y_lead";
@@ -300,10 +351,24 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     y_min = 0.1; y_max = 1000000000;
     rebin =20;
   }
+  else if(var_2_plot == "jet_st_tight"){
+    histo_name = "jet_st_tighteta";
+    x_name = "ST [GeV]";
+    x_min = 25.; x_max = 500.;
+    y_min = 0.1; y_max = 1000000000;
+    rebin =20;
+  }
   else if(var_2_plot == "jet_ht"){
     histo_name = "jet_mu_ht";
     x_name = "ST [GeV]";
-    x_min = 50.; x_max = 1000.;
+    x_min = 0.; x_max = 1000.;
+    y_min = 0.1; y_max = 1000000000;
+    rebin =20;
+  }
+  else if(var_2_plot == "jet_ht_tight"){
+    histo_name = "jet_mu_ht_tighteta";
+    x_name = "ST [GeV]";
+    x_min = 0.; x_max = 1000.;
     y_min = 0.1; y_max = 1000000000;
     rebin =20;
   }
@@ -312,7 +377,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "m_{jj} [GeV]";
     x_min = 0.; x_max = 1000.;
     y_min = 0.1; y_max = 100000000;
-    rebin = 20;
+    rebin = 40;
+  }
+  else if(var_2_plot == "dijet_m_tight"){
+    histo_name = "dijet_m_tighteta";
+    x_name = "m_{jj} [GeV]";
+    x_min = 0.; x_max = 1000.;
+    y_min = 0.1; y_max = 100000000;
+    rebin = 40;
   }
   else if(var_2_plot == "n_bjets"){
     histo_name = "bjet_n";
@@ -326,14 +398,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_name = "p_{T}(b-jets) [GeV]";
     x_min = 0.; x_max = 500;
     y_min = 0.1; y_max = 100000;
-    rebin = 20;
+    //rebin = 20;
+    rebin = 40;
   }
   else if(var_2_plot == "bjet_y"){
     histo_name = "bjet_y";
     x_name = "b-jet rapidity";
     x_min = -3.5; x_max = 3.5;
     y_min = 0.1; y_max = 5000000;
-    rebin = 5;
+    rebin = 4;
   }
   else if(var_2_plot == "bjet_lead_pt"){
     histo_name = "bjet_lead_pt";
@@ -353,42 +426,49 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "bjet_m_bb";
     x_name = "m(b,b) [GeV]";
     x_min = 0.; x_max = 400;
-    y_min = 0.1; y_max = 350;
+    y_min = 0.1; y_max = 400;
     rebin = 20;
   }
   else if(var_2_plot == "deltaR_bb"){
     histo_name = "bjet_delR_bb";
     x_name = "#Delta R (b,b)";
     x_min = 0.; x_max = 5.0;
-    y_min = 0.1; y_max = 1000;
+    y_min = 0.1; y_max = 2500;
     rebin = 10;
   }
   else if(var_2_plot == "deltaphi_bb"){
     histo_name ="bjet_delphi_bb";
     x_name = "#Delta#phi (b,b)";
     x_min = 0.0; x_max = 3.5;
-    y_min = 0.1; y_max = 1000;
+    y_min = 0.1; y_max = 4000;
+    rebin = 10;
+  }
+  else if(var_2_plot == "deltaeta_bb"){
+    histo_name = "bjet_deltaeta_bb";
+    x_name = "|#Delta#eta (b,b)|";
+    x_min = 0.0; x_max = 5.5;
+    y_min = 0.1; y_max = 3000;
     rebin = 10;
   }
   else if(var_2_plot == "deltaR_Zb"){
     histo_name = "bjet_delR_Zb";
     x_name = "#Delta R(Z,b)";
     x_min = 0.; x_max = 5.0;
-    y_min = 0.1; y_max = 25000;
+    y_min = 0.1; y_max = 30000000;
     rebin = 10;
   }
   else if(var_2_plot == "deltaphi_Zb"){
     histo_name = "bjet_deltaphi_bZ";
     x_name = "#Delta #phi (Z,b)";
     x_min = 0; x_max = 3.5;
-    y_min = 0.1; y_max = 30000;
+    y_min = 0.1; y_max = 100000000;
     rebin = 10;
   }
   else if(var_2_plot == "deltaeta_Zb"){
     histo_name = "bjet_deltaeta_Zb";
     x_name = "#Delta#eta (Z,b)";
     x_min = 0.; x_max = 5.5;
-    y_min = 0.1; y_max = 25000;
+    y_min = 0.1; y_max = 30000000;
     rebin = 10;
   }
   else if(var_2_plot == "bjet_rank"){
@@ -402,7 +482,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "bjet_pt_bb";
     x_name = "di-bjet pT";
     x_min = 0; x_max = 350;
-    y_min = 0.1; y_max = 350;
+    y_min = 0.1; y_max = 1000;
     rebin = 20;
   }
   else if(var_2_plot == "Zpt_v_jj_pt"){
@@ -419,6 +499,43 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     y_min = 0; y_max = 700;
     rebin = 1;
   }
+  else if(var_2_plot == "mv1weight"){
+    histo_name = "mv1weight";
+    x_name = "mv1 weight";
+    x_min = 0; x_max = 1;
+    y_min = 0.1; y_max = 1000000;
+    rebin = 10;
+  }
+  else if(var_2_plot == "mv1cweight"){
+    histo_name = "mv1cweight";
+    x_name = "mv1c weight";
+    x_min = 0; x_max = 1;
+    y_min = 0.1; y_max = 1000000;
+    rebin = 10;         
+  }
+  else if(var_2_plot == "pileup"){
+    histo_name = "pileup_Z_avg";
+    x_name = "pileup";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 10; y_max = 50000000;
+    }
+    else{
+      y_min = 0; y_max = 700000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "pileup_norw"){
+    histo_name = "pileup_Z_avg_norw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 10; y_max = 50000000;
+    }
+    else{
+      y_min = 0; y_max = 700000;
+    }
+    rebin = 10;
+  } 
   else{
     cout << "This variable is not supported" << endl;
     exit(0);
@@ -427,6 +544,19 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 ~~~~~~~~~~~~MC CROSS SECTIONS~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
   double xsec = 0;
+  /*~~~~~~~~~~~~~~Sherpa Zmumu~~~~~~~~~~~~~~~~~~~~*/
+  //Dataset 147771
+  //xsections from arantxa's note
+/*
+  string zmumu_sherpa_process = "zmumu_sherpa";
+  vector<double> zmumu_sherpa_xsec;
+  double sigma_zmumu_sherpa[1] = {1207.8};
+
+  double k_factor_zmumu_sherpa = 1.0276;
+  double eff_zmumu_sherpa = 1.0;
+  xsec = sigma_zmumu_sherpa[0]*k_factor_zmumu_sherpa*eff_zmumu_sherpa;
+  zmumu_sherpa_xsec.push_back(xsec);*/
+
   /*~~~~~~~~~~~~~~~~~~~Zmumu_NpX~~~~~~~~~~~~~~~~~~~~~~~~~*/
   //Datasets 147113 through 147118 (AlpgenPythia_Auto_P2011C_ZmumuNpX)
   //note: Np2 uses eta-corrected tag (e3405)
@@ -585,6 +715,23 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_debug/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_arantxa/";
+
+  //Sherpa Zmumu
+  /*
+  string mc_type_zmumu_sherpa = "Zmumu_sherpa";
+  const int n_files_zmumu_sherpa = 1;
+  TFile * fzmumu_sherpa[1];
+  TFile * fzmumu_sherpa_cf[1];
+  string fname_zmumu_sherpa[1];
+  string zmumu_sherpa_name;
+  string zmumu_sherpa_cf_name;
+  zmumu_sherpa_name = "Zmumu_sherpa_hists.root";
+  fname_zmumu_sherpa[0] = zmumu_sherpa_name;
+  zmumu_sherpa_cf_name = cutflow_h_path + zmumu_sherpa_name;
+  zmumu_sherpa_name = mc_path + zmumu_sherpa_name;*/
+  //  fzmumu_sherpa[0] = TFile::Open(zmumu_sherpa_name.c_str(),"UPDATE");
+  //fzmumu_sherpa_cf[0] = TFile::Open(zmumu_sherpa_cf_name.c_str(),"UPDATE");
+  //TH1D *h_zmumu_sherpa_array[1];
 
   //Zmumu_NpX
   string mc_type_zmumu = "Zmumu_Np";
@@ -794,7 +941,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_arantxa/";
   TFile *fdata;
   string data_name = data_path + "alldata.root";
-  //string data_name = data_path + "periodI.root";
+  //string data_name = data_path + "periodH.root";
   fdata = TFile::Open(data_name.c_str(),"UPDATE");
   TH1D *h_data = (TH1D*)fdata->Get(histo_name);
   h_data->GetXaxis()->SetRangeUser(x_min,x_max);
@@ -805,6 +952,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   //Add MC histograms by process: function add_histo is defined in header file
   //Zmumu
+  //  TH1D *h_zmumu_sherpa_sum = add_histo(fzmumu_sherpa,n_files_zmumu_sherpa,fname_zmumu_sherpa,histo_name,zmumu_sherpa_xsec,fzmumu_sherpa_cf,lumi,h_zmumu_sherpa_array,zmumu_sherpa_process,x_min,x_max);
   TH1D *h_zmumu_sum     = add_histo(fzmumu,n_files_zmumu,fname_zmumu,histo_name,zmumu_xsec,fzmumu_cf,lumi,h_zmumu_array,zmumu_process,x_min,x_max);
   TH1D *h_zmumubb_sum   = add_histo(fzmumubb,n_files_zmumubb,fname_zmumubb,histo_name,zmumubb_xsec,fzmumubb_cf,lumi,h_zmumubb_array,zmumubb_process,x_min,x_max);
   TH1D *h_zmumucc_sum   = add_histo(fzmumucc,n_files_zmumucc,fname_zmumucc,histo_name,zmumucc_xsec,fzmumucc_cf,lumi,h_zmumucc_array,zmumucc_process,x_min,x_max);
@@ -839,8 +987,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   zplusjets_sum += h_zmumubb_sum->Integral();
   zplusjets_sum += h_zmumucc_sum->Integral();
 
+  //  double zplusjets_sherpa_sum = h_zmumu_sherpa_sum->Integral();
+
   cout.precision(9);
   cout << "Z->mumu + jets (Alpgen): " << zplusjets_sum << endl;
+  //  cout << "Z->mumu + jets (Sherpa): " << zplusjets_sherpa_sum << endl;
   cout << "Z->tautau + jets: " << h_ztautau_sum->Integral() << endl;
   cout << "W+jets: " << h_wjets_sum->Integral() << endl;
   cout << "ttbar: " << h_ttbar_sum->Integral() << endl;
@@ -870,6 +1021,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   THStack *sum_stack = new THStack("stack","stack");
 
   if(rebin != 1){
+    //h_zmumu_sherpa_sum->Rebin(rebin);
     h_zmumu_sum->Rebin(rebin);
     h_zmumubb_sum->Rebin(rebin);
     h_zmumucc_sum->Rebin(rebin);
@@ -880,6 +1032,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     h_diboson_sum->Rebin(rebin);
     h_data->Rebin(rebin);
   }
+  //  h_zmumu_sherpa_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   h_zmumu_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   h_zmumubb_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   h_zmumucc_sum->GetXaxis()->SetRangeUser(x_min,x_max);
@@ -900,6 +1053,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   TH1D *h_singletop_sum_clone = (TH1D*)h_singletop_sum->Clone();
   TH1D *h_diboson_sum_clone = (TH1D*)h_diboson_sum->Clone();
 
+  //sherpa comparison clones: cloning two, electric boogaloo
+  /*
+  TH1D *h_mc_sherpa_sum = (TH1D*)h_zmumu_sherpa_sum->Clone();
+  TH1D *h_ztautau_sherpa_sum_clone = (TH1D*)h_ztautau_sum->Clone();
+  TH1D *h_wjets_sherpa_sum_clone = (TH1D*)h_wjets_sum->Clone();
+  TH1D *h_ttbar_sherpa_sum_clone = (TH1D*)h_ttbar_sum->Clone();
+  TH1D *h_singletop_sherpa_sum_clone = (TH1D*)h_singletop_sum->Clone();
+  TH1D *h_diboson_sherpa_sum_clone = (TH1D*)h_diboson_sum->Clone();
+  */
+
   h_mc_sum->Add(h_zmumubb_sum_clone);
   h_mc_sum->Add(h_zmumucc_sum_clone);
   h_mc_sum->Add(h_ztautau_sum_clone);
@@ -908,13 +1071,19 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   h_mc_sum->Add(h_singletop_sum_clone);
   h_mc_sum->Add(h_diboson_sum_clone);
 
-
-
+  /*  h_mc_sherpa_sum->Add(h_ztautau_sherpa_sum_clone);
+  h_mc_sherpa_sum->Add(h_wjets_sherpa_sum_clone);
+  h_mc_sherpa_sum->Add(h_ttbar_sherpa_sum_clone);
+  h_mc_sherpa_sum->Add(h_singletop_sherpa_sum_clone);
+  h_mc_sherpa_sum->Add(h_diboson_sherpa_sum_clone);
+  */
   //rescale attempt
   
   TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
+  //  TH1D *h_mc_sherpa_sum_clone = (TH1D*)h_mc_sherpa_sum->Clone();
   if(!scale_to_lumi){
     h_mc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    cout << "Normalization ratio: " << h_data->Integral()/h_mc_sum->Integral() << endl;
     h_singletop_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     h_ttbar_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     h_diboson_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
@@ -923,8 +1092,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     h_zmumucc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     h_zmumu_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     h_zmumubb_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+    /*
+    h_mc_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+    cout << "Normalization ratio (sherpa): " << h_data->Integral()/h_mc_sherpa_sum->Integral() << endl;
+    h_ztautau_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+    h_wjets_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+    h_ttbar_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+    h_singletop_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+    h_diboson_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());*/
   }
-
+  //Stack for Alpgen samples (no sherpa stack)
   sum_stack->Add(h_singletop_sum_clone);
   sum_stack->Add(h_ttbar_sum_clone);
   sum_stack->Add(h_diboson_sum_clone);
@@ -937,13 +1114,19 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   float mc_events = h_mc_sum->Integral();
   cout << "MC sum: " << mc_events << endl;
+  //  float mc_events_sherpa = h_mc_sherpa_sum->Integral();
+  // cout << "MC sum (sherpa): " << mc_events_sherpa << endl;
   float data_events = h_data->Integral();
   cout << "Data sum: " << data_events << endl;
 
   float percent_difference = (data_events-mc_events)/data_events;
   cout << "Percentage difference: " << percent_difference << endl;
+  //float percentage_difference_sherpa = (data_events-mc_events_sherpa)/data_events;
+  // cout << "Percentage difference (sherpa): " << percentage_difference_sherpa << endl;
   float ratio = (data_events)/(mc_events);
   cout << "Ratio: " << ratio << endl;
+  //float ratio_sherpa = (data_events)/(mc_events);
+  //cout << "Ratio (sherpa): " << ratio_sherpa << endl;
 
   write_event_numbers(h_zmumu_sum,h_data,histo_name,lumi);
 
@@ -962,11 +1145,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //plot the histogram with the larger number of events first (makes the y-axis range correct)
   if(make_log){
     sum_stack->SetMaximum(y_max);
-  }
+    sum_stack->SetMinimum(y_min);
+    //h_data->GetYaxis()->SetRangeUser(y_min,y_max);
+ }
   else{
     sum_stack->SetMaximum(y_max);
+    sum_stack->SetMinimum(y_min);
   }
-  sum_stack->SetMinimum(y_min);
 
 
   //draw mc and data and make ratio plot
@@ -982,9 +1167,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   pad1->Draw("9");
   pad1->cd();
 
-  SetFormats(h_data,x_name,y_name);
+  //  SetFormats(h_data,x_name,y_name);
+  //  h_mc_sherpa_sum->SetLineStyle(2);
+  //  h_data->SetXTitle(x_name);
 
   sum_stack->Draw("HIST");
+  //  h_mc_sherpa_sum->Draw("HIST ELP SAME");
   h_data->Draw("HIST ELP SAME");
   sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
   if(var_2_plot == "n_jets" || var_2_plot == "n_bjets"){
@@ -1003,6 +1191,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   pad2->Draw("9");
   pad2->cd();
 
+  //double ratiomin = 0.45;
+  //double ratiomax = 1.85;
+  
+  //double ratiomin = 0.8;
+  //double ratiomax = 1.2;
 
   h_mc_sum_clone->SetStats(0);
   h_mc_sum_clone->SetMarkerSize(0.5);
@@ -1021,17 +1214,26 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   h_mc_sum_clone->SetLineColor(kRed);
   h_mc_sum_clone->Divide(h_data,h_mc_sum_clone);
 
-  h_mc_sum_clone->SetMinimum(0.45);
-  h_mc_sum_clone->SetMaximum(1.85);
-  
+  h_mc_sum_clone->SetMinimum(ratiomin);
+  h_mc_sum_clone->SetMaximum(ratiomax);
+ 
   h_mc_sum_clone->SetMarkerStyle(20);
+  h_mc_sum_clone->SetXTitle(x_name);
   h_mc_sum_clone->Draw("ep");
 
+  /*  h_mc_sherpa_sum_clone->SetMinimum(ratiomin);
+  h_mc_sherpa_sum_clone->SetMaximum(ratiomax);
+  h_mc_sherpa_sum_clone->SetLineColor(kBlue);
+  h_mc_sherpa_sum_clone->Divide(h_data,h_mc_sherpa_sum_clone);
+  h_mc_sherpa_sum_clone->SetMarkerStyle(20);
+  h_mc_sherpa_sum_clone->Draw("ep same");
+  */
   pad1->cd();
 
   TLegend *legend = new TLegend(0.6,0.64,0.95,0.95);
   legend->SetTextSize(0.04);
   legend->AddEntry(h_data,"Data","lp");
+  //  legend->AddEntry(h_mc_sherpa_sum,"Sherpa MC","lp");
   legend->AddEntry(h_zmumubb_sum_clone,"Z(#rightarrow#mu#mu)+bb+jets MC","f");
   legend->AddEntry(h_zmumu_sum_clone,"Z(#rightarrow#mu#mu)+jets MC","f");
   legend->AddEntry(h_zmumucc_sum_clone,"Z(#rightarrow#mu#mu)+cc+jets MC","f");

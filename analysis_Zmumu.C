@@ -57,10 +57,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = true;
+   isMC = false;
    isData = !isMC;
    isArantxa = false;
-   isGrid = true;
+   isGrid = false;
    isMJ = false;
 
    //trigger matching counter 
@@ -79,6 +79,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    eventcheckcut = -1;
    h_triggerSF_size = new TH1D("triggerSF","triggerSF",20000,0,5);
    h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",20000,0,10000);
+   h_Z_mumu_nopw = new TH1D("Z_mass_nopw","Dimuon mass spectrum (no pileup weighting)",20000,0,10000);
    h_Zmumu_hottile = new TH1D("Z_mass_hottile","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_m_mumu = new TH1D("m_mumu","Dimuon mass spectrum (no window cut)",20000,0,10000);
    h_Z_mass_0j = new TH1D("Z_mass_0j","Dimuon mass spectrum (Z window)",20000,0,10000);
@@ -92,9 +93,12 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_1b = new TH1D("Z_mass_1b","Dimuon mass spectrum (Z window), nbjets >= 1",20000,0,10000);
    h_Z_mass_2b = new TH1D("Z_mass_2b","Dimuon mass spectrum (Z window), nbjets >= 2",20000,0,10000);
    h_Z_pt = new TH1D("Z_pT", "Z boson pT", 4000, 0, 2000);
+   h_Z_pt_nopw = new TH1D("Z_pT_nopw","Z boson pT (no pileup)", 4000,0,2000);
    h_Z_y = new TH1D("Z_y", "Z boson rapidity", 240,-6,6);
+   h_Z_y_nopw = new TH1D("Z_y_nopw","Z boson rapidity (no pileup)",240,-6,6);
    h_Z_eta = new TH1D("Z_eta","Z boson #eta", 240,-6,6);
    h_Z_phi = new TH1D("Z_phi","Z boson #phi", 128,-2*TMath::Pi(),2*TMath::Pi());
+   h_Z_phi_nopw = new TH1D("Z_phi_nopw","Z boson #phi",128,-2*TMath::Pi(),2*TMath::Pi());
    h_mu_pt = new TH1D("mu_pT","Single muon pT",4000,0,2000);
    h_mu_pt_nocut = new TH1D("mu_pt_nocut","Single muon pT (full range)",4000,0,2000);
    h_mu_eta_nocut = new TH1D("mu_eta_nocut","Single muon #eta (no pT or Z cuts)",120,-6,6);
@@ -105,10 +109,17 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mu_phi = new TH1D("mu_phi","Single muon #phi",128,-2*TMath::Pi(),2*TMath::Pi());
    h_cutflow = new TH1F("ICUTZ","ICUTZ",50,0.,50.);
    h_cutflow_w = new TH1F("ICUTZ_w","ICUTZ_w",50,0.,50.);
-   h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",80,0.,40.);
-   h_pileup = new TH1D("pileup","pileup",80,0.,40.);
-   h_avg_pileup = new TH1D("avg_pileup","average pileup",80,0.,40.);
+   h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",500,0.,50.);
+   h_pileup = new TH1D("pileup","pileup",500,0.,50.);
+   h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
    h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",1000,0.,2.5);
+   h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",500,0.,50);
+   h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",500,0.,50);
+   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",500,0.,50.);
+   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",500,0.,50.);
+   h_pileup_avg_Zsel_notriggerSF = new TH1D("pileup_Z_avg_notriggerSF","average pileup",500,0.,50.);
+   h_pileup_2j = new TH1D("pileup_2j","",500,0.,50.);
+   h_pileup_2j_norw = new TH1D("pileup_2j_norw","",500,0.,50.);
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
    h_jet_n = new TH1D("jet_n","number of jets per event",15,0,15);  
@@ -156,6 +167,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Zpt_v_jj_pt_MET = new TH2D("Zpt_v_jj_pt_MET","Zpt versus dijet pT after MET cut",4000,0,2000,4000,0,2000);
    h_jet_st_MET = new TH1D("jet_st_MET","ST after MET cut",4000,0,2000);
    h_jet_mu_ht_MET = new TH1D("jet_ht_MET","HT after MET cut",4000,0,2000);
+
+   h_mv1weight = new TH1D("mv1weight","mv1weight",500,0,1);
+   h_mv1cweight = new TH1D("mv1cweight","mv1cweight",500,0,1);
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
    h_bjet_pt = new TH1D("bjet_pt","b-tagged jet pT",4000,0,2000);
@@ -277,6 +291,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
    m_pileupTool->SetDataScaleFactors(1./1.09);
    m_pileupTool->AddLumiCalcFile("packages/ilumicalc_2012_AllYear_All_Good.root");
+   m_pileupTool->SetDefaultChannelByMCRunNumber(0, 195847);
+   m_pileupTool->SetDefaultChannelByMCRunNumber(1, 195848);
+   m_pileupTool->SetUnrepresentedDataAction(2);
    m_pileupTool->EnableDebugging(true);
    m_pileupTool->Initialize();
    /*~~~~~~~~~~~Z Vertex Reweighting~~~~~~~~~~~~~*/
@@ -309,9 +326,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_metRebuild->configMissingET(true,false); //is2012, isSTVF 
    /*~~~~~~~~~~~~B-jet calibration~~~~~~~*/
    //comment out until new skims:
-   /*
+   
    calib = new Analysis::CalibrationDataInterfaceROOT("MV1c","packages/CalibrationDataInterface/share/BTagCalibration.env");
-   ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";*/
+   ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";
    //Analysis::Uncertainty uncertainty = Analysis::Total;
    /*~~~~~~~~~~~Muon trigger SF~~~~~~~~*/
    my_muonTrigSFTool = new LeptonTriggerSF(2012,"packages/TrigMuonEfficiency/share","muon_trigger_sf_2012_AtoL.p1328.root", "packages/ElectronEfficiencyCorrection/data", "rel17p2.v07" );
@@ -342,7 +359,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //m_event_counter++;
 
   fChain->GetTree()->GetEntry(entry);
-  
 
   pair<UInt_t,UInt_t> run_event_number; 
   run_event_number.first = RunNumber;
@@ -364,6 +380,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   
   Zmass = 0;
   jet_v.clear();
+  jet_v_tight.clear();
   bjet_v.clear();
 
   float mcw;
@@ -371,6 +388,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   isTileTrip = kFALSE;
   bool mucut1 = false;
   weight = 1.;
+  weight_nopw = 1.;
+  weight_notriggerSF = 1.;
   double sf = 1.;
 
   bch_bad = false;
@@ -385,6 +404,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   if(isMC){
     weight *= mcw;
+    weight_nopw *= mcw;
   }
 
   //cutflow variables
@@ -435,6 +455,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   h_pileup->Fill(actualIntPerXing,weight);
   h_avg_pileup->Fill(averageIntPerXing,weight);
+  
 
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
 
@@ -449,6 +470,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       if(vx_z != 0) break;
     }
     weight *= ZVertexTool->GetWeight(vx_z);
+    weight_nopw *= ZVertexTool->GetWeight(vx_z);
     h_cutflow->Fill((Float_t)icut);
     h_cutflow_w->Fill((Float_t)icut,weight);
     cutdes[icut] = "Z vertex reweighting";
@@ -755,7 +777,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     muonQualities.push_back(muon_quality(2));  //2 means medium+
     muonQualities.push_back(muon_quality(2));
     pair<Double_t,Double_t> sfEvt_trig = my_muonTrigSFTool->GetTriggerSF(RunNumberPileupSF, kFALSE, good_mu_v, muonQualities, string("mu18_tight_mu8_EFFS"));
+    weight_notriggerSF = weight;
     weight*= sfEvt_trig.first;
+    weight_nopw*= sfEvt_trig.first;
     h_triggerSF_size->Fill(sfEvt_trig.first);
   }
   /*  if(muon_matched){
@@ -802,6 +826,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu1_ind),good_mu_v.at(0));
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu2_ind),good_mu_v.at(1));
       weight *= sf;
+      weight_nopw*= sf;
+      weight_notriggerSF *= sf;
     }
     //    h_Z_mumu->Fill(Zmass,weight);
     h_cutflow_w->Fill(Float_t(icut),weight);
@@ -836,6 +862,18 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_eta->Fill(good_mu_v.at(1).Eta(),weight);
   h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
+  
+  h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
+  h_pileup_avg_Zsel_norw->Fill(averageIntPerXing,weight_nopw);
+  h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing,weight_notriggerSF);
+  h_pileup_Zsel->Fill(actualIntPerXing,weight);
+  h_pileup_Zsel_norw->Fill(actualIntPerXing,weight_nopw); //divide pileup weight back out
+  
+
+  h_Z_mumu_nopw->Fill(Zmass,weight_nopw);
+  h_Z_pt_nopw->Fill(Z_fourv.Pt()/1000.,weight_nopw);
+  h_Z_y_nopw->Fill(Z_fourv.Rapidity(),weight_nopw);
+  h_Z_phi_nopw->Fill(Z_fourv.Phi(),weight_nopw);
 
   n_zevents++;
 
@@ -973,7 +1011,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_jet_y->Fill(jet_fourv.Rapidity());
 
     //tighter eta selection: |eta| < 2.4
-    if(!(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) < 2.4)) continue;
+    if(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) > 2.4) continue;
     jetn_final_tight++;
     jet_pair_tight.first = ijet;
     jet_pair_tight.second = jet_fourv;
@@ -1038,6 +1076,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
    }
   if(jet_v.size() >= 2){
     h_Z_mass_2j->Fill(Zmass,weight);
+    h_pileup_2j->Fill(averageIntPerXing,weight);
+    h_pileup_2j_norw->Fill(averageIntPerXing,weight_nopw);
    }
   if(jet_v.size() >= 3){
     h_Z_mass_3j->Fill(Zmass,weight);
@@ -1075,8 +1115,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     st_tight += jet_v_tight[njet].second.Pt();
   }
   ht_tight += st_tight;
-  ht += good_mu_v[0].Pt();
-  ht += good_mu_v[1].Pt();
+  ht_tight += good_mu_v[0].Pt();
+  ht_tight += good_mu_v[1].Pt();
 
   if(jet_v_tight.size() > 0){
     h_jet_st_tighteta->Fill(st_tight/1000.,weight);
@@ -1202,6 +1242,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_4jet_y->Fill(jet_v[3].second.Rapidity(),weight);
   }
 
+  for(unsigned int i=0; i<jet_v_tight.size(); i++){
+    h_mv1weight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first),weight);
+    h_mv1cweight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+  }
+
   if(jet_v_tight.size() > 0){
     h_leadjet_pt_tighteta->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
     h_leadjet_y_tighteta->Fill(jet_v_tight[0].second.Rapidity(),weight);
@@ -1220,33 +1265,35 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_dijet_dy_tighteta->Fill(fabs(del_y),weight);
     h_dijet_deta_tighteta->Fill(fabs(del_eta),weight);
   }
+
   //apply MET cut
 
-  if(finalMET_et/1000. > 70.0) return kFALSE;
+  //  if(finalMET_et/1000. > 70.0) return kFALSE;
   //MET optimization block
-  if(finalMET_et/1000. < 40) met40 = true;
-  if(finalMET_et/1000. < 50) met50 = true;
-  if(finalMET_et/1000. < 60) met60 = true;
-  if(finalMET_et/1000. < 70) met70 = true;
-  if(finalMET_et/1000. < 80) met80 = true;
+  if(finalMET_et/1000. <= 40) met40 = true;
+  if(finalMET_et/1000. <= 50) met50 = true;
+  if(finalMET_et/1000. <= 60) met60 = true;
+  if(finalMET_et/1000. <= 70) met70 = true;
+  if(finalMET_et/1000. <= 80) met80 = true;
 
-  h_Z_mass_MET->Fill(Zmass,weight);
-  h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
-  h_njets_MET->Fill(jetn_final,weight);
-  for(int i = 0; i < jet_v.size(); i++){
-    h_jet_pt_MET->Fill(jet_v[i].second.Pt()/1000.,weight);
+  if(met70){
+    h_Z_mass_MET->Fill(Zmass,weight);
+    h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
+    h_njets_MET->Fill(jetn_final,weight);
+    for(int i = 0; i < jet_v.size(); i++){
+      h_jet_pt_MET->Fill(jet_v[i].second.Pt()/1000.,weight);
+    }
+    if(jet_v.size() > 0){
+      h_leadjet_pt_MET->Fill(jet_v[0].second.Pt()/1000.,weight);
+      h_jet_st_MET->Fill(st/1000.,weight);
+      h_jet_mu_ht_MET->Fill(ht/1000.,weight);
+    }
+    if(jet_v.size() > 1){
+      TLorentzVector dijet_fourv = jet_v[0].second + jet_v[1].second;
+      h_dijet_m_MET->Fill(dijet_fourv.M()/1000.,weight);
+      h_Zpt_v_jj_pt_MET->Fill(Z_fourv.Pt()/1000.,dijet_fourv.Pt()/1000.,weight);
+    }
   }
-  if(jet_v.size() > 0){
-    h_leadjet_pt_MET->Fill(jet_v[0].second.Pt()/1000.,weight);
-    h_jet_st_MET->Fill(st/1000.,weight);
-    h_jet_mu_ht_MET->Fill(ht/1000.,weight);
-  }
-  if(jet_v.size() > 1){
-    TLorentzVector dijet_fourv = jet_v[0].second + jet_v[1].second;
-    h_dijet_m_MET->Fill(dijet_fourv.M()/1000.,weight);
-    h_Zpt_v_jj_pt_MET->Fill(Z_fourv.Pt()/1000.,dijet_fourv.Pt()/1000.,weight);
-  }
-
 
   //btag optimization   
 
@@ -1266,7 +1313,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //comment out until new skims are complete
   
   for(unsigned int i = 0; i < jet_v.size(); i++){
-  /*  
+    
   if(isMC){
       jet_i = jet_v[i].first;
       ajet.jetPt =jet_fourv.Pt(); //MeV
@@ -1290,7 +1337,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
       else weight*=resineff.first;
     }
-  */
+  
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v.push_back(jet_v[i]);
       h_bjet_rank->Fill(i,weight);
@@ -1299,8 +1346,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
 
-  h_bjet_n->Fill(bjet_v.size(),weight);
-
+  if(met70){
+    h_bjet_n->Fill(bjet_v.size(),weight);
+  }
   for(unsigned int i = 0; i < jet_v.size(); i++){
     if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_85_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v_mv1_85.push_back(jet_v[i]);
@@ -1388,27 +1436,32 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
 
   if(bjet_v.size() >= 1){
-    h_bjet_deltaR_Zb->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
-    h_bjet_deltaphi_Zb->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
-    h_bjet_lead_pt->Fill(bjet_v[0].second.Pt()/1000.,weight);
-    double delta_eta_Zb = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
-    h_bjet_deltaeta_Zb->Fill(delta_eta_Zb,weight);
     h_MET_1tag->Fill(finalMET_et/1000.);
-    h_Z_mass_1b->Fill(Zmass,weight);
+    if(met70){
+      h_bjet_deltaR_Zb->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
+      h_bjet_deltaphi_Zb->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
+      h_bjet_lead_pt->Fill(bjet_v[0].second.Pt()/1000.,weight);
+      double delta_eta_Zb = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
+      h_bjet_deltaeta_Zb->Fill(delta_eta_Zb,weight);
+      h_Z_mass_1b->Fill(Zmass,weight);
+    }  
   }
   if(bjet_v.size() >= 2){
-    h_bjet_deltaR_bb->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
-    h_bjet_deltaphi_bb->Fill(fabs(bjet_v[0].second.DeltaPhi(bjet_v[1].second)),weight);
-    h_bjet_sublead_pt->Fill(bjet_v[1].second.Pt()/1000.,weight);
-    TLorentzVector b_jets_sum = bjet_v[0].second + bjet_v[1].second;
-    h_bjet_m_bb->Fill(b_jets_sum.M()/1000.,weight);
-    h_bjet_pt_bb->Fill(b_jets_sum.Pt()/1000.,weight);
-    double delta_eta_bb = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
-    h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
-    h_Zpt_v_bb_pt->Fill(Z_fourv.Pt()/1000.,b_jets_sum.Pt()/1000.,weight);
     h_MET_2tag->Fill(finalMET_et/1000.);
-    h_Z_mass_2b->Fill(Zmass,weight);
+    if(met70){
+      h_bjet_deltaR_bb->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
+      h_bjet_deltaphi_bb->Fill(fabs(bjet_v[0].second.DeltaPhi(bjet_v[1].second)),weight);
+      h_bjet_sublead_pt->Fill(bjet_v[1].second.Pt()/1000.,weight);
+      TLorentzVector b_jets_sum = bjet_v[0].second + bjet_v[1].second;
+      h_bjet_m_bb->Fill(b_jets_sum.M()/1000.,weight);
+      h_bjet_pt_bb->Fill(b_jets_sum.Pt()/1000.,weight);
+      double delta_eta_bb = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
+      h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
+      h_Zpt_v_bb_pt->Fill(Z_fourv.Pt()/1000.,b_jets_sum.Pt()/1000.,weight);
+      h_Z_mass_2b->Fill(Zmass,weight);
+    }
   }
+  if(!met70) return kFALSE;
   //re-sort b-jets by mv1c weight
   int s;
   pair<int,TLorentzVector> tmp_s;
@@ -1540,6 +1593,10 @@ void analysis_Zmumu::Terminate()
   h_Zmumu_hottile->Write();
   h_Z_pt->Write();
   h_Z_y->Write();
+  h_Z_mumu_nopw->Write();
+  h_Z_pt_nopw->Write();
+  h_Z_y_nopw->Write();
+  h_Z_phi_nopw->Write();
   h_Z_eta->Write();
   h_Z_phi->Write();
   h_mu_pt->Write();
@@ -1554,6 +1611,13 @@ void analysis_Zmumu::Terminate()
   h_pileup->Write();
   h_avg_pileup->Write();
   h_pileupSF->Write();
+  h_pileup_Zsel->Write();
+  h_pileup_Zsel_norw->Write();
+  h_pileup_avg_Zsel->Write();
+  h_pileup_avg_Zsel_norw->Write();
+  h_pileup_avg_Zsel_notriggerSF->Write();
+  h_pileup_2j->Write();
+  h_pileup_2j_norw->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();
@@ -1589,6 +1653,8 @@ void analysis_Zmumu::Terminate()
   h_dijet_dphi_tighteta->Write();
   h_dijet_dy_tighteta->Write();
   h_dijet_deta_tighteta->Write();
+  h_mv1weight->Write();
+  h_mv1cweight->Write();
 
   h_Z_mass_0j->Write();
   h_Z_mass_1j->Write();

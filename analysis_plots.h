@@ -164,6 +164,9 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   for(int i=0;i<farray_size;i++){
     TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ");
     eventn_array[i] = h_cutflow->GetBinContent(5);
+    if(process_str == "wmunu" && i == 1) eventn_array[i] = 13094468;
+    else if(process_str == "wmunu" && i == 2) eventn_array[i] = 8216080;
+    else if(process_str == "wc" && i == 0) eventn_array[i] = 5059786;
     //  eventn_before_hfor[i] = h_cutflow->GetBinContent(1);
     //cout.precision(8);
     //eventn_after_hfor[i] = h_cutflow->GetBinContent(4);
@@ -205,6 +208,13 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     if(i>0) h_sum->Add(h_array[i]);
   }
   h_sum->GetXaxis()->SetRangeUser(x_min,x_max);
+  //Write sum to file for mulitjet fits
+  /*  if(h_name == "Z_mass"){
+    TString mjfilename = "./multijet_calculation/"+process_str+".root";
+    TFile * mjfile = TFile::Open(mjfilename,"UPDATE");
+    h_sum->Write();
+    mjfile->Close();
+    }*/
   return h_sum;
 }
 

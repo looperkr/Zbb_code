@@ -57,11 +57,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = false;
+   isMC = true;
    isData = !isMC;
    isArantxa = false;
    isGrid = false;
-   isMJ = false;
 
    //trigger matching counter 
    m_event_counter = 0;
@@ -288,7 +287,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_treader->setTripFile(tiletrippath.c_str());
    /*~~~~~~~~~~~Pileup Reweighting~~~~~~~~~~~~~*/
    m_pileupTool = new Root::TPileupReweighting("PileupReweightingTool");
-   m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
+   //   m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
+   m_pileupTool->AddConfigFile("packages/mc12ab_15.11.16.prw.root");
    m_pileupTool->SetDataScaleFactors(1./1.09);
    m_pileupTool->AddLumiCalcFile("packages/ilumicalc_2012_AllYear_All_Good.root");
    m_pileupTool->SetDefaultChannelByMCRunNumber(0, 195847);
@@ -652,29 +652,24 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //IP significance < 3
     h_d0sig_aftercut->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     
-    if(!isMJ && !(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
+    if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
     
     h_d0sig->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     muon_cf[5]++;
     //isolation: ptcone20/pt < 0.1
     h_mu_iso->Fill(mu_ptcone20->at(imu)/m_ptCB_smeared);
-    if(!isMJ){
-      if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
-      muon_cf[6]++;
-    }
-    else if(mu_ptcone20->at(imu)/m_ptCB_smeared< 0.1) continue; //invert cut for multijet background
+    if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
+    muon_cf[6]++;
     h_mu_iso_cut->Fill(mu_ptcone20->at(imu)/m_ptCB_smeared);
     //|eta| < 2.4
     if(!(fabs(mu_eta->at(imu)) < 2.4)) continue;
     muon_cf[7]++;
     //impact parameter < 0.5 mm
-    if(!isMJ){
-      h_z0->Fill(mu_trackz0pvunbiased->at(imu));
-      h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
-      if(!isArantxa){
+    h_z0->Fill(mu_trackz0pvunbiased->at(imu));
+    h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
+    if(!isArantxa){
 	//if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
-	if(!(fabs(mu_trackz0pvunbiased->at(imu)) < 1.0)) continue; //changed to match 7 TeV cut (old cut was for staco muons? may want to optimize)
-      }
+      if(!(fabs(mu_trackz0pvunbiased->at(imu)) < 1.0)) continue; //changed to match 7 TeV cut (old cut was for staco muons? may want to optimize)
     }
     h_z0_aftercut->Fill(mu_trackz0pvunbiased->at(imu));
     h_z0sintheta_aftercut->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
@@ -814,11 +809,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //Zwindow_min = 60.0;
     //Zwindow_max = 10000.0;
   }
-  if(isMJ){
-    Zwindow_min = 0.0;
-    Zwindow_max = 200.0;
-  }
-
   h_m_mumu->Fill(Zmass,weight); // dimuon spectrum before mass window selection
   if(Zmass > Zwindow_min && Zmass < Zwindow_max && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){
     //muon scale factor

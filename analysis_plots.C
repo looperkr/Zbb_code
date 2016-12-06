@@ -710,7 +710,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //====================
   //== Monte Carlo =====
   //====================
-  string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
+  string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms/";
   string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_debug/";

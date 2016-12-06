@@ -768,6 +768,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //TriggerSF (is this in the right spot???)
   if(isMC){
     double RunNumberPileupSF=m_pileupTool->GetRandomRunNumber(RunNumber,averageIntPerXing);
+    if(RunNumberPileupSF == 0 && pileupweight != 0){
+      cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+      cout << "THERE IS A PROBLEM: PILEUP WEIGHT INCORRECT" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    }
     vector<muon_quality> muonQualities;
     muonQualities.push_back(muon_quality(2));  //2 means medium+
     muonQualities.push_back(muon_quality(2));

@@ -525,17 +525,83 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     }
     rebin = 10;
   }
-  else if(var_2_plot == "pileup_norw"){
+  else if(var_2_plot == "pileup_norw_Z"){
     histo_name = "pileup_Z_avg_norw";
     x_min = 0; x_max = 50;
     if(make_log){
-      y_min = 10; y_max = 50000000;
+      y_min = 0.1; y_max = 50000000;
     }
     else{
       y_min = 0; y_max = 700000;
     }
     rebin = 10;
   } 
+  else if(var_2_plot == "pileup_preZ"){
+    histo_name = "avg_pileup";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 500000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_norw"){
+    histo_name = "avg_pileup_norw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 500000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_noweight"){
+    histo_name = "avg_pileup_noweight";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 500000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_firstline"){
+    histo_name = "avg_pileup_firstline";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 500000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_mcweight"){
+    histo_name = "avg_pileup_mcweight";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 500000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_hfor"){
+    histo_name = "avg_pileup_hfor";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 500000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
   else{
     cout << "This variable is not supported" << endl;
     exit(0);
@@ -712,6 +778,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //====================
   string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms/";
   string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
+  //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_MC_histograms/MC_histograms_Oct13/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_debug/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_arantxa/";
@@ -937,6 +1004,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //====================
   //My data
   string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
+  //  string data_path ="/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_data_histograms/data_histograms_Oct13/";
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_debug/";
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_arantxa/";
   TFile *fdata;
@@ -1002,7 +1070,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
    ***********WRITE HISTS TO FILE *********
    ****************************************/
 
-  string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/plots/";
+  string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
   string plt_dir; // final place plots will be written
   create_dir(plt_path,plt_dir);
   /*
@@ -1124,7 +1192,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //float percentage_difference_sherpa = (data_events-mc_events_sherpa)/data_events;
   // cout << "Percentage difference (sherpa): " << percentage_difference_sherpa << endl;
   float ratio = (data_events)/(mc_events);
-  cout << "Ratio: " << ratio << endl;
+  cout << "Ratio (Data/MC): " << ratio << endl;
   //float ratio_sherpa = (data_events)/(mc_events);
   //cout << "Ratio (sherpa): " << ratio_sherpa << endl;
 

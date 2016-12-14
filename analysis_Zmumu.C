@@ -57,7 +57,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = true;
+   isMC = false;
    isData = !isMC;
    isArantxa = false;
    isGrid = false;
@@ -108,6 +108,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mu_phi = new TH1D("mu_phi","Single muon #phi",128,-2*TMath::Pi(),2*TMath::Pi());
    h_cutflow = new TH1F("ICUTZ","ICUTZ",50,0.,50.);
    h_cutflow_w = new TH1F("ICUTZ_w","ICUTZ_w",50,0.,50.);
+   h_avg_pileup_norw = new TH1D("avg_pileup_norw","avg_pileup_norw",500,0.,50.);
+   h_avg_pileup_noweight = new TH1D("avg_pileup_noweight","avg_pileup_noweight",500,0.,50.);
+   h_avg_pileup_firstline = new TH1D("avg_pileup_firstline","avg_pileup_firstline",500,0.,50.);
+   h_avg_pileup_mcweight = new TH1D("avg_pileup_mcweight","avg_pileup_mcweight",500,0.,50.);
+   h_avg_pileup_hfor = new TH1D("avg_pileup_hfor","avg_pileup_hfor",500,0.,50.);
    h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",500,0.,50.);
    h_pileup = new TH1D("pileup","pileup",500,0.,50.);
    h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
@@ -360,6 +365,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   fChain->GetTree()->GetEntry(entry);
 
+  h_avg_pileup_firstline->Fill(averageIntPerXing,1.);
+
   pair<UInt_t,UInt_t> run_event_number; 
   run_event_number.first = RunNumber;
   run_event_number.second = EventNumber;
@@ -391,6 +398,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   weight_nopw = 1.;
   weight_notriggerSF = 1.;
   double sf = 1.;
+
+  h_avg_pileup_mcweight->Fill(averageIntPerXing,mcw);
 
   bch_bad = false;
   //MET optimization initialization
@@ -429,6 +438,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "HFOR overlap removal";
     icut++;
   }
+  h_avg_pileup_hfor->Fill(averageIntPerXing,weight);
 
   if(isData){
     //Good runs list
@@ -441,6 +451,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   float pileupweight;
   //pileup reweighting
   h_pileup_norw->Fill(actualIntPerXing,weight);
+  h_avg_pileup_norw->Fill(averageIntPerXing,weight);
+  h_avg_pileup_noweight->Fill(averageIntPerXing,1.);
   if(isMC){
     averageIntPerXing = (isSimulation && lbn==1 && int(averageIntPerXing+0.5)==1) ? 0. : averageIntPerXing;
     m_pileupTool->SetRandomSeed(314159 + mc_channel_number*2718 + EventNumber);
@@ -1602,6 +1614,11 @@ void analysis_Zmumu::Terminate()
   h_mu_iso_cut->Write();
   h_mu_phi->Write();
   h_mu_phi_nocut->Write();
+  h_avg_pileup_norw->Write();
+  h_avg_pileup_noweight->Write();
+  h_avg_pileup_firstline->Write();
+  h_avg_pileup_mcweight->Write();
+  h_avg_pileup_hfor->Write();
   h_pileup_norw->Write();
   h_pileup->Write();
   h_avg_pileup->Write();

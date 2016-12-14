@@ -1,9 +1,9 @@
 import ROOT
 import PyCintex
 import os,sys
-from ROOT import (TFile,TDirectory,TChain,TTree,gInterpreter,gROOT)
+from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
-isMC = True
+isMC = False
 
 file_list = str(sys.argv[1])
 

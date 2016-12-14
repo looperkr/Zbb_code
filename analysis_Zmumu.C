@@ -57,7 +57,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = false;
+   isMC = true;
    isData = !isMC;
    isArantxa = false;
    isGrid = false;
@@ -113,6 +113,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_avg_pileup_firstline = new TH1D("avg_pileup_firstline","avg_pileup_firstline",500,0.,50.);
    h_avg_pileup_mcweight = new TH1D("avg_pileup_mcweight","avg_pileup_mcweight",500,0.,50.);
    h_avg_pileup_hfor = new TH1D("avg_pileup_hfor","avg_pileup_hfor",500,0.,50.);
+   h_avg_pileup_oldvar = new TH1D("avg_pileup_oldvar","avg_pileup_oldvar",500,0.,50.);
+   h_avg_pileup_oldvar_norw = new TH1D("avg_pileup_oldvar_norw","avg_pileup_oldvar_norw",500,0.,50.);
+   h_avg_pileup_noprw = new TH1D("avg_pileup_noprw","avg_pileup_noprw",500,0.,50.);
    h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",500,0.,50.);
    h_pileup = new TH1D("pileup","pileup",500,0.,50.);
    h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
@@ -453,6 +456,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_pileup_norw->Fill(actualIntPerXing,weight);
   h_avg_pileup_norw->Fill(averageIntPerXing,weight);
   h_avg_pileup_noweight->Fill(averageIntPerXing,1.);
+  Float_t old_mu = averageIntPerXing;
   if(isMC){
     averageIntPerXing = (isSimulation && lbn==1 && int(averageIntPerXing+0.5)==1) ? 0. : averageIntPerXing;
     m_pileupTool->SetRandomSeed(314159 + mc_channel_number*2718 + EventNumber);
@@ -467,7 +471,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   h_pileup->Fill(actualIntPerXing,weight);
   h_avg_pileup->Fill(averageIntPerXing,weight);
-  
+  h_avg_pileup_noprw->Fill(averageIntPerXing,weight_nopw);
+
+  h_avg_pileup_oldvar->Fill(old_mu,weight);
+  h_avg_pileup_oldvar_norw->Fill(old_mu,weight_nopw);
 
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
 
@@ -1619,6 +1626,9 @@ void analysis_Zmumu::Terminate()
   h_avg_pileup_firstline->Write();
   h_avg_pileup_mcweight->Write();
   h_avg_pileup_hfor->Write();
+  h_avg_pileup_oldvar->Write();
+  h_avg_pileup_oldvar_norw->Write();
+  h_avg_pileup_noprw->Write();
   h_pileup_norw->Write();
   h_pileup->Write();
   h_avg_pileup->Write();

@@ -547,11 +547,33 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     }
     rebin = 10;
   }
+  else if(var_2_plot == "avg_pileup_oldvar"){
+    histo_name = "avg_pileup_oldvar";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot =="avg_pileup_oldvar_norw"){
+    histo_name = "avg_pileup_oldvar_norw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
   else if(var_2_plot == "avg_pileup_norw"){
     histo_name = "avg_pileup_norw";
     x_min = 0; x_max = 50;
     if(make_log){
-      y_min = 0.1; y_max = 500000000;
+      y_min = 0.1; y_max = 5000000000;
     }
     else{
       y_min = 0; y_max - 7000000;
@@ -573,7 +595,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "avg_pileup_firstline";
     x_min = 0; x_max = 50;
     if(make_log){
-      y_min = 0.1; y_max = 500000000;
+      y_min = 0.1; y_max = 5000000000;
     }
     else{
       y_min = 0; y_max - 7000000;
@@ -584,7 +606,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "avg_pileup_mcweight";
     x_min = 0; x_max = 50;
     if(make_log){
-      y_min = 0.1; y_max = 500000000;
+      y_min = 0.1; y_max = 5000000000;
     }
     else{
       y_min = 0; y_max - 7000000;
@@ -595,7 +617,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     histo_name = "avg_pileup_hfor";
     x_min = 0; x_max = 50;
     if(make_log){
-      y_min = 0.1; y_max = 500000000;
+      y_min = 0.1; y_max = 5000000000;
     }
     else{
       y_min = 0; y_max - 7000000;

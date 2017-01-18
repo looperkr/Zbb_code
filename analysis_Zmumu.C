@@ -76,6 +76,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    n_true_bjets = 0;
    n_passing_jets = 0;
    eventcheckcut = -1;
+   h_good_zeroweight_events = new TH1D("good_zeroweight_events","good_zeroweight_events",1,0,1);
+   h_good_zeroweight_events_pw = new TH1D("good_zeroweight_events_pw","good_zeroweight_events_pw",1,0,1);
    h_triggerSF_size = new TH1D("triggerSF","triggerSF",20000,0,5);
    h_Z_mumu = new TH1D("Z_mass","Dimuon mass spectrum (Z window)",20000,0,10000);
    h_Z_mumu_nopw = new TH1D("Z_mass_nopw","Dimuon mass spectrum (no pileup weighting)",20000,0,10000);
@@ -113,13 +115,28 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_avg_pileup_firstline = new TH1D("avg_pileup_firstline","avg_pileup_firstline",500,0.,50.);
    h_avg_pileup_mcweight = new TH1D("avg_pileup_mcweight","avg_pileup_mcweight",500,0.,50.);
    h_avg_pileup_hfor = new TH1D("avg_pileup_hfor","avg_pileup_hfor",500,0.,50.);
+   h_avg_pileup_hfor_nopw = new TH1D("avg_pileup_hfor_nopw","avg_pileup_hfor_nopw",500,0.,50.);
+
+   h_avg_pileup_Zvertex = new TH1D("avg_pileup_Zvertex","avg_pileup_Zvertex",500,0.,50.);
+   h_avg_pileup_Zvertex_nopw = new TH1D("avg_pileup_Zvertex_nopw","avg_pileup_Zvertex_nopw",500,0.,50.);
+   h_avg_pileup_trigger = new TH1D("avg_pileup_trigger","avg_pileup_trigger",500,0.,50.);
+   h_avg_pileup_trigger_nopw = new TH1D("avg_pileup_trigger_nopw","avg_pileup_trigger_nopw",500,0.,50.);
+   h_avg_pileup_dataquality = new TH1D("avg_pileup_dataquality","avg_pileup_dataquality",500,0.,50.);
+   h_avg_pileup_dataquality_nopw = new TH1D("avg_pileup_dataquality_nopw","avg_pileup_dataquality_nopw",500,0.,50.);
+   h_avg_pileup_vertex = new TH1D("avg_pileup_vertex","avg_pileup_vertex",500,0.,50.);
+   h_avg_pileup_vertex_nopw = new TH1D("avg_pileup_vertex_nopw","avg_pileup_vertex_nopw",500,0.,50.);
+   h_avg_pileup_muonSF = new TH1D("avg_pileup_muonSF","avg_pileup_muonSF",500,0.,50.);
+   h_avg_pileup_muonSF_nopw = new TH1D("avg_pileup_muonSF_nopw","avg_pileup_muonSF_nopw",500,0.,50.);
+   h_avg_pileup_muonSF_nomuonSF = new TH1D("avg_pileup_muonSF_nomuonSF","avg_pileup_muonSF_nomuonSF",500,0.,50.);
+
    h_avg_pileup_oldvar = new TH1D("avg_pileup_oldvar","avg_pileup_oldvar",500,0.,50.);
    h_avg_pileup_oldvar_norw = new TH1D("avg_pileup_oldvar_norw","avg_pileup_oldvar_norw",500,0.,50.);
    h_avg_pileup_noprw = new TH1D("avg_pileup_noprw","avg_pileup_noprw",500,0.,50.);
    h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",500,0.,50.);
    h_pileup = new TH1D("pileup","pileup",500,0.,50.);
    h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
-   h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",1000,0.,2.5);
+   h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",5000,-2.5,2.5);
+   h_highmuweight = new TH1D("high_mu_weight","PRW weight of events with #mu > 32.0",5000,-2.5,2.5);
    h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",500,0.,50);
    h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",500,0.,50);
    h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",500,0.,50.);
@@ -295,8 +312,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_treader->setTripFile(tiletrippath.c_str());
    /*~~~~~~~~~~~Pileup Reweighting~~~~~~~~~~~~~*/
    m_pileupTool = new Root::TPileupReweighting("PileupReweightingTool");
-   //   m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
-   m_pileupTool->AddConfigFile("packages/mc12ab_15.11.16.prw.root");
+   m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
+   //   m_pileupTool->AddConfigFile("packages/mc12ab_11.1.17.pwr.root");
    m_pileupTool->SetDataScaleFactors(1./1.09);
    m_pileupTool->AddLumiCalcFile("packages/ilumicalc_2012_AllYear_All_Good.root");
    m_pileupTool->SetDefaultChannelByMCRunNumber(0, 195847);
@@ -400,6 +417,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   weight = 1.;
   weight_nopw = 1.;
   weight_notriggerSF = 1.;
+  weight_notriggerSF_nopileup = 1.;
+  weight_nomuonSF = 1.;
   double sf = 1.;
 
   h_avg_pileup_mcweight->Fill(averageIntPerXing,mcw);
@@ -432,7 +451,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
-  //hfor (overlap removal)
+  //hfor (overlap removal cutflow) -- removal is later
   if(isMC){
     if(top_hfor_type != 4){
       h_cutflow->Fill((Float_t)icut);
@@ -441,7 +460,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "HFOR overlap removal";
     icut++;
   }
-  h_avg_pileup_hfor->Fill(averageIntPerXing,weight);
+
 
   if(isData){
     //Good runs list
@@ -469,8 +488,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
+  if(averageIntPerXing > 32.0 && isMC) h_highmuweight->Fill(pileupweight);
   h_pileup->Fill(actualIntPerXing,weight);
-  h_avg_pileup->Fill(averageIntPerXing,weight);
+
+  if(isMC){
+    h_avg_pileup->Fill(averageIntPerXing*1.09,weight);
+  }
+  else{
+    h_avg_pileup->Fill(averageIntPerXing,weight);
+  }
   h_avg_pileup_noprw->Fill(averageIntPerXing,weight_nopw);
 
   h_avg_pileup_oldvar->Fill(old_mu,weight);
@@ -496,6 +522,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
+  h_avg_pileup_Zvertex->Fill(averageIntPerXing,weight);
+  h_avg_pileup_Zvertex_nopw->Fill(averageIntPerXing,weight_nopw);
+
   //HFOR (overlap removal)
   if(isMC){
     if(top_hfor_type == 4){
@@ -506,6 +535,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "HFOR overlap removal (after PU and Z vertex reweighting)";
     icut++;
   }
+  h_avg_pileup_hfor->Fill(averageIntPerXing,weight);
+  h_avg_pileup_hfor_nopw->Fill(averageIntPerXing,weight_nopw);
 
   //Trigger                                                                                                                                                                                                               
   if(!EF_mu18_tight_mu8_EFFS) return kFALSE;
@@ -513,6 +544,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_cutflow->Fill((Float_t)icut);
   cutdes[icut] = "Trigger";
   icut++;
+
+  h_avg_pileup_trigger->Fill(averageIntPerXing,weight);
+  h_avg_pileup_trigger_nopw->Fill(averageIntPerXing,weight_nopw);
 
   /*
   h_nvertices->Fill(vxp_n,weight);
@@ -554,6 +588,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "Core flag";
   icut++;
 
+  h_avg_pileup_dataquality->Fill(averageIntPerXing,weight);
+  h_avg_pileup_dataquality_nopw->Fill(averageIntPerXing,weight_nopw);
+
 
   h_nvertices->Fill(vxp_n,weight);
   //vtx: >=1 vertex, with >=3 tracks
@@ -571,6 +608,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "Vertex";
   icut++;
   h_nvertices_aftercut->Fill(vxp_n,weight);
+  h_avg_pileup_vertex->Fill(averageIntPerXing,weight);
+  h_avg_pileup_vertex_nopw->Fill(averageIntPerXing,weight_nopw);
 
   if(!isTileTrip && isData) return kFALSE;
   h_cutflow->Fill((Float_t)icut);
@@ -797,10 +836,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     muonQualities.push_back(muon_quality(2));
     pair<Double_t,Double_t> sfEvt_trig = my_muonTrigSFTool->GetTriggerSF(RunNumberPileupSF, kFALSE, good_mu_v, muonQualities, string("mu18_tight_mu8_EFFS"));
     weight_notriggerSF = weight;
-    weight*= sfEvt_trig.first;
+    weight_notriggerSF_nopileup = weight_nopw;
+    weight *= sfEvt_trig.first;
     weight_nopw*= sfEvt_trig.first;
     h_triggerSF_size->Fill(sfEvt_trig.first);
   }
+  //  h_avg_pileup_triggerSF->Fill(averageIntPerXing,weight);
+  //h_avg_pileup_triggerSF_nopw->Fill(averageIntPerXing,weight_nopw);
+  //h_avg_pileup_triggerSF_notriggerSF_nopw->Fill(averageIntPerXing,weight_notriggerSF_nopileup);
+  //h_avg_pileup_triggerSF_notriggerSF->Fill(averageIntPerXing,weight_notriggerSF);
+
   /*  if(muon_matched){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
@@ -834,15 +879,23 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //Zwindow_max = 10000.0;
   }
   h_m_mumu->Fill(Zmass,weight); // dimuon spectrum before mass window selection
+  
   if(Zmass > Zwindow_min && Zmass < Zwindow_max && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){
     //muon scale factor
     if(isMC){
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu1_ind),good_mu_v.at(0));
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu2_ind),good_mu_v.at(1));
       weight *= sf;
+      weight_nomuonSF *= weight_nopw;
       weight_nopw*= sf;
       weight_notriggerSF *= sf;
     }
+    
+    if(isMC) h_avg_pileup_muonSF->Fill(averageIntPerXing*1.09,weight);
+    else h_avg_pileup_muonSF->Fill(averageIntPerXing,weight);
+    h_avg_pileup_muonSF_nopw->Fill(averageIntPerXing,weight_nopw);
+    h_avg_pileup_muonSF_nomuonSF->Fill(averageIntPerXing,weight_nomuonSF);
+
     //    h_Z_mumu->Fill(Zmass,weight);
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
@@ -865,6 +918,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
 
   //Fill inclusive Z histograms
+  if(isMC && weight == 0) {
+    h_good_zeroweight_events->Fill(0);
+    if(pileupweight == 0) h_good_zeroweight_events_pw->Fill(0);
+  }
   h_Z_mumu->Fill(Zmass,weight);
   h_Z_pt->Fill(Z_fourv.Pt()/1000.,weight);
   h_Z_y->Fill(Z_fourv.Rapidity(),weight);
@@ -877,9 +934,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
   
-  h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
+  if(isMC) h_pileup_avg_Zsel->Fill(averageIntPerXing*1.09,weight);
+  else h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
   h_pileup_avg_Zsel_norw->Fill(averageIntPerXing,weight_nopw);
-  h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing,weight_notriggerSF);
+  if(isMC) h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing*1.09,weight_notriggerSF);
+  else h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing,1);
   h_pileup_Zsel->Fill(actualIntPerXing,weight);
   h_pileup_Zsel_norw->Fill(actualIntPerXing,weight_nopw); //divide pileup weight back out
   
@@ -1349,7 +1408,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty);
       resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty);
       if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
-      else weight*=resineff.first;
+      else weight *= resineff.first;
     }
   
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
@@ -1599,6 +1658,8 @@ void analysis_Zmumu::Terminate()
   cout << "Output file: " << output_name << endl;
   TFile f(output_name,"recreate");
  
+  h_good_zeroweight_events->Write();
+  h_good_zeroweight_events_pw->Write();
   h_cutflow->Write();
   h_cutflow_w->Write();
   h_triggerSF_size->Write();
@@ -1626,6 +1687,18 @@ void analysis_Zmumu::Terminate()
   h_avg_pileup_firstline->Write();
   h_avg_pileup_mcweight->Write();
   h_avg_pileup_hfor->Write();
+  h_avg_pileup_hfor_nopw->Write();
+  h_avg_pileup_Zvertex->Write();
+  h_avg_pileup_Zvertex_nopw->Write();
+  h_avg_pileup_trigger->Write();
+  h_avg_pileup_trigger_nopw->Write();
+  h_avg_pileup_dataquality->Write();
+  h_avg_pileup_dataquality_nopw->Write();
+  h_avg_pileup_vertex->Write();
+  h_avg_pileup_vertex_nopw->Write();
+  h_avg_pileup_muonSF->Write();
+  h_avg_pileup_muonSF_nopw->Write();
+  h_avg_pileup_muonSF_nomuonSF->Write();
   h_avg_pileup_oldvar->Write();
   h_avg_pileup_oldvar_norw->Write();
   h_avg_pileup_noprw->Write();
@@ -1633,6 +1706,7 @@ void analysis_Zmumu::Terminate()
   h_pileup->Write();
   h_avg_pileup->Write();
   h_pileupSF->Write();
+  h_highmuweight->Write();
   h_pileup_Zsel->Write();
   h_pileup_Zsel_norw->Write();
   h_pileup_avg_Zsel->Write();

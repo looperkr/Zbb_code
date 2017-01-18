@@ -523,7 +523,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     else{
       y_min = 0; y_max = 700000;
     }
-    rebin = 10;
+    rebin = 20;
   }
   else if(var_2_plot == "pileup_norw_Z"){
     histo_name = "pileup_Z_avg_norw";
@@ -560,6 +560,18 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   }
   else if(var_2_plot =="avg_pileup_oldvar_norw"){
     histo_name = "avg_pileup_oldvar_norw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  //following plot includes the recalculation of AverageIntPerXing, but not the pileup weight
+  else if(var_2_plot == "avg_pileup_noprw"){
+    histo_name = "avg_pileup_noprw";
     x_min = 0; x_max = 50;
     if(make_log){
       y_min = 0.1; y_max = 5000000000;
@@ -623,6 +635,149 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
       y_min = 0; y_max - 7000000;
     }
     rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_hfor_nopw"){
+    histo_name = "avg_pileup_hfor_nopw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot =="avg_pileup_Zvertex"){
+    histo_name = "avg_pileup_Zvertex";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_Zvertex_nopw"){
+    histo_name = "avg_pileup_Zvertex_nopw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_trigger"){
+    histo_name = "avg_pileup_trigger";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_trigger_nopw"){
+    histo_name = "avg_pileup_trigger_nopw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_dataquality"){
+    histo_name = "avg_pileup_dataquality";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_dataquality_nopw"){
+    histo_name = "avg_pileup_dataquality_nopw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_vertex"){
+    histo_name = "avg_pileup_vertex";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_vertex_nopw"){
+    histo_name = "avg_pileup_vertex_nopw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_muonSF"){
+    histo_name = "avg_pileup_muonSF";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_muonSF_nopw"){
+    histo_name = "avg_pileup_muonSF_nopw";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max - 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "avg_pileup_muonSF_nomuonSF"){
+    histo_name = "avg_pileup_muonSF_nomuonSF";
+    x_min = 0; x_max = 50;
+    if(make_log){
+      y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max = 7000000;
+    }
+    rebin = 10;
+  }
+  else if(var_2_plot == "high_mu_weight"){
+    histo_name = "high_mu_weight";
+    x_min = -2; x_max = 2;
+    if(make_log){
+	y_min = 0.1; y_max = 5000000000;
+    }
+    else{
+      y_min = 0; y_max = 7000000;
+    }
+    rebin = 1;
   }
   else{
     cout << "This variable is not supported" << endl;
@@ -768,6 +923,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //datasets 117361, 108346, 108344 (AcerMCPythia, MC@NLOJimmy
   //x-section source: AMI
   //k-factor source:  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TopMC12SingleTopSamples
+  /*
   string singletop_process = "singletop";
   vector<double> singletop_xsec;
   double sigma_singletop[3] = {8.5889, 20.666,0.56430};
@@ -777,7 +933,21 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     xsec = sigma_singletop[i]*k_factor_singletop[i]*eff_singletop;
     singletop_xsec.push_back(xsec);
   }
-
+  */
+  /*~~~~~~~~~~~~~~~new single top~~~~~~~~~~~~~~~~~~~~~~~*/
+  //datasets 110090, 110091, 110119, 110140 (Powheg+Pythia)
+  //x-section source: arantxa's note (double-check)
+  //k-factor source: arantxa's note (double-check)
+  string singletop_process = "singletop";
+  vector<double> singletop_xsec;
+  double sigma_singletop[4] = {17.520,9.3932,1.642400,20.46100};
+  double k_factor_singletop[4] = {1.0500,1.0616,1.106700,1.093300};
+  double eff_singletop = 1.0;
+  for(int i=0; i<4; i++){
+    xsec = sigma_singletop[i]*k_factor_singletop[i]*eff_singletop;
+    singletop_xsec.push_back(xsec);
+  }
+  
   /*~~~~~~~~~~~~~~~~~~~~~~~~di-boson~~~~~~~~~~~~~~~~~~~~~*/
   //datasets: 105986(ZZ), 105985(WW), 105987 (WZ)
   //x-section source: ami (top group information looks incorrect)
@@ -798,7 +968,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //====================
   //== Monte Carlo =====
   //====================
-  string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms/";
+  string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms_new/";
   string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_MC_histograms/MC_histograms_Oct13/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
@@ -981,24 +1151,47 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   TH1D *h_ttbar_array[1];
 
   //single top
+  /*
+    string mc_type_singletop = "singletop";
+    const int n_files_singletop = 3;
+    TFile *fsingletop[3];
+    TFile *fsingletop_cf[3];
+    string fname_singletop[3];
+    string singletop_name;
+    string singletop_cf_name;
+    for(int i=0; i<3; i++){
+      if(i==0) singletop_name = "singletop_tchan_mu_hists.root";
+      else if(i==1) singletop_name = "singletop_WtChanIncl_hists.root";
+      else if(i==2) singletop_name = "singletop_SChan_Wmunu_hists.root";
+      fname_singletop[i] = singletop_name;
+      singletop_cf_name = cutflow_h_path + singletop_name;
+      singletop_name = mc_path + singletop_name;
+      fsingletop[i] = TFile::Open(singletop_name.c_str(),"UPDATE");
+      fsingletop_cf[i] = TFile::Open(singletop_cf_name.c_str(),"UPDATE");
+    }
+    TH1D *h_singletop_array[3];
+  */
+
   string mc_type_singletop = "singletop";
-  const int n_files_singletop = 3;
-  TFile *fsingletop[3];
-  TFile *fsingletop_cf[3];
-  string fname_singletop[3];
+  const int n_files_singletop = 4;
+  TFile *fsingletop[4];
+  TFile *fsingletop_cf[4];
+  string fname_singletop[4];
   string singletop_name;
   string singletop_cf_name;
-  for(int i=0; i<3; i++){
-    if(i==0) singletop_name = "singletop_tchan_mu_hists.root";
-    else if(i==1) singletop_name = "singletop_WtChanIncl_hists.root";
-    else if(i==2) singletop_name = "singletop_SChan_Wmunu_hists.root";
+  for(int i=0; i<4; i++){
+    if(i==0) singletop_name = "tchanTopPythia_hists.root";
+    else if(i==1) singletop_name = "tchanAntitopPythia_hists.root";
+    else if(i==2) singletop_name = "schanLepPythia_hists.root";
+    else if(i==3) singletop_name = "WtchanPythia_hists.root";
     fname_singletop[i] = singletop_name;
     singletop_cf_name = cutflow_h_path + singletop_name;
+    cout << singletop_cf_name << endl;
     singletop_name = mc_path + singletop_name;
     fsingletop[i] = TFile::Open(singletop_name.c_str(),"UPDATE");
     fsingletop_cf[i] = TFile::Open(singletop_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_singletop_array[3];
+  TH1D *h_singletop_array[4];
 
   //Diboson
   string mc_type_diboson = "diboson";

@@ -163,10 +163,13 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
  
   for(int i=0;i<farray_size;i++){
     TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ");
-    eventn_array[i] = h_cutflow->GetBinContent(5);
-    if(process_str == "wmunu" && i == 1) eventn_array[i] = 13094468;
-    else if(process_str == "wmunu" && i == 2) eventn_array[i] = 8216080;
-    else if(process_str == "wc" && i == 0) eventn_array[i] = 5059786;
+    cout << "debug0" << endl;
+    //eventn_array[i] = h_cutflow->GetBinContent(5);
+    eventn_array[i] = h_cutflow->GetBinContent(3);
+    cout << "debug1" << endl;
+    //if(process_str == "wmunu" && i == 1) eventn_array[i] = 13094468;
+    //else if(process_str == "wmunu" && i == 2) eventn_array[i] = 8216080;
+    //else if(process_str == "wc" && i == 0) eventn_array[i] = 5059786;
     //  eventn_before_hfor[i] = h_cutflow->GetBinContent(1);
     //cout.precision(8);
     //eventn_after_hfor[i] = h_cutflow->GetBinContent(4);

@@ -124,8 +124,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_min = 70; x_max = 110;
     y_min = 1; y_max = 1000000000;
     rebin = 2;
-    ratiomin = 0.8;
-    ratiomax = 1.4;
+    ratiomin = 0.7;
+    ratiomax = 1.5;
   }
   else if(var_2_plot == "Z_mass_nopw"){
     histo_name = "Z_mass_nopw"; //after Z mass window cut
@@ -134,8 +134,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     x_min = 70; x_max = 110;
     y_min = 1; y_max = 1000000000;
     rebin = 2;
-    ratiomin = 0.8;
-    ratiomax = 1.4;
+    ratiomin = 0.7;
+    ratiomax = 1.5;
   }
   else if(var_2_plot == "m_mumu"){
     histo_name = "m_mumu"; // before Z mass window cut
@@ -951,6 +951,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   /*~~~~~~~~~~~~~~~~~~~~~~~~di-boson~~~~~~~~~~~~~~~~~~~~~*/
   //datasets: 105986(ZZ), 105985(WW), 105987 (WZ)
   //x-section source: ami (top group information looks incorrect)
+  /*
   string diboson_process = "diboson";
   vector<double> diboson_xsec;
   //order of cross-sections: WW, ZZ, WZ
@@ -961,6 +962,18 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     xsec = sigma_diboson[i]*k_factor_diboson[i]*eff_diboson[i];
     diboson_xsec.push_back(xsec);
   } 
+  */
+  //datasets: WWtomunuqq(183736), WZtomunuqq(183737), ZWtomumuqq(183587), ZWtotautauqq(183589), ZZtomumuqq(183588), ZZtotautauqq(183590)
+  string diboson_process = "diboson";
+  vector<double> diboson_xsec;
+  double sigma_diboson[6] = {7.2854,1.9057,1.4637,1.4523,0.24747,0.24167};
+  double k_factor_diboson[6] = {1.05,1.05,1.05,1.05,1.,1.};
+  double eff_diboson = 1.0;
+  for(int i=0; i<6; i++){
+    xsec = sigma_diboson[i]*k_factor_diboson[i]*eff_diboson;
+    diboson_xsec.push_back(xsec);
+  }
+  
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~~~~~~~~~~~OPEN FILES~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1195,23 +1208,27 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   //Diboson
   string mc_type_diboson = "diboson";
-  const int n_files_diboson = 3;
-  TFile *fdiboson[3];
-  TFile *fdiboson_cf[3];
-  string fname_diboson[3];
+  const int n_files_diboson = 6;
+  TFile *fdiboson[6];
+  TFile *fdiboson_cf[6];
+  string fname_diboson[6];
   string diboson_name;
   string diboson_cf_name;
-  for(int i=0; i<3; i++){
-    if(i==0) diboson_name = "WW_hists.root";
-    else if(i==1) diboson_name = "ZZ_hists.root";
-    else if(i==2) diboson_name = "WZ_hists.root";
+  //  WWtomunuqq(183736), WZtomunuqq(183737), ZWtomumuqq(183587), ZWtotautauqq(183589), ZZtomumuqq(183588), ZZtotautauqq(183590)
+  for(int i=0; i<6; i++){
+    if(i==0) diboson_name = "WWtomunuqq_hists.root";
+    else if(i==1) diboson_name = "WZtomunuqq_hists.root";
+    else if(i==2) diboson_name = "ZWtomumuqq_hists.root";
+    else if(i==3) diboson_name = "ZWtotautauqq_hists.root";
+    else if(i==4) diboson_name = "ZZtomumuqq_hists.root";
+    else if(i==5) diboson_name = "ZZtotautauqq_hists.root";
     fname_diboson[i] = diboson_name;
     diboson_cf_name = cutflow_h_path + diboson_name;
     diboson_name = mc_path + diboson_name;
     fdiboson[i] = TFile::Open(diboson_name.c_str(),"UPDATE");
     fdiboson_cf[i] = TFile::Open(diboson_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_diboson_array[3];
+  TH1D *h_diboson_array[6];
 
 
   //====================
@@ -1501,7 +1518,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   h_mc_sum_clone->SetMaximum(ratiomax);
  
   h_mc_sum_clone->SetMarkerStyle(20);
-  h_mc_sum_clone->SetXTitle(x_name);
+  //  h_mc_sum_clone->SetXTitle(x_name);
   h_mc_sum_clone->Draw("ep");
 
   /*  h_mc_sherpa_sum_clone->SetMinimum(ratiomin);

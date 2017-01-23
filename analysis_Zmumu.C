@@ -491,8 +491,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(averageIntPerXing > 32.0 && isMC) h_highmuweight->Fill(pileupweight);
   h_pileup->Fill(actualIntPerXing,weight);
 
-  if(isMC){
-    h_avg_pileup->Fill(averageIntPerXing*1.09,weight);
+  if(!isMC){
+    h_avg_pileup->Fill(averageIntPerXing*(1/1.09),weight);
   }
   else{
     h_avg_pileup->Fill(averageIntPerXing,weight);

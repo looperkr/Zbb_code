@@ -57,7 +57,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    //run flags
-   isMC = true;
+   isMC = false;
    isData = !isMC;
    isArantxa = false;
    isGrid = false;
@@ -1080,8 +1080,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     jet_pair.first = ijet;
     jet_pair.second = jet_fourv;
     jet_v.push_back(jet_pair);
-    h_jet_pt->Fill(jet_fourv.Pt()/1000.);
-    h_jet_y->Fill(jet_fourv.Rapidity());
+    h_jet_pt->Fill(jet_fourv.Pt()/1000.,weight);
+    h_jet_y->Fill(jet_fourv.Rapidity(),weight);
 
     //tighter eta selection: |eta| < 2.4
     if(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) > 2.4) continue;
@@ -1089,8 +1089,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     jet_pair_tight.first = ijet;
     jet_pair_tight.second = jet_fourv;
     jet_v_tight.push_back(jet_pair_tight);
-    h_jet_pt_tighteta->Fill(jet_fourv.Pt()/1000.);
-    h_jet_y_tighteta->Fill(jet_fourv.Rapidity());
+    h_jet_pt_tighteta->Fill(jet_fourv.Pt()/1000.,weight);
+    h_jet_y_tighteta->Fill(jet_fourv.Rapidity(),weight);
 
   }
 

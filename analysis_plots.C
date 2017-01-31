@@ -48,7 +48,8 @@ Di-bjet pT: bjet_pt_bb
 #include "TLatex.h"
 #include "THStack.h"
 
-void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
+
+void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool include_sherpa){
 
   int j = 0; //debugging iterator
   //plot luminosity
@@ -790,7 +791,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   /*~~~~~~~~~~~~~~Sherpa Zmumu~~~~~~~~~~~~~~~~~~~~*/
   //Dataset 147771
   //xsections from arantxa's note
-/*
+
   string zmumu_sherpa_process = "zmumu_sherpa";
   vector<double> zmumu_sherpa_xsec;
   double sigma_zmumu_sherpa[1] = {1207.8};
@@ -798,7 +799,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   double k_factor_zmumu_sherpa = 1.0276;
   double eff_zmumu_sherpa = 1.0;
   xsec = sigma_zmumu_sherpa[0]*k_factor_zmumu_sherpa*eff_zmumu_sherpa;
-  zmumu_sherpa_xsec.push_back(xsec);*/
+  zmumu_sherpa_xsec.push_back(xsec);
 
   /*~~~~~~~~~~~~~~~~~~~Zmumu_NpX~~~~~~~~~~~~~~~~~~~~~~~~~*/
   //Datasets 147113 through 147118 (AlpgenPythia_Auto_P2011C_ZmumuNpX)
@@ -989,7 +990,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_arantxa/";
 
   //Sherpa Zmumu
-  /*
+  
   string mc_type_zmumu_sherpa = "Zmumu_sherpa";
   const int n_files_zmumu_sherpa = 1;
   TFile * fzmumu_sherpa[1];
@@ -997,13 +998,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   string fname_zmumu_sherpa[1];
   string zmumu_sherpa_name;
   string zmumu_sherpa_cf_name;
-  zmumu_sherpa_name = "Zmumu_sherpa_hists.root";
+  zmumu_sherpa_name = "Zmumu_hists.root";
   fname_zmumu_sherpa[0] = zmumu_sherpa_name;
   zmumu_sherpa_cf_name = cutflow_h_path + zmumu_sherpa_name;
-  zmumu_sherpa_name = mc_path + zmumu_sherpa_name;*/
-  //  fzmumu_sherpa[0] = TFile::Open(zmumu_sherpa_name.c_str(),"UPDATE");
-  //fzmumu_sherpa_cf[0] = TFile::Open(zmumu_sherpa_cf_name.c_str(),"UPDATE");
-  //TH1D *h_zmumu_sherpa_array[1];
+  zmumu_sherpa_name = mc_path + zmumu_sherpa_name;
+  if(include_sherpa){
+    fzmumu_sherpa[0] = TFile::Open(zmumu_sherpa_name.c_str(),"UPDATE");
+    fzmumu_sherpa_cf[0] = TFile::Open(zmumu_sherpa_cf_name.c_str(),"UPDATE");
+  }
+  TH1D *h_zmumu_sherpa_array[1];
 
   //Zmumu_NpX
   string mc_type_zmumu = "Zmumu_Np";
@@ -1252,7 +1255,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   //Add MC histograms by process: function add_histo is defined in header file
   //Zmumu
-  //  TH1D *h_zmumu_sherpa_sum = add_histo(fzmumu_sherpa,n_files_zmumu_sherpa,fname_zmumu_sherpa,histo_name,zmumu_sherpa_xsec,fzmumu_sherpa_cf,lumi,h_zmumu_sherpa_array,zmumu_sherpa_process,x_min,x_max);
+  TH1D *h_zmumu_sherpa_sum;
+  if(include_sherpa){
+    h_zmumu_sherpa_sum = add_histo(fzmumu_sherpa,n_files_zmumu_sherpa,fname_zmumu_sherpa,histo_name,zmumu_sherpa_xsec,fzmumu_sherpa_cf,lumi,h_zmumu_sherpa_array,zmumu_sherpa_process,x_min,x_max);
+  }
   TH1D *h_zmumu_sum     = add_histo(fzmumu,n_files_zmumu,fname_zmumu,histo_name,zmumu_xsec,fzmumu_cf,lumi,h_zmumu_array,zmumu_process,x_min,x_max);
   TH1D *h_zmumubb_sum   = add_histo(fzmumubb,n_files_zmumubb,fname_zmumubb,histo_name,zmumubb_xsec,fzmumubb_cf,lumi,h_zmumubb_array,zmumubb_process,x_min,x_max);
   TH1D *h_zmumucc_sum   = add_histo(fzmumucc,n_files_zmumucc,fname_zmumucc,histo_name,zmumucc_xsec,fzmumucc_cf,lumi,h_zmumucc_array,zmumucc_process,x_min,x_max);
@@ -1287,11 +1293,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   zplusjets_sum += h_zmumubb_sum->Integral();
   zplusjets_sum += h_zmumucc_sum->Integral();
 
-  //  double zplusjets_sherpa_sum = h_zmumu_sherpa_sum->Integral();
+  double zplusjets_sherpa_sum;
+  if(include_sherpa) zplusjets_sherpa_sum = h_zmumu_sherpa_sum->Integral();
 
   cout.precision(9);
   cout << "Z->mumu + jets (Alpgen): " << zplusjets_sum << endl;
-  //  cout << "Z->mumu + jets (Sherpa): " << zplusjets_sherpa_sum << endl;
+  if(include_sherpa)  cout << "Z->mumu + jets (Sherpa): " << zplusjets_sherpa_sum << endl;
   cout << "Z->tautau + jets: " << h_ztautau_sum->Integral() << endl;
   cout << "W+jets: " << h_wjets_sum->Integral() << endl;
   cout << "ttbar: " << h_ttbar_sum->Integral() << endl;
@@ -1321,7 +1328,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   THStack *sum_stack = new THStack("stack","stack");
 
   if(rebin != 1){
-    //h_zmumu_sherpa_sum->Rebin(rebin);
+    if(include_sherpa) h_zmumu_sherpa_sum->Rebin(rebin);
     h_zmumu_sum->Rebin(rebin);
     h_zmumubb_sum->Rebin(rebin);
     h_zmumucc_sum->Rebin(rebin);
@@ -1332,7 +1339,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     h_diboson_sum->Rebin(rebin);
     h_data->Rebin(rebin);
   }
-  //  h_zmumu_sherpa_sum->GetXaxis()->SetRangeUser(x_min,x_max);
+  if(include_sherpa) h_zmumu_sherpa_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   h_zmumu_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   h_zmumubb_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   h_zmumucc_sum->GetXaxis()->SetRangeUser(x_min,x_max);
@@ -1354,14 +1361,22 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   TH1D *h_diboson_sum_clone = (TH1D*)h_diboson_sum->Clone();
 
   //sherpa comparison clones: cloning two, electric boogaloo
-  /*
-  TH1D *h_mc_sherpa_sum = (TH1D*)h_zmumu_sherpa_sum->Clone();
-  TH1D *h_ztautau_sherpa_sum_clone = (TH1D*)h_ztautau_sum->Clone();
-  TH1D *h_wjets_sherpa_sum_clone = (TH1D*)h_wjets_sum->Clone();
-  TH1D *h_ttbar_sherpa_sum_clone = (TH1D*)h_ttbar_sum->Clone();
-  TH1D *h_singletop_sherpa_sum_clone = (TH1D*)h_singletop_sum->Clone();
-  TH1D *h_diboson_sherpa_sum_clone = (TH1D*)h_diboson_sum->Clone();
-  */
+  
+  TH1D *h_mc_sherpa_sum;
+  TH1D *h_ztautau_sherpa_sum_clone;
+  TH1D *h_wjets_sherpa_sum_clone;
+  TH1D *h_ttbar_sherpa_sum_clone;
+  TH1D *h_singletop_sherpa_sum_clone;
+  TH1D *h_diboson_sherpa_sum_clone;
+  
+  if(include_sherpa){
+    h_mc_sherpa_sum = (TH1D*)h_zmumu_sherpa_sum->Clone();
+    h_ztautau_sherpa_sum_clone = (TH1D*)h_ztautau_sum->Clone();
+    h_wjets_sherpa_sum_clone = (TH1D*)h_wjets_sum->Clone();
+    h_ttbar_sherpa_sum_clone = (TH1D*)h_ttbar_sum->Clone();
+    h_singletop_sherpa_sum_clone = (TH1D*)h_singletop_sum->Clone();
+    h_diboson_sherpa_sum_clone = (TH1D*)h_diboson_sum->Clone();
+  }
 
   h_mc_sum->Add(h_zmumubb_sum_clone);
   h_mc_sum->Add(h_zmumucc_sum_clone);
@@ -1371,16 +1386,18 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   h_mc_sum->Add(h_singletop_sum_clone);
   h_mc_sum->Add(h_diboson_sum_clone);
 
-  /*  h_mc_sherpa_sum->Add(h_ztautau_sherpa_sum_clone);
-  h_mc_sherpa_sum->Add(h_wjets_sherpa_sum_clone);
-  h_mc_sherpa_sum->Add(h_ttbar_sherpa_sum_clone);
-  h_mc_sherpa_sum->Add(h_singletop_sherpa_sum_clone);
-  h_mc_sherpa_sum->Add(h_diboson_sherpa_sum_clone);
-  */
+  if(include_sherpa){
+    h_mc_sherpa_sum->Add(h_ztautau_sherpa_sum_clone);
+    h_mc_sherpa_sum->Add(h_wjets_sherpa_sum_clone);
+    h_mc_sherpa_sum->Add(h_ttbar_sherpa_sum_clone);
+    h_mc_sherpa_sum->Add(h_singletop_sherpa_sum_clone);
+    h_mc_sherpa_sum->Add(h_diboson_sherpa_sum_clone);
+  }
   //rescale attempt
   
   TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
-  //  TH1D *h_mc_sherpa_sum_clone = (TH1D*)h_mc_sherpa_sum->Clone();
+  TH1D *h_mc_sherpa_sum_clone;
+  if(include_sherpa) h_mc_sherpa_sum_clone = (TH1D*)h_mc_sherpa_sum->Clone();
   if(!scale_to_lumi){
     h_mc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     cout << "Normalization ratio: " << h_data->Integral()/h_mc_sum->Integral() << endl;
@@ -1392,14 +1409,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
     h_zmumucc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     h_zmumu_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
     h_zmumubb_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    /*
-    h_mc_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-    cout << "Normalization ratio (sherpa): " << h_data->Integral()/h_mc_sherpa_sum->Integral() << endl;
-    h_ztautau_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-    h_wjets_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-    h_ttbar_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-    h_singletop_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-    h_diboson_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());*/
+
+    if(include_sherpa){
+      h_mc_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+      cout << "Normalization ratio (sherpa): " << h_data->Integral()/h_mc_sherpa_sum->Integral() << endl;
+      h_ztautau_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+      h_wjets_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+      h_ttbar_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+      h_singletop_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+      h_diboson_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+    }
   }
   //Stack for Alpgen samples (no sherpa stack)
   sum_stack->Add(h_singletop_sum_clone);
@@ -1414,20 +1433,28 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
 
   float mc_events = h_mc_sum->Integral();
   cout << "MC sum: " << mc_events << endl;
-  //  float mc_events_sherpa = h_mc_sherpa_sum->Integral();
-  // cout << "MC sum (sherpa): " << mc_events_sherpa << endl;
+  float mc_events_sherpa;
+  if(include_sherpa){
+    mc_events_sherpa = h_mc_sherpa_sum->Integral();
+    cout << "MC sum (sherpa): " << mc_events_sherpa << endl;
+  }
   float data_events = h_data->Integral();
   cout << "Data sum: " << data_events << endl;
 
   float percent_difference = (data_events-mc_events)/data_events;
   cout << "Percentage difference: " << percent_difference << endl;
-  //float percentage_difference_sherpa = (data_events-mc_events_sherpa)/data_events;
-  // cout << "Percentage difference (sherpa): " << percentage_difference_sherpa << endl;
+  float percentage_difference_sherpa;
+  if(include_sherpa){
+    percentage_difference_sherpa = (data_events-mc_events_sherpa)/data_events;
+    cout << "Percentage difference (sherpa): " << percentage_difference_sherpa << endl;
+  }
   float ratio = (data_events)/(mc_events);
   cout << "Ratio (Data/MC): " << ratio << endl;
-  //float ratio_sherpa = (data_events)/(mc_events);
-  //cout << "Ratio (sherpa): " << ratio_sherpa << endl;
-
+  float ratio_sherpa;
+  if(include_sherpa){
+    ratio_sherpa = (data_events)/(mc_events_sherpa);
+    cout << "Ratio (sherpa): " << ratio_sherpa << endl;
+  }
   write_event_numbers(h_zmumu_sum,h_data,histo_name,lumi);
 
   //make n_jets tables
@@ -1446,11 +1473,19 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   if(make_log){
     sum_stack->SetMaximum(y_max);
     sum_stack->SetMinimum(y_min);
+    if(include_sherpa){
+      h_mc_sherpa_sum->SetMaximum(y_max);
+      h_mc_sherpa_sum->SetMinimum(y_min);
+    }
     //h_data->GetYaxis()->SetRangeUser(y_min,y_max);
  }
   else{
     sum_stack->SetMaximum(y_max);
     sum_stack->SetMinimum(y_min);
+    if(include_sherpa){
+      h_mc_sherpa_sum->SetMaximum(y_max);
+      h_mc_sherpa_sum->SetMinimum(y_min);
+    }
   }
 
 
@@ -1468,17 +1503,22 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   pad1->cd();
 
   //  SetFormats(h_data,x_name,y_name);
-  //  h_mc_sherpa_sum->SetLineStyle(2);
+  if(include_sherpa){
+    h_mc_sherpa_sum->SetLineStyle(2);
+    h_mc_sherpa_sum->SetLineColor(2);
+    h_mc_sherpa_sum->SetLineWidth(2);
+  }
   //  h_data->SetXTitle(x_name);
 
   sum_stack->Draw("HIST");
-  //  h_mc_sherpa_sum->Draw("HIST ELP SAME");
+  //  h_mc_sherpa_sum->Draw("HIST EL SAME");
+  if(include_sherpa) h_mc_sherpa_sum->Draw("HIST SAME");
   h_data->Draw("HIST ELP SAME");
   sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
   if(var_2_plot == "n_jets" || var_2_plot == "n_bjets"){
     sum_stack->GetXaxis()->CenterTitle();
   }
-  
+
   c1->cd();
   TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
   pad2->SetTopMargin(0);
@@ -1511,7 +1551,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   
   h_mc_sum_clone->GetYaxis()->SetTitle("Data/MC");
   //h_mc_sum_clone->GetYaxis()->SetTitle("MC/Data");
-  h_mc_sum_clone->SetLineColor(kRed);
+  h_mc_sum_clone->SetLineColor(kBlack);
   h_mc_sum_clone->Divide(h_data,h_mc_sum_clone);
 
   h_mc_sum_clone->SetMinimum(ratiomin);
@@ -1521,19 +1561,31 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log){
   //  h_mc_sum_clone->SetXTitle(x_name);
   h_mc_sum_clone->Draw("ep");
 
-  /*  h_mc_sherpa_sum_clone->SetMinimum(ratiomin);
-  h_mc_sherpa_sum_clone->SetMaximum(ratiomax);
-  h_mc_sherpa_sum_clone->SetLineColor(kBlue);
-  h_mc_sherpa_sum_clone->Divide(h_data,h_mc_sherpa_sum_clone);
-  h_mc_sherpa_sum_clone->SetMarkerStyle(20);
-  h_mc_sherpa_sum_clone->Draw("ep same");
-  */
+  if(include_sherpa){
+    h_mc_sherpa_sum_clone->SetMinimum(ratiomin);
+    h_mc_sherpa_sum_clone->SetMaximum(ratiomax);
+    h_mc_sherpa_sum_clone->SetMarkerSize(0.5);
+    h_mc_sherpa_sum_clone->SetMarkerColor(kRed);
+    h_mc_sherpa_sum_clone->SetLineColor(kRed);
+    h_mc_sherpa_sum_clone->Divide(h_data,h_mc_sherpa_sum_clone);
+    h_mc_sherpa_sum_clone->SetMarkerStyle(20);
+    h_mc_sherpa_sum_clone->Draw("ep same");
+  }
+  TLegend *ratiolegend = new TLegend(0.3,0.84,0.65,0.97);
+  ratiolegend->SetFillStyle(0);
+  ratiolegend->SetTextSize(0.04);
+  ratiolegend->SetBorderSize(0);
+  ratiolegend->SetNColumns(2);
+  ratiolegend->AddEntry(h_mc_sum_clone,"Alpgen","lp");
+  if(include_sherpa) ratiolegend->AddEntry(h_mc_sherpa_sum_clone,"Sherpa","lp");
+  ratiolegend->Draw();
+
   pad1->cd();
 
   TLegend *legend = new TLegend(0.6,0.64,0.95,0.95);
   legend->SetTextSize(0.04);
   legend->AddEntry(h_data,"Data","lp");
-  //  legend->AddEntry(h_mc_sherpa_sum,"Sherpa MC","lp");
+  if(include_sherpa) legend->AddEntry(h_mc_sherpa_sum,"Sherpa MC","l");
   legend->AddEntry(h_zmumubb_sum_clone,"Z(#rightarrow#mu#mu)+bb+jets MC","f");
   legend->AddEntry(h_zmumu_sum_clone,"Z(#rightarrow#mu#mu)+jets MC","f");
   legend->AddEntry(h_zmumucc_sum_clone,"Z(#rightarrow#mu#mu)+cc+jets MC","f");

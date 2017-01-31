@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include "THStack.h"
 
+
 string NumToStr(int number_val){
   ostringstream ss;
   ss << number_val;
@@ -163,8 +164,10 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
  
   for(int i=0;i<farray_size;i++){
     cout << file_name[i] << endl;
-    if(file_name[i] != "WWtomunuqq_hists.root" && file_name[i] != "WZtomunuqq_hists.root"){
-      TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ");
+    TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ_w");
+    eventn_array[i] = h_cutflow->GetBinContent(3);
+    /*    if(file_name[i] != "WWtomunuqq_hists.root" && file_name[i] != "WZtomunuqq_hists.root"){
+      TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ_w");
       cout << "debug0" << endl;
       //eventn_array[i] = h_cutflow->GetBinContent(5);
       eventn_array[i] = h_cutflow->GetBinContent(3);
@@ -174,7 +177,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     }
     else if(file_name[i] == "WZtomunuqq_hists.root"){
       eventn_array[i] = 840000;
-    }
+      }*/
     cout << "debug1" << endl;
     //if(process_str == "wmunu" && i == 1) eventn_array[i] = 13094468;
     //else if(process_str == "wmunu" && i == 2) eventn_array[i] = 8216080;
@@ -203,12 +206,14 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     //    cout << "Norm factor: " << norm_factor[i] << endl;
   }
   double events_before_scaling = 0;
+  double events_after_scaling = 0;
   //Open histograms and scale
   for(int i=0;i<farray_size;i++){
     h_array[i] = (TH1D*)farray[i]->Get(h_name);
     events_before_scaling += h_array[i]->Integral();
     h_array[i]->Sumw2();
     h_array[i]->Scale(norm_factor[i]);
+    events_after_scaling += h_array[i]->Integral();
   }
   TString sum_name = process_str + "_sum";
   cout.precision(8);
@@ -220,6 +225,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     if(i>0) h_sum->Add(h_array[i]);
   }
   h_sum->GetXaxis()->SetRangeUser(x_min,x_max);
+  cout << sum_name << " after scaling: " << events_after_scaling << endl;
   //Write sum to file for mulitjet fits
   /*  if(h_name == "Z_mass"){
     TString mjfilename = "./multijet_calculation/"+process_str+".root";

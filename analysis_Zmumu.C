@@ -46,21 +46,31 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
 
+   //run flags
+  isMC = false;
+  isData = !isMC;
+  isArantxa = false;
+  isGrid = false;
+  
+  TString option = GetOption();
+  Info("Begin", "starting h1analysis with process option: %s", option.Data());
 
-   TString option = GetOption();
-
-   output_name = option;
+  if(isMC){
+    TObjArray *toption = option.Tokenize(",");
+    
+    //   toption->Print();
+    output_name = ((TObjString *)(toption->At(0)))->String();
+    TString mapIndex_str = ((TObjString *)(toption->At(1)))->String();
+    mapIndex = mapIndex_str.Atoi();
+  }
+  else{
+    output_name = option;
+  }
 
    //print current time
    time_t now = time(0);
    char* dt = ctime(&now);
    cout << "Starting time: " << dt << endl;
-
-   //run flags
-   isMC = false;
-   isData = !isMC;
-   isArantxa = false;
-   isGrid = false;
 
    //trigger matching counter 
    m_event_counter = 0;
@@ -934,11 +944,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
   
-  if(isMC) h_pileup_avg_Zsel->Fill(averageIntPerXing*1.09,weight);
-  else h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
+  if(isMC) h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
+  else h_pileup_avg_Zsel->Fill(averageIntPerXing*1/1.09,weight);
   h_pileup_avg_Zsel_norw->Fill(averageIntPerXing,weight_nopw);
-  if(isMC) h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing*1.09,weight_notriggerSF);
-  else h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing,1);
+  if(isMC) h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing,weight_notriggerSF);
+  else h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing*1/1.09,1);
   h_pileup_Zsel->Fill(actualIntPerXing,weight);
   h_pileup_Zsel_norw->Fill(actualIntPerXing,weight_nopw); //divide pileup weight back out
   
@@ -1405,8 +1415,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       default :
         label = "Light";
       }
-      res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty);
-      resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty);
+      res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
+      resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
       if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
       else weight *= resineff.first;
     }

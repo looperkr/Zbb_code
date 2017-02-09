@@ -3,16 +3,40 @@ import PyCintex
 import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
-isMC = True
+isMC = False
 
 file_list = str(sys.argv[1])
 
 chain = TChain("physics")
 
+firstline = ""
+lineit = 0;
 with open(file_list) as f:
     for line in f:
         newline=line.strip()
         chain.Add(newline)
+        if lineit == 0:
+            firstline = newline
+            lineit = 1;
+#get generator
+mapIndex = 0
+if isMC:
+    dataset_name = firstline.split("/")[6]
+    generator_el = dataset_name.split("_")[2]
+    generator = generator_el.split(".")[1]
+    if "Pythia" in generator:
+        mapIndex = 0
+    elif "Jimmy" in generator:
+        mapIndex = 2
+    elif "Sherpa" in generator:
+        mapIndex = 3
+    elif "Herwig" in generator:
+        mapIndex = 4
+    else: 
+        print "DEBUG!"
+        exit
+
+print mapIndex
 
 if isMC:
     output_el = file_list.split("_")
@@ -35,6 +59,11 @@ else:
     output_name = "./data_histograms/" + output_type + "_hists.root"
     print output_name
 
+if isMC:
+    optionslist = output_name + ',' + str(mapIndex)
+else:
+    optionslist = output_name
 gInterpreter.GenerateDictionary("vector<vector<int> >","vector")
 gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C");
-chain.Process("analysis_Zmumu.C+",output_name) #look at GetOption in analysis_Zmumu::SlaveBegin()
+chain.Process("analysis_Zmumu.C+",optionslist) #look at GetOption in analysis_Zmumu::SlaveBegin()
+

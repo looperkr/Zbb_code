@@ -209,7 +209,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("bjet_n", "N_{bjets}","Events", 0., 5., 1, 10000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_pt"){
-    chooseHistOptions("bjet_pt", "p_{T}(b-jets) [GeV]","Events/10 GeV", 0., 500, 0.1, 100000, 40, ratiomin, ratiomax);
+    chooseHistOptions("bjet_pt", "p_{T}(b-jets) [GeV]","Events/10 GeV", 0., 500, 1, 100000, 40, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_y"){
     chooseHistOptions("bjet_y", "b-jet rapidity", "Events/0.2",-3.5, 3.5, 0.1, 5000000, 4, ratiomin, ratiomax);
@@ -795,15 +795,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
   string plt_dir; // final place plots will be written
   create_dir(plt_path,plt_dir);
-  /*
-  write_plots_2_file(h_zmumu_array, n_files_zmumu, h_zmumu_sum, var_2_plot,mc_type_zmumu, plt_dir, x_min, x_max);
-  write_plots_2_file(h_zmumubb_array,n_files_zmumubb, h_zmumubb_sum, var_2_plot, mc_type_zmumubb, plt_dir, x_min, x_max);
-  write_plots_2_file(h_zmumucc_array,n_files_zmumucc, h_zmumucc_sum, var_2_plot, mc_type_zmumucc, plt_dir,x_min,x_max);
-  write_plots_2_file(h_ztautau_array,n_files_ztautau, h_ztautau_sum, var_2_plot, mc_type_ztautau, plt_dir, x_min,x_max);
-  write_plots_2_file(h_ttbar_array,n_files_ttbar, h_ttbar_sum, var_2_plot,mc_type_ttbar, plt_dir,x_min,x_max);
-  write_plots_2_file(h_singletop_array,n_files_singletop, h_singletop_sum, var_2_plot, mc_type_singletop, plt_dir, x_min,x_max);
-  write_plots_2_file(h_diboson_array,n_files_diboson,h_diboson_sum,var_2_plot,mc_type_diboson,plt_dir,x_min,x_max);
-  */
+
   /******************************************
    **********Make Stack Plot***************
    ****************************************/
@@ -948,7 +940,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
    ********DRAW SUMMED HISTS************
    **********************************/
   string canvas_name = var_2_plot + "canvas";
-  TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),800,800);
+  TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),900,900);
 
   float mc_max = h_mc_sum_clone->GetMaximum();
   float data_max = h_data->GetMaximum();
@@ -1057,7 +1049,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   TLegend *ratiolegend = new TLegend(0.3,0.84,0.65,0.97);
   ratiolegend->SetFillStyle(0);
-  ratiolegend->SetTextSize(0.06);
+  ratiolegend->SetTextSize(0.07);
   ratiolegend->SetBorderSize(0);
   ratiolegend->SetNColumns(2);
   ratiolegend->AddEntry(h_mc_sum_clone,"Alpgen","lp");
@@ -1067,7 +1059,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   pad1->cd();
 
   TLegend *legend = new TLegend(0.6,0.64,0.95,0.95);
-  legend->SetTextSize(0.04);
+  legend->SetTextSize(0.03);
   legend->AddEntry(h_data,"Data","lp");
   if(include_sherpa) legend->AddEntry(h_mc_sherpa_sum,"Sherpa MC","l");
   legend->AddEntry(h_zmumubb_sum_clone,"Z(#rightarrow#mu#mu)+bb+jets MC","f");
@@ -1084,13 +1076,21 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   TLatex *tex1 = new TLatex();
   tex1->SetNDC();
   string mc_evt_label = "#font[18]{MC events: " + NumToStr(mc_events) + "}";
-  tex1->DrawLatex(0.19,0.9-0.03,mc_evt_label.c_str());
+  //  tex1->DrawLatex(0.19,0.9-0.03,mc_evt_label.c_str());
 
   TLatex *tex2 = new TLatex();
   tex2->SetNDC();
   string data_evt_label = "#font[18]{Data events: " + NumToStr(data_events) + "}";
-  tex2->DrawLatex(0.19,0.9-0.001,data_evt_label.c_str());
+  //  tex2->DrawLatex(0.19,0.9-0.001,data_evt_label.c_str());
 
   c1->cd();
   c1->Update();
+
+  TImage *img = TImage::Create();
+  img->FromPad(c1);
+  string img_name = plt_dir + "/" + var_2_plot + ".png";
+  img->WriteImage(img_name.c_str());
+
+  cout << img_name << endl;
+
 }

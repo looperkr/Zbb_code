@@ -19,6 +19,34 @@
 #include "THStack.h"
 
 
+struct HistoOpts{
+  TString histo_name;
+  TString x_name;
+  TString y_name;
+  double x_min;
+  double x_max;
+  double y_min;
+  double y_max;
+  int rebin;
+  double ratiomin;
+  double ratiomax;
+} histToPlot;
+
+void chooseHistOptions(const TString & histo_name, const TString & x_name, const TString & y_name, double x_min, double x_max, double y_min, double y_max, 
+			int rebin, double ratiomin, double ratiomax){
+  histToPlot.histo_name = histo_name;
+  histToPlot.x_name = x_name;
+  histToPlot.y_name = y_name;
+  histToPlot.x_min = x_min;
+  histToPlot.x_max = x_max;
+  histToPlot.y_min = y_min;
+  histToPlot.y_max = y_max;
+  histToPlot.rebin = rebin;
+  histToPlot.ratiomin = ratiomin;
+  histToPlot.ratiomax = ratiomax;
+}
+
+
 string NumToStr(int number_val){
   ostringstream ss;
   ss << number_val;
@@ -147,6 +175,7 @@ void write_table(TH1D * h_mc, TH1D * h_data, TString & process_name){
 
 TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TString &h_name, vector<double> &xsec_values,TFile ** cfarray, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
   //check to see if file and histogram opens
+  cout << "Opening " << process_str << endl;
   if (farray[0]->IsOpen()){
     cout << "File opened." << endl;
     TH1D * histo_check = (TH1D*)farray[0]->Get(h_name);

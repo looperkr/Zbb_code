@@ -82,708 +82,191 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   int rebin;
   double ratiomin = 0.45; //default values, some are changed
   double ratiomax = 1.85;
+  float logmax = 100000; //use variable when wanting non-log plot option
 
   //Plot options for chosen variable
   if(var_2_plot == "mu_pt"){
-    histo_name = "mu_pt_nocut"; //before pt cut applied
-    x_name = "p_{T}^{#mu} [GeV]";
-    y_name = "Events";
-    x_min = 0; x_max = 200;
-    y_min = 0.01; y_max = 1000000000;
-    rebin = 1;
+    chooseHistOptions("mu_pt_nocut", "p_{T}^{#mu} [GeV]", "Events/0.5 GeV", 0, 200, 0.01,  1000000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_pt_Z"){
-    histo_name = "mu_pT"; //after Z selection
-    x_name = "p_{T}^{#mu} [GeV]";
-    y_name = "Events";
-    x_min = 15; x_max = 400;
-    y_min = 0.1; y_max = 1000000000;
-    rebin = 10;
+    chooseHistOptions("mu_pT","p_{T}^{#mu} [GeV]", "Events/5 GeV", 15, 400, 0.1, 1000000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_phi"){
-    histo_name = "mu_phi";
-    x_name = "#phi^{#mu}";
-    y_name = "Events";
-    x_min = -TMath::Pi()-.5; x_max = TMath::Pi()+.5;
-    //y_min = 0.1; y_max = 1000000000;
-    y_min = 0.1; y_max = 1000000;
-    rebin = 1;
+    chooseHistOptions("mu_phi","#phi^{#mu}","Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 0.1, 1000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_eta"){
-    histo_name = "mu_eta"; //after Z selection
-    x_name = "#eta^{#mu}";
-    y_name = "Events";
-    x_min = -3; x_max = 3;
-    //    y_min = 0.1; y_max = 1000000000;
-    y_min = 0.1; y_max = 1000000;
-    rebin = 1;
+    chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 0.1, 1000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass"){
-    histo_name = "Z_mass"; //after Z mass window cut
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 70; x_max = 110;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
-    ratiomin = 0.7;
-    ratiomax = 1.5;
+    chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_nopw"){
-    histo_name = "Z_mass_nopw"; //after Z mass window cut
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 70; x_max = 110;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
-    ratiomin = 0.7;
-    ratiomax = 1.5;
+    chooseHistOptions("Z_mass_nopw", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7,1.5);   //after Z mass window cut
   }
   else if(var_2_plot == "m_mumu"){
-    histo_name = "m_mumu"; // before Z mass window cut
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 40; x_max = 200;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
+    chooseHistOptions("m_mumu",  "m_{#mu#mu} [GeV]", "Events/GeV", 40, 200, 1, 1000000000, 2, ratiomin, ratiomax); // before Z mass window cut
   }
   else if(var_2_plot == "Z_mass_0j"){
-    histo_name = "Z_mass_0j"; 
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 60; x_max = 120;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
+    chooseHistOptions("Z_mass_0j", "m_{#mu#mu} [GeV]",  "Events/GeV", 60, 120, 1,  1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_MET"){
-    histo_name = "Z_mass_MET";
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 70; x_max = 110;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
+    chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_exactly0j"){
-    histo_name = "Z_mass_exactly0j";
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 60; x_max = 120;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
+    chooseHistOptions("Z_mass_exactly0j", "m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "Z_mass_0j_bch"){
-    histo_name = "Z_mass_0j_bch";
-    x_name = "m_{#mu#mu} [GeV]";
-    y_name = "Events";
-    x_min = 60; x_max = 120;
-    y_min = 1; y_max = 1000000000;
-    rebin = 2;
+  else if(var_2_plot == "Z_mass_1b"){
+    chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV]",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_y"){
-    histo_name = "Z_y";
-    x_name = "Z rapidity";
-    y_name = "Events";
-    x_min = -3.5; x_max = 3.5;
-    if(make_log){
-      y_min = 0.1; y_max = 1000000000;
-    }
-    else{
-      y_min = 0.1; y_max = 100000; 
-    }
-    rebin = 2;
+    if(make_log) logmax = 1000000000;
+    chooseHistOptions("Z_y", "Z rapidity", "Events/0.1", -3.5, 3.5, 0.1, logmax, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_y_nopw"){
-    histo_name = "Z_y_nopw";
-    x_name = "Z rapidity";
-    y_name = "Events";
-    x_min = -3.5; x_max = 3.5;
-    if(make_log){
-      y_min = 0.1; y_max = 1000000000;
-    }
-    else{
-      y_min = 0.1; y_max = 100000;
-    }
-    rebin = 2;
+    if(make_log) logmax = 1000000000;
+    chooseHistOptions("Z_y_nopw", "Z rapidity", "Events/0.1", -3.5, 3.5, 0.1, logmax, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_eta"){
-    histo_name = "Z_eta";
-    x_name = "Z pseudorapidity";
-    y_name = "Events";
-    x_min = -6.; x_max = 6.;
-    if(make_log){
-      y_min = 0.1; y_max = 1000000000;
-    }
-    else{
-      y_min = 0.1; y_max = 80000;
-    }
-    rebin = 2;
-
+    if(make_log) logmax = 1000000000;
+    chooseHistOptions("Z_eta", "Z pseudorapidity", "Events/0.1", -6., 6., 0.1, logmax, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_phi"){
-    histo_name = "Z_phi";
-    x_name = "#phi^{Z}";
-    y_name = "Events";
-    x_min = -TMath::Pi()-.5; x_max = TMath::Pi()+.5;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 1;
+    chooseHistOptions("Z_phi", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 0.1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_phi_nopw"){
-    histo_name = "Z_phi_nopw";
-    x_name = "#phi^{Z}";
-    y_name = "Events";
-    x_min = -TMath::Pi()-.5; x_max = TMath::Pi()+.5;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 1;
+    chooseHistOptions("Z_phi_nopw", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 0.1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt"){
-    histo_name = "Z_pT";
-    x_name = "Z p_{T}";
-    x_min = 0; x_max = 800.;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 100;
+    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 800., 0.1, 100000000, 100, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_nopw"){
-    histo_name = "Z_pT_nopw";
-    x_name = "Z p_{T}";
-    x_min = 0; x_max = 800.;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 100;
+    chooseHistOptions("Z_pT_nopw","Z p_{T}","Events/50 GeV", 0., 800., 0.1,100000000, 100, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met"){
-    histo_name = "met";
-    x_name = "MET";
-    x_min = 0; x_max = 200.;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 10;
+    chooseHistOptions("met","MET","Events/5 GeV", 0., 200., 0.1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met_1tag"){
-    histo_name = "met_1tag";
-    x_name = "MET (>= 1 b)";
-    x_min = 0; x_max = 200.;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 10;
+    chooseHistOptions("met_1tag","MET( >= 1 b)","Events/5 GeV", 0., 200., 0.1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets"){
-    histo_name = "jet_n";
-    x_name = "#jets/event";
-    x_min = 0; x_max = 7;
-    y_min = 1.; y_max = 100000000;
-    rebin = 1;
+    chooseHistOptions("jet_n", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_tight"){
-    histo_name = "jet_n_tighteta";
-    x_name = "#jets/event";
-    x_min = 0; x_max = 7;
-    y_min = 1.; y_max = 100000000;
-    rebin = 1;
+    chooseHistOptions("jet_n_tighteta", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_met"){
-    histo_name = "njets_MET";
-    x_name = "#jets/event";
-    x_min = 0; x_max = 7;
-    y_min = 1.; y_max = 100000000;
-    rebin = 1;
+    chooseHistOptions("jet_n_MET", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_eta"){
-    histo_name = "jet_n_tight_eta";
-    x_name = "#jets/event (|eta| < 2.4)";
-    x_min = 0; x_max = 7;
-    y_min = 1.; y_max = 1000000000;
-    rebin = 1;
+    chooseHistOptions("jet_n_tight_eta", "#jets/events (|eta| < 2.4)", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_pt"){
-    histo_name = "jet_pt";
-    x_name = "jet pT [GeV]";
-    x_min = 0.; x_max = 500.;
-    y_min = 0.1; y_max = 10000000;
-    rebin = 20;
+    chooseHistOptions("jet_pt","jet pT [GeV]", "Events/10 GeV", 0., 500., 0.1, 10000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_pt_tight"){
-    histo_name = "jet_pt_tighteta";
-    x_name = "jet pT [GeV]";
-    x_min = 0.; x_max = 500.;
-    y_min = 0.1; y_max = 10000000;
-    rebin = 20;
+    chooseHistOptions("jet_pt_tighteta","jet pT [GeV]","Events/10 GeV", 0., 500., 0.1, 10000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_pt_met"){
+    chooseHistOptions("jet_pt_MET","jet pT (MET < 70 GeV) [GeV]", "Events/10 GeV", 0., 500., 0.1, 10000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_pt_eta"){
-    histo_name = "jet_pt_tight_eta";
-    x_name = "jet pT (|#eta| < 2.4) [GeV]";
-    x_min = 0.; x_max = 300.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin = 5;
+    chooseHistOptions("jet_pt_tight_eta","jet pT [GeV]","Events/10 GeV", 0., 500., 0.1, 10000000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_pt"){
-    histo_name = "jet_pt_lead";
-    x_name = "leading jet pT [GeV]";
-    x_min = 0.; x_max = 600.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin = 50;
+    chooseHistOptions("jet_pt_lead","leading jet pT [GeV]", "Events/GeV", 0., 500., 0.1, 10000000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_pt_tight"){
-    histo_name = "jet_pt_lead_tighteta";
-    x_name = "leading jet pT [GeV]";
-    x_min = 0.; x_max = 600.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin = 50;
+    chooseHistOptions("jet_pt_lead_tighteta","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 0.1, 10000000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_y"){
-    histo_name = "jet_y";
-    x_name = "jet rapidity";
-    x_min = -5; x_max = 5;
-    y_min = 0.1; y_max = 1000000000;
-    rebin = 4;
+    chooseHistOptions("jet_y", "jet rapidity", "Events/0.4", -5, 5, 0.1, 1000000000, 4, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_y_tight"){
-    histo_name = "jet_y_tighteta";
-    x_name = "jet rapidity";
-    x_min = -3.5; x_max = 3.5;
-    y_min = 0.1; y_max = 1000000000;
-    rebin =4;
+    chooseHistOptions("jet_y_tighteta", "jet rapidity", "Events/0.4",  -3.5, 3.5, 0.1, 1000000000, 4, ratiomin, ratiomax);
   }
   else if(var_2_plot == "leadjet_y"){
-    histo_name = "jet_y_lead";
-    x_min = -4.5; x_max = 4.5;
-    y_min = 0.1; y_max = 10000000;
-    rebin = 2;
+    chooseHistOptions("jet_y_lead","leading jet rapidity", "Events/0.4", -4.5, 4.5, 0.1, 10000000, 4, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_st"){
-    histo_name = "jet_st";
-    x_name = "ST [GeV]";
-    x_min = 25.; x_max = 500.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin =20;
+    chooseHistOptions("jet_st","ST [GeV]", "Events/10 GeV", 25., 500., 0.1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_st_tight"){
-    histo_name = "jet_st_tighteta";
-    x_name = "ST [GeV]";
-    x_min = 25.; x_max = 500.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin =20;
+    chooseHistOptions("jet_st_tighteta","ST [GeV]", "Events/10 GeV", 25.,500., 0.1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_ht"){
-    histo_name = "jet_mu_ht";
-    x_name = "ST [GeV]";
-    x_min = 0.; x_max = 1000.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin =20;
+    chooseHistOptions("jet_mu_ht","HT [GeV]", "Events/10 GeV", 0., 1000., 0.1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_ht_tight"){
-    histo_name = "jet_mu_ht_tighteta";
-    x_name = "ST [GeV]";
-    x_min = 0.; x_max = 1000.;
-    y_min = 0.1; y_max = 1000000000;
-    rebin =20;
+    chooseHistOptions("jet_mu_ht_tighteta","HT [GeV]", "Events/10 GeV", 0., 1000., 0.1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m"){
-    histo_name = "dijet_m";
-    x_name = "m_{jj} [GeV]";
-    x_min = 0.; x_max = 1000.;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 40;
+    chooseHistOptions("dijet_m", "m_{jj} [GeV]", "Events/20 GeV", 0., 1000., 0.1, 100000000, 40, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m_tight"){
-    histo_name = "dijet_m_tighteta";
-    x_name = "m_{jj} [GeV]";
-    x_min = 0.; x_max = 1000.;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 40;
+    chooseHistOptions("dijet_m_tighteta", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 0.1, 100000000, 40,ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_bjets"){
-    histo_name = "bjet_n";
-    x_name = "N_{bjets}";
-    x_min = 0.; x_max = 5.;
-    y_min = 1; y_max = 100000000;
-    rebin = 1;
+    chooseHistOptions("bjet_n", "N_{bjets}","Events", 0., 5., 1, 10000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_pt"){
-    histo_name = "bjet_pt";
-    x_name = "p_{T}(b-jets) [GeV]";
-    x_min = 0.; x_max = 500;
-    y_min = 0.1; y_max = 100000;
-    //rebin = 20;
-    rebin = 40;
+    chooseHistOptions("bjet_pt", "p_{T}(b-jets) [GeV]","Events/10 GeV", 0., 500, 0.1, 100000, 40, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_y"){
-    histo_name = "bjet_y";
-    x_name = "b-jet rapidity";
-    x_min = -3.5; x_max = 3.5;
-    y_min = 0.1; y_max = 5000000;
-    rebin = 4;
+    chooseHistOptions("bjet_y", "b-jet rapidity", "Events/0.2",-3.5, 3.5, 0.1, 5000000, 4, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_lead_pt"){
-    histo_name = "bjet_lead_pt";
-    x_name = "p_{T}(leading b-jet) [GeV]";
-    x_min =0.;x_max =500;
-    y_min = 0.1; y_max = 100000;
-    rebin = 20;
+    chooseHistOptions("bjet_lead_pt","p_{T}(leading b-jet) [GeV]", "Events/10 GeV", 0, 500, 0.1, 100000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_sublead_pt"){
-    histo_name = "bjet_sublead_pt";
-    x_name = "p_{T}(subleading b-jet) [GeV]";
-    x_min =0.;x_max =200;
-    y_min = 0.1; y_max = 1000000;
-    rebin = 20;
+    chooseHistOptions("bjet_sublead_pt","p_{T}(subleading b-jet) [GeV]", "Events/10 GeV", 0, 500, 0.1,100000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_mass"){
-    histo_name = "bjet_m_bb";
-    x_name = "m(b,b) [GeV]";
-    x_min = 0.; x_max = 400;
-    y_min = 0.1; y_max = 400;
-    rebin = 20;
+    chooseHistOptions("bjet_m_bb", "m(b,b) [GeV]", "Events/10 GeV", 0, 400, 0.1, 400, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaR_bb"){
-    histo_name = "bjet_delR_bb";
-    x_name = "#Delta R (b,b)";
-    x_min = 0.; x_max = 5.0;
-    y_min = 0.1; y_max = 2500;
-    rebin = 10;
+    chooseHistOptions("bjet_delR_bb", "#Delta R (b,b)", "Events/0.5", 0, 5.0, 0.1, 2500, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaphi_bb"){
-    histo_name ="bjet_delphi_bb";
-    x_name = "#Delta#phi (b,b)";
-    x_min = 0.0; x_max = 3.5;
-    y_min = 0.1; y_max = 4000;
-    rebin = 10;
+    chooseHistOptions("bjet_delphi_bb",  "#Delta#phi (b,b)", "Events/0.5", 0., 3.5, 0.1, 4000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaeta_bb"){
-    histo_name = "bjet_deltaeta_bb";
-    x_name = "|#Delta#eta (b,b)|";
-    x_min = 0.0; x_max = 5.5;
-    y_min = 0.1; y_max = 3000;
-    rebin = 10;
+    chooseHistOptions("bjet_deltaeta_bb","|#Delta#eta (b,b)|","Events/0.5", 0., 5.5, 0.1, 3000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaR_Zb"){
-    histo_name = "bjet_delR_Zb";
-    x_name = "#Delta R(Z,b)";
-    x_min = 0.; x_max = 5.0;
-    y_min = 0.1; y_max = 30000000;
-    rebin = 10;
+    chooseHistOptions("bjet_delR_Zb", "#Delta R(Z,b)","Events/0.5", 0., 5.0, 0.1, 30000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaphi_Zb"){
-    histo_name = "bjet_deltaphi_bZ";
-    x_name = "#Delta #phi (Z,b)";
-    x_min = 0; x_max = 3.5;
-    y_min = 0.1; y_max = 100000000;
-    rebin = 10;
+    chooseHistOptions("bjet_deltaphi_bZ", "#Delta #phi (Z,b)", "Events/0.5", 0, 3.5, 0.1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaeta_Zb"){
-    histo_name = "bjet_deltaeta_Zb";
-    x_name = "#Delta#eta (Z,b)";
-    x_min = 0.; x_max = 5.5;
-    y_min = 0.1; y_max = 30000000;
-    rebin = 10;
-  }
-  else if(var_2_plot == "bjet_rank"){
-    histo_name = "bjet_rank";
-    x_name = "b-jet rank";
-    x_min = 0; x_max= 5;
-    y_min = 0.1; y_max = 1000000000;
-    rebin = 1;
+    chooseHistOptions("bjet_deltaeta_Zb", "#Delta#eta (Z,b)", "Events/0.5", 0., 5.5, 0.1, 30000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_pt_bb"){
-    histo_name = "bjet_pt_bb";
-    x_name = "di-bjet pT";
-    x_min = 0; x_max = 350;
-    y_min = 0.1; y_max = 1000;
-    rebin = 20;
-  }
-  else if(var_2_plot == "Zpt_v_jj_pt"){
-    histo_name = "Z_pt_v_jj_pt";
-    x_name = "dijet pT";
-    x_min = 0; x_max = 700;
-    y_min = 0; y_max = 700;
-    rebin = 1;
-  }
-  else if(var_2_plot == "Z_pt_v_bb_pt"){
-    histo_name = "Z_pt_v_bb_pt";
-    x_name = "dijet pT";
-    x_min = 0; x_max = 700;
-    y_min = 0; y_max = 700;
-    rebin = 1;
-  }
-  else if(var_2_plot == "mv1weight"){
-    histo_name = "mv1weight";
-    x_name = "mv1 weight";
-    x_min = 0; x_max = 1;
-    y_min = 0.1; y_max = 1000000;
-    rebin = 10;
+    chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 0.1, 1000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mv1cweight"){
-    histo_name = "mv1cweight";
-    x_name = "mv1c weight";
-    x_min = 0; x_max = 1;
-    y_min = 0.1; y_max = 1000000;
-    rebin = 10;         
+    chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 0.1, 1000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup"){
-    histo_name = "pileup_Z_avg";
-    x_name = "pileup";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 10; y_max = 50000000;
-    }
-    else{
-      y_min = 0; y_max = 700000;
-    }
-    rebin = 20;
-  }
-  else if(var_2_plot == "pileup_norw_Z"){
-    histo_name = "pileup_Z_avg_norw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 50000000;
-    }
-    else{
-      y_min = 0; y_max = 700000;
-    }
-    rebin = 10;
-  } 
-  else if(var_2_plot == "pileup_preZ"){
-    histo_name = "avg_pileup";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 500000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_oldvar"){
-    histo_name = "avg_pileup_oldvar";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot =="avg_pileup_oldvar_norw"){
-    histo_name = "avg_pileup_oldvar_norw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  //following plot includes the recalculation of AverageIntPerXing, but not the pileup weight
-  else if(var_2_plot == "avg_pileup_noprw"){
-    histo_name = "avg_pileup_noprw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_norw"){
-    histo_name = "avg_pileup_norw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_noweight"){
-    histo_name = "avg_pileup_noweight";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 500000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_firstline"){
-    histo_name = "avg_pileup_firstline";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_mcweight"){
-    histo_name = "avg_pileup_mcweight";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_hfor"){
-    histo_name = "avg_pileup_hfor";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_hfor_nopw"){
-    histo_name = "avg_pileup_hfor_nopw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot =="avg_pileup_Zvertex"){
-    histo_name = "avg_pileup_Zvertex";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_Zvertex_nopw"){
-    histo_name = "avg_pileup_Zvertex_nopw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_trigger"){
-    histo_name = "avg_pileup_trigger";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_trigger_nopw"){
-    histo_name = "avg_pileup_trigger_nopw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_dataquality"){
-    histo_name = "avg_pileup_dataquality";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_dataquality_nopw"){
-    histo_name = "avg_pileup_dataquality_nopw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_vertex"){
-    histo_name = "avg_pileup_vertex";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_vertex_nopw"){
-    histo_name = "avg_pileup_vertex_nopw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_muonSF"){
-    histo_name = "avg_pileup_muonSF";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_muonSF_nopw"){
-    histo_name = "avg_pileup_muonSF_nopw";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max - 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "avg_pileup_muonSF_nomuonSF"){
-    histo_name = "avg_pileup_muonSF_nomuonSF";
-    x_min = 0; x_max = 50;
-    if(make_log){
-      y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max = 7000000;
-    }
-    rebin = 10;
-  }
-  else if(var_2_plot == "high_mu_weight"){
-    histo_name = "high_mu_weight";
-    x_min = -2; x_max = 2;
-    if(make_log){
-	y_min = 0.1; y_max = 5000000000;
-    }
-    else{
-      y_min = 0; y_max = 7000000;
-    }
-    rebin = 1;
+    if(make_log) logmax = 500000000;
+    else logmax = 700000;
+    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 50, 0.1, logmax, 20, ratiomin, ratiomax);
   }
   else{
     cout << "This variable is not supported" << endl;
     exit(0);
   }
+
+  histo_name = histToPlot.histo_name;
+  x_name = histToPlot.x_name;
+  y_name = histToPlot.y_name;
+  x_min = histToPlot.x_min;
+  x_max = histToPlot.x_max;
+  y_min = histToPlot.y_min;
+  y_max = histToPlot.y_max;
+  rebin = histToPlot.rebin;
+  ratiomin = histToPlot.ratiomin;
+  ratiomax = histToPlot.ratiomax;
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~MC CROSS SECTIONS~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -998,7 +481,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string fname_zmumu_sherpa[1];
   string zmumu_sherpa_name;
   string zmumu_sherpa_cf_name;
-  zmumu_sherpa_name = "Zmumu_hists.root";
+  zmumu_sherpa_name = "SherpaZmumu_hists.root";
   fname_zmumu_sherpa[0] = zmumu_sherpa_name;
   zmumu_sherpa_cf_name = cutflow_h_path + zmumu_sherpa_name;
   zmumu_sherpa_name = mc_path + zmumu_sherpa_name;
@@ -1508,7 +991,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_mc_sherpa_sum->SetLineColor(2);
     h_mc_sherpa_sum->SetLineWidth(2);
   }
-  //  h_data->SetXTitle(x_name);
 
   sum_stack->Draw("HIST");
   //  h_mc_sherpa_sum->Draw("HIST EL SAME");
@@ -1518,6 +1000,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   if(var_2_plot == "n_jets" || var_2_plot == "n_bjets"){
     sum_stack->GetXaxis()->CenterTitle();
   }
+  sum_stack->GetYaxis()->SetTitle(y_name);
+  c1->Modified();
 
   c1->cd();
   TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
@@ -1558,7 +1042,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_mc_sum_clone->SetMaximum(ratiomax);
  
   h_mc_sum_clone->SetMarkerStyle(20);
-  //  h_mc_sum_clone->SetXTitle(x_name);
+  h_mc_sum_clone->SetXTitle(x_name);
   h_mc_sum_clone->Draw("ep");
 
   if(include_sherpa){
@@ -1573,7 +1057,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   TLegend *ratiolegend = new TLegend(0.3,0.84,0.65,0.97);
   ratiolegend->SetFillStyle(0);
-  ratiolegend->SetTextSize(0.04);
+  ratiolegend->SetTextSize(0.06);
   ratiolegend->SetBorderSize(0);
   ratiolegend->SetNColumns(2);
   ratiolegend->AddEntry(h_mc_sum_clone,"Alpgen","lp");

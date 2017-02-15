@@ -47,7 +47,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isArantxa = false;
   isGrid = false;
@@ -147,13 +147,13 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
    h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",5000,-2.5,2.5);
    h_highmuweight = new TH1D("high_mu_weight","PRW weight of events with #mu > 32.0",5000,-2.5,2.5);
-   h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",500,0.,50);
-   h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",500,0.,50);
-   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",500,0.,50.);
-   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",500,0.,50.);
-   h_pileup_avg_Zsel_notriggerSF = new TH1D("pileup_Z_avg_notriggerSF","average pileup",500,0.,50.);
-   h_pileup_2j = new TH1D("pileup_2j","",500,0.,50.);
-   h_pileup_2j_norw = new TH1D("pileup_2j_norw","",500,0.,50.);
+   h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",5000,0.,50);
+   h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",5000,0.,50);
+   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",5000,0.,50.);
+   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
+   h_pileup_avg_Zsel_notriggerSF = new TH1D("pileup_Z_avg_notriggerSF","average pileup",5000,0.,50.);
+   h_pileup_2j = new TH1D("pileup_2j","",5000,0.,50.);
+   h_pileup_2j_norw = new TH1D("pileup_2j_norw","",5000,0.,50.);
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
    h_jet_n = new TH1D("jet_n","number of jets per event",15,0,15);  
@@ -211,6 +211,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_bjet_sublead_pt = new TH1D("bjet_sublead_pt","Subleading tagged jet pT",4000,0,2000);
    h_bjet_y = new TH1D("bjet_y","b-tagged jet rapidity",240,-6,6);
    h_bjet_m_bb = new TH1D("bjet_m_bb","Dijet mass (two b-tags)",4000,0,2000);
+   //_mv1c => highest tag weight jets instead of leading and subleading
    h_bjet_m_bb_mv1c = new TH1D("bjet_m_bb_mv1c","Diijet mass (two b-tags, highest mv1c weight)",4000,0,2000);
    h_bjet_deltaR_bb = new TH1D("bjet_delR_bb","#Delta R(b,b)",120,0,6);
    h_bjet_deltaR_bb_mv1c = new TH1D("bjet_delR_bb_mv1c","#Delta R(b,b) (MV1c)",120,0,6);
@@ -323,7 +324,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    /*~~~~~~~~~~~Pileup Reweighting~~~~~~~~~~~~~*/
    m_pileupTool = new Root::TPileupReweighting("PileupReweightingTool");
    m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
-   //   m_pileupTool->AddConfigFile("packages/mc12ab_11.1.17.pwr.root");
+   //   m_pileupTool->AddConfigFile("packages/MC12ab_myprw_10.2.17.root");
    m_pileupTool->SetDataScaleFactors(1./1.09);
    m_pileupTool->AddLumiCalcFile("packages/ilumicalc_2012_AllYear_All_Good.root");
    m_pileupTool->SetDefaultChannelByMCRunNumber(0, 195847);
@@ -502,7 +503,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_pileup->Fill(actualIntPerXing,weight);
 
   if(!isMC){
-    h_avg_pileup->Fill(averageIntPerXing*(1/1.09),weight);
+    h_avg_pileup->Fill(averageIntPerXing*(1.0/1.09),weight);
   }
   else{
     h_avg_pileup->Fill(averageIntPerXing,weight);

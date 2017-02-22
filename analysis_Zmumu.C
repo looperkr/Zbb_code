@@ -50,7 +50,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   isMC = true;
   isData = !isMC;
   isArantxa = false;
-  isGrid = false;
+  isGrid = true;
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -120,40 +120,18 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mu_phi = new TH1D("mu_phi","Single muon #phi",128,-2*TMath::Pi(),2*TMath::Pi());
    h_cutflow = new TH1F("ICUTZ","ICUTZ",50,0.,50.);
    h_cutflow_w = new TH1F("ICUTZ_w","ICUTZ_w",50,0.,50.);
+   //pileup reweighting histograms
    h_avg_pileup_norw = new TH1D("avg_pileup_norw","avg_pileup_norw",500,0.,50.);
-   h_avg_pileup_noweight = new TH1D("avg_pileup_noweight","avg_pileup_noweight",500,0.,50.);
-   h_avg_pileup_firstline = new TH1D("avg_pileup_firstline","avg_pileup_firstline",500,0.,50.);
-   h_avg_pileup_mcweight = new TH1D("avg_pileup_mcweight","avg_pileup_mcweight",500,0.,50.);
-   h_avg_pileup_hfor = new TH1D("avg_pileup_hfor","avg_pileup_hfor",500,0.,50.);
-   h_avg_pileup_hfor_nopw = new TH1D("avg_pileup_hfor_nopw","avg_pileup_hfor_nopw",500,0.,50.);
-
-   h_avg_pileup_Zvertex = new TH1D("avg_pileup_Zvertex","avg_pileup_Zvertex",500,0.,50.);
-   h_avg_pileup_Zvertex_nopw = new TH1D("avg_pileup_Zvertex_nopw","avg_pileup_Zvertex_nopw",500,0.,50.);
-   h_avg_pileup_trigger = new TH1D("avg_pileup_trigger","avg_pileup_trigger",500,0.,50.);
-   h_avg_pileup_trigger_nopw = new TH1D("avg_pileup_trigger_nopw","avg_pileup_trigger_nopw",500,0.,50.);
-   h_avg_pileup_dataquality = new TH1D("avg_pileup_dataquality","avg_pileup_dataquality",500,0.,50.);
-   h_avg_pileup_dataquality_nopw = new TH1D("avg_pileup_dataquality_nopw","avg_pileup_dataquality_nopw",500,0.,50.);
-   h_avg_pileup_vertex = new TH1D("avg_pileup_vertex","avg_pileup_vertex",500,0.,50.);
-   h_avg_pileup_vertex_nopw = new TH1D("avg_pileup_vertex_nopw","avg_pileup_vertex_nopw",500,0.,50.);
-   h_avg_pileup_muonSF = new TH1D("avg_pileup_muonSF","avg_pileup_muonSF",500,0.,50.);
-   h_avg_pileup_muonSF_nopw = new TH1D("avg_pileup_muonSF_nopw","avg_pileup_muonSF_nopw",500,0.,50.);
-   h_avg_pileup_muonSF_nomuonSF = new TH1D("avg_pileup_muonSF_nomuonSF","avg_pileup_muonSF_nomuonSF",500,0.,50.);
-
-   h_avg_pileup_oldvar = new TH1D("avg_pileup_oldvar","avg_pileup_oldvar",500,0.,50.);
-   h_avg_pileup_oldvar_norw = new TH1D("avg_pileup_oldvar_norw","avg_pileup_oldvar_norw",500,0.,50.);
    h_avg_pileup_noprw = new TH1D("avg_pileup_noprw","avg_pileup_noprw",500,0.,50.);
    h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",500,0.,50.);
    h_pileup = new TH1D("pileup","pileup",500,0.,50.);
    h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
    h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",5000,-2.5,2.5);
-   h_highmuweight = new TH1D("high_mu_weight","PRW weight of events with #mu > 32.0",5000,-2.5,2.5);
    h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",5000,0.,50);
    h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",5000,0.,50);
    h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",5000,0.,50.);
    h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
-   h_pileup_avg_Zsel_notriggerSF = new TH1D("pileup_Z_avg_notriggerSF","average pileup",5000,0.,50.);
-   h_pileup_2j = new TH1D("pileup_2j","",5000,0.,50.);
-   h_pileup_2j_norw = new TH1D("pileup_2j_norw","",5000,0.,50.);
+
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
    h_jet_n = new TH1D("jet_n","number of jets per event",15,0,15);  
@@ -396,8 +374,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   fChain->GetTree()->GetEntry(entry);
 
-  h_avg_pileup_firstline->Fill(averageIntPerXing,1.);
-
   pair<UInt_t,UInt_t> run_event_number; 
   run_event_number.first = RunNumber;
   run_event_number.second = EventNumber;
@@ -432,7 +408,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   weight_nomuonSF = 1.;
   double sf = 1.;
 
-  h_avg_pileup_mcweight->Fill(averageIntPerXing,mcw);
 
   bch_bad = false;
   //MET optimization initialization
@@ -485,7 +460,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //pileup reweighting
   h_pileup_norw->Fill(actualIntPerXing,weight);
   h_avg_pileup_norw->Fill(averageIntPerXing,weight);
-  h_avg_pileup_noweight->Fill(averageIntPerXing,1.);
   Float_t old_mu = averageIntPerXing;
   if(isMC){
     averageIntPerXing = (isSimulation && lbn==1 && int(averageIntPerXing+0.5)==1) ? 0. : averageIntPerXing;
@@ -499,7 +473,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
-  if(averageIntPerXing > 32.0 && isMC) h_highmuweight->Fill(pileupweight);
   h_pileup->Fill(actualIntPerXing,weight);
 
   if(!isMC){
@@ -509,9 +482,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_avg_pileup->Fill(averageIntPerXing,weight);
   }
   h_avg_pileup_noprw->Fill(averageIntPerXing,weight_nopw);
-
-  h_avg_pileup_oldvar->Fill(old_mu,weight);
-  h_avg_pileup_oldvar_norw->Fill(old_mu,weight_nopw);
 
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
 
@@ -533,8 +503,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
-  h_avg_pileup_Zvertex->Fill(averageIntPerXing,weight);
-  h_avg_pileup_Zvertex_nopw->Fill(averageIntPerXing,weight_nopw);
 
   //HFOR (overlap removal)
   if(isMC){
@@ -546,8 +514,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "HFOR overlap removal (after PU and Z vertex reweighting)";
     icut++;
   }
-  h_avg_pileup_hfor->Fill(averageIntPerXing,weight);
-  h_avg_pileup_hfor_nopw->Fill(averageIntPerXing,weight_nopw);
 
   //Trigger                                                                                                                                                                                                               
   if(!EF_mu18_tight_mu8_EFFS) return kFALSE;
@@ -555,27 +521,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_cutflow->Fill((Float_t)icut);
   cutdes[icut] = "Trigger";
   icut++;
-
-  h_avg_pileup_trigger->Fill(averageIntPerXing,weight);
-  h_avg_pileup_trigger_nopw->Fill(averageIntPerXing,weight_nopw);
-
-  /*
-  h_nvertices->Fill(vxp_n,weight);
-  //vtx: >=1 vertex, with >=3 tracks 
-  bool good_vtx = false;
-  if(vxp_n > 0){
-    for(int i = 0; i < vxp_n; i++){
-      h_vx_z_rw->Fill(vxp_z->at(i),weight);
-      if(vxp_nTracks->at(i) >= 3) good_vtx = true;
-    }
-  }
-  if(!good_vtx) return kFALSE;
-  h_cutflow->Fill((Float_t)icut);
-  h_cutflow_w->Fill((Float_t)icut,weight);
-  cutdes[icut] = "Vertex";
-  icut++;
-  h_nvertices_aftercut->Fill(vxp_n,weight);
-*/
 
   if(isData){
     isTileTrip=m_treader->checkEvent(RunNumber,lbn,EventNumber);
@@ -599,9 +544,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "Core flag";
   icut++;
 
-  h_avg_pileup_dataquality->Fill(averageIntPerXing,weight);
-  h_avg_pileup_dataquality_nopw->Fill(averageIntPerXing,weight_nopw);
-
 
   h_nvertices->Fill(vxp_n,weight);
   //vtx: >=1 vertex, with >=3 tracks
@@ -619,8 +561,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "Vertex";
   icut++;
   h_nvertices_aftercut->Fill(vxp_n,weight);
-  h_avg_pileup_vertex->Fill(averageIntPerXing,weight);
-  h_avg_pileup_vertex_nopw->Fill(averageIntPerXing,weight_nopw);
 
   if(!isTileTrip && isData) return kFALSE;
   h_cutflow->Fill((Float_t)icut);
@@ -628,11 +568,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   cutdes[icut] = "Tile Trip";
   icut++;
 
-  /*  if((!isTileTrip && isData) || larError==2 || tileError==2 || coreFlags&0x40000!=0) return kFALSE;
-  h_cutflow->Fill((Float_t)icut);
-  h_cutflow_w->Fill((Float_t)icut,weight);
-  cutdes[icut] = "Bad events (tile trip; lar/tile error)";
-  icut++;*/
 
   //muon selections: good muon
   //3rd chain
@@ -852,19 +787,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     weight_nopw*= sfEvt_trig.first;
     h_triggerSF_size->Fill(sfEvt_trig.first);
   }
-  //  h_avg_pileup_triggerSF->Fill(averageIntPerXing,weight);
-  //h_avg_pileup_triggerSF_nopw->Fill(averageIntPerXing,weight_nopw);
-  //h_avg_pileup_triggerSF_notriggerSF_nopw->Fill(averageIntPerXing,weight_notriggerSF_nopileup);
-  //h_avg_pileup_triggerSF_notriggerSF->Fill(averageIntPerXing,weight_notriggerSF);
 
-  /*  if(muon_matched){
-    h_cutflow_w->Fill(Float_t(icut),weight);
-    h_cutflow->Fill(Float_t(icut));
-    cutdes[icut] = "At least one muon was trigger matched";
-    icut++;
-  }
-  else return kFALSE;
-  */
   int mu1_ind = good_mu_v_index.at(0);
   int mu2_ind = good_mu_v_index.at(1);
   Z_fourv = good_mu_v.at(0) + good_mu_v.at(1);
@@ -882,12 +805,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     Zwindow_max = 111.0;
   }
   else{
-    //    Zwindow_min = 83.5;
-    //Zwindow_max = 98.5;
     Zwindow_min = 76.0;
     Zwindow_max = 106.0;
-    //Zwindow_min = 60.0;
-    //Zwindow_max = 10000.0;
   }
   h_m_mumu->Fill(Zmass,weight); // dimuon spectrum before mass window selection
   
@@ -902,18 +821,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       weight_notriggerSF *= sf;
     }
     
-    if(isMC) h_avg_pileup_muonSF->Fill(averageIntPerXing*1.09,weight);
-    else h_avg_pileup_muonSF->Fill(averageIntPerXing,weight);
-    h_avg_pileup_muonSF_nopw->Fill(averageIntPerXing,weight_nopw);
-    h_avg_pileup_muonSF_nomuonSF->Fill(averageIntPerXing,weight_nomuonSF);
-
-    //    h_Z_mumu->Fill(Zmass,weight);
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
     if(isArantxa) cutdes[icut] = "Mass cut:  71 < MZ < 111 GeV";
     else cutdes[icut] = "Mass cut:  76 < MZ < 106 GeV";
     icut++;
-    //    icut_max = icut;
   }
   else return kFALSE;
 
@@ -944,16 +856,19 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_eta->Fill(good_mu_v.at(1).Eta(),weight);
   h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
-  
-  if(isMC) h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
-  else h_pileup_avg_Zsel->Fill(averageIntPerXing*1/1.09,weight);
-  h_pileup_avg_Zsel_norw->Fill(averageIntPerXing,weight_nopw);
-  if(isMC) h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing,weight_notriggerSF);
-  else h_pileup_avg_Zsel_notriggerSF->Fill(averageIntPerXing*1/1.09,1);
-  h_pileup_Zsel->Fill(actualIntPerXing,weight);
-  h_pileup_Zsel_norw->Fill(actualIntPerXing,weight_nopw); //divide pileup weight back out
-  
 
+  h_pileup_avg_Zsel_norw->Fill(averageIntPerXing,weight_nopw);
+  h_pileup_Zsel_norw->Fill(actualIntPerXing,weight_nopw);
+
+  if(isMC){
+    h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
+    h_pileup_Zsel->Fill(actualIntPerXing,weight);
+  }
+  else{
+    h_pileup_avg_Zsel->Fill(averageIntPerXing*1/1.09,weight);
+    h_pileup_Zsel->Fill(actualIntPerXing*1/1.09,weight);
+  }
+  
   h_Z_mumu_nopw->Fill(Zmass,weight_nopw);
   h_Z_pt_nopw->Fill(Z_fourv.Pt()/1000.,weight_nopw);
   h_Z_y_nopw->Fill(Z_fourv.Rapidity(),weight_nopw);
@@ -1160,8 +1075,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
    }
   if(jet_v.size() >= 2){
     h_Z_mass_2j->Fill(Zmass,weight);
-    h_pileup_2j->Fill(averageIntPerXing,weight);
-    h_pileup_2j_norw->Fill(averageIntPerXing,weight_nopw);
    }
   if(jet_v.size() >= 3){
     h_Z_mass_3j->Fill(Zmass,weight);
@@ -1694,37 +1607,15 @@ void analysis_Zmumu::Terminate()
   h_mu_phi->Write();
   h_mu_phi_nocut->Write();
   h_avg_pileup_norw->Write();
-  h_avg_pileup_noweight->Write();
-  h_avg_pileup_firstline->Write();
-  h_avg_pileup_mcweight->Write();
-  h_avg_pileup_hfor->Write();
-  h_avg_pileup_hfor_nopw->Write();
-  h_avg_pileup_Zvertex->Write();
-  h_avg_pileup_Zvertex_nopw->Write();
-  h_avg_pileup_trigger->Write();
-  h_avg_pileup_trigger_nopw->Write();
-  h_avg_pileup_dataquality->Write();
-  h_avg_pileup_dataquality_nopw->Write();
-  h_avg_pileup_vertex->Write();
-  h_avg_pileup_vertex_nopw->Write();
-  h_avg_pileup_muonSF->Write();
-  h_avg_pileup_muonSF_nopw->Write();
-  h_avg_pileup_muonSF_nomuonSF->Write();
-  h_avg_pileup_oldvar->Write();
-  h_avg_pileup_oldvar_norw->Write();
   h_avg_pileup_noprw->Write();
   h_pileup_norw->Write();
   h_pileup->Write();
   h_avg_pileup->Write();
   h_pileupSF->Write();
-  h_highmuweight->Write();
   h_pileup_Zsel->Write();
   h_pileup_Zsel_norw->Write();
   h_pileup_avg_Zsel->Write();
   h_pileup_avg_Zsel_norw->Write();
-  h_pileup_avg_Zsel_notriggerSF->Write();
-  h_pileup_2j->Write();
-  h_pileup_2j_norw->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();

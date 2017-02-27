@@ -110,13 +110,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("Z_mass_0j", "m_{#mu#mu} [GeV]",  "Events/GeV", 60, 120, 1,  1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_MET"){
-    chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_exactly0j"){
     chooseHistOptions("Z_mass_exactly0j", "m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_1b"){
-    chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV]",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV] (N_{b-jets} #geq 1)",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+  }
+  else if(var_2_plot == "Z_mass_2b"){
+    chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV] (N_{b-jets} #geq 2)",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_y"){
     if(make_log) logmax = 1000000000;
@@ -250,7 +253,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 500000000;
     else logmax = 700000;
-    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 50, 0.1, logmax, 20, ratiomin, ratiomax);
+    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 45, 1, logmax, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "pileup_noweight"){
+    if(make_log) logmax = 500000000;
+    else logmax = 700000;
+    chooseHistOptions("pileup_Z_avg_norw", "pileup", "Events", 0, 45, 1, logmax, 20, ratiomin, ratiomax);
   }
   else{
     cout << "This variable is not supported" << endl;
@@ -1092,5 +1100,33 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   img->WriteImage(img_name.c_str());
 
   cout << img_name << endl;
+
+  //Close files
+  close_files(fzmumu_sherpa, 1);
+  close_files(fzmumu_sherpa_cf, 1);
+  close_files(fzmumu, 6);
+  close_files(fzmumu_cf, 6);
+  close_files(fzmumubb, 4);
+  close_files(fzmumubb_cf, 4);
+  close_files(fzmumucc, 4);
+  close_files(fzmumucc_cf, 4);
+  close_files(fztautau, 6);
+  close_files(fztautau_cf, 6);
+  close_files(fwmunu, 6);
+  close_files(fwmunu_cf, 6);
+  close_files(fwc, 5);
+  close_files(fwc_cf, 5);
+  close_files(fwcc, 4);
+  close_files(fwcc_cf, 4);
+  close_files(fwbb, 4);
+  close_files(fwbb_cf, 4);
+  close_files(fttbar, 1);
+  close_files(fttbar_cf, 1);
+  close_files(fsingletop, 4);
+  close_files(fsingletop_cf, 4);
+  close_files(fdiboson, 6);
+  close_files(fdiboson_cf, 6);
+
+  fdata->Close();
 
 }

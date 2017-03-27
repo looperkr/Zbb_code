@@ -158,7 +158,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("jet_n_tighteta", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_met"){
-    chooseHistOptions("jet_n_MET", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("njets_MET", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_eta"){
     chooseHistOptions("jet_n_tight_eta", "#jets/events (|eta| < 2.4)", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
@@ -250,10 +250,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "mv1cweight"){
     chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 0.1, 1000000, 10, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "mv1c_bins"){
+    chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 500000000;
     else logmax = 700000;
-    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 45, 1, logmax, 20, ratiomin, ratiomax);
+    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 45, 1, logmax, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup_noweight"){
     if(make_log) logmax = 500000000;

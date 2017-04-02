@@ -47,10 +47,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isArantxa = false;
-  isGrid = true;
+  isGrid = false;
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -121,16 +121,16 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_cutflow = new TH1F("ICUTZ","ICUTZ",50,0.,50.);
    h_cutflow_w = new TH1F("ICUTZ_w","ICUTZ_w",50,0.,50.);
    //pileup reweighting histograms
-   h_avg_pileup_norw = new TH1D("avg_pileup_norw","avg_pileup_norw",500,0.,50.);
-   h_avg_pileup_noprw = new TH1D("avg_pileup_noprw","avg_pileup_noprw",500,0.,50.);
-   h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",500,0.,50.);
-   h_pileup = new TH1D("pileup","pileup",500,0.,50.);
-   h_avg_pileup = new TH1D("avg_pileup","average pileup",500,0.,50.);
+   h_avg_pileup_norw = new TH1D("avg_pileup_norw","avg_pileup_norw",5000,0.,50.);
+   h_avg_pileup_noprw = new TH1D("avg_pileup_noprw","avg_pileup_noprw",5000,0.,50.);
+   h_pileup_norw = new TH1D("pileup_no_rw","pileup_no_rw",5000,0.,50.);
+   h_pileup = new TH1D("pileup","pileup",5000,0.,50.);
+   h_avg_pileup = new TH1D("avg_pileup","average pileup",5000,0.,50.);
    h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",5000,-2.5,2.5);
    h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",5000,0.,50);
    h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",5000,0.,50);
-   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",5000,0.,50.);
-   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
+   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",51,-0.5,50.5);
+   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",51,-0.5,50.5);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -182,6 +182,19 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    h_mv1weight = new TH1D("mv1weight","mv1weight",500,0,1);
    h_mv1cweight = new TH1D("mv1cweight","mv1cweight",500,0,1);
+
+   tagging_bins[0] = 0.;
+   tagging_bins[1] = 0.4051;
+   tagging_bins[2] = 0.7068;
+   tagging_bins[3] = 0.8349;
+   tagging_bins[4] = 0.9195;
+   tagging_bins[5] = 1.;
+
+   h_mv1cweight_binned = new TH1D("mv1cweight_binned","mv1c weights", 5, tagging_bins);
+   //following three are MC only
+   h_mv1cweight_light = new TH1D("mv1cweight_light","mv1c weight (light)", 5, tagging_bins);
+   h_mv1cweight_charm = new TH1D("mv1cweight_charm","mv1c weight (charm)", 5, tagging_bins);
+   h_mv1cweight_bottom = new TH1D("mv1cweight_bottom","mv1c weight (bottom)", 5, tagging_bins);
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
    h_bjet_pt = new TH1D("bjet_pt","b-tagged jet pT",4000,0,2000);
@@ -301,8 +314,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_treader->setTripFile(tiletrippath.c_str());
    /*~~~~~~~~~~~Pileup Reweighting~~~~~~~~~~~~~*/
    m_pileupTool = new Root::TPileupReweighting("PileupReweightingTool");
-   m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
-   //   m_pileupTool->AddConfigFile("packages/MC12ab_myprw_10.2.17.root");
+   //   m_pileupTool->AddConfigFile("packages/mc12ab_defaults.prw.root");
+   m_pileupTool->AddConfigFile("packages/MC12ab_myprw_27.2.17.root");
    m_pileupTool->SetDataScaleFactors(1./1.09);
    m_pileupTool->AddLumiCalcFile("packages/ilumicalc_2012_AllYear_All_Good.root");
    m_pileupTool->SetDefaultChannelByMCRunNumber(0, 195847);
@@ -339,10 +352,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    m_metRebuild= new METUtility;
    m_metRebuild->configMissingET(true,false); //is2012, isSTVF 
    /*~~~~~~~~~~~~B-jet calibration~~~~~~~*/
-   //comment out until new skims:
-   
+
    calib = new Analysis::CalibrationDataInterfaceROOT("MV1c","packages/CalibrationDataInterface/share/BTagCalibration.env");
    ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";
+
    //Analysis::Uncertainty uncertainty = Analysis::Total;
    /*~~~~~~~~~~~Muon trigger SF~~~~~~~~*/
    my_muonTrigSFTool = new LeptonTriggerSF(2012,"packages/TrigMuonEfficiency/share","muon_trigger_sf_2012_AtoL.p1328.root", "packages/ElectronEfficiencyCorrection/data", "rel17p2.v07" );
@@ -503,6 +516,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
 
+  for(int i = 0; i < vxp_n; i++){
+    h_vx_z_rw->Fill(vxp_z->at(i),weight);
+  }
+
 
   //HFOR (overlap removal)
   if(isMC){
@@ -551,7 +568,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(vxp_n > 0){
     if(vxp_nTracks->at(0) >= 3) good_vtx = true;
     for(int i = 0; i < vxp_n; i++){
-      h_vx_z_rw->Fill(vxp_z->at(i),weight);
+      //h_vx_z_rw->Fill(vxp_z->at(i),weight);
       // if(vxp_nTracks->at(i) >= 3) good_vtx = true;
     }
   }
@@ -1239,11 +1256,28 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_4jet_y->Fill(jet_v[3].second.Rapidity(),weight);
   }
 
+  //moved to after b-tag calibration
+  /*
   for(unsigned int i=0; i<jet_v_tight.size(); i++){
     h_mv1weight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first),weight);
     h_mv1cweight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+    h_mv1cweight_binned->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+    if(isMC){
+      switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
+      case 5:
+	h_mv1cweight_bottom->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+	break;
+      case 4:
+	h_mv1cweight_charm->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+	break;
+      case 15:
+	break;
+      default:
+	h_mv1cweight_light->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+      }
+    }
   }
-
+  */
   if(jet_v_tight.size() > 0){
     h_leadjet_pt_tighteta->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
     h_leadjet_y_tighteta->Fill(jet_v_tight[0].second.Rapidity(),weight);
@@ -1315,6 +1349,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       jet_i = jet_v[i].first;
       ajet.jetPt =jet_fourv.Pt(); //MeV
       ajet.jetEta = jet_AntiKt4LCTopo_constscale_eta->at(jet_i);
+      ajet.jetTagWeight = jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_i);
       if (abs(ajet.jetEta) > 2.5) continue;
       switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_i)){
       case 5:
@@ -1329,12 +1364,36 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       default :
         label = "Light";
       }
-      res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
-      resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
-      if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
-      else weight *= resineff.first;
+      //   res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
+      // resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
+      res = calib->getScaleFactor(ajet, label.c_str(), "continuous", Analysis::None);
+      if(fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
+
+      //if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_i) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
+      //else weight *= resineff.first;
+  }
+ 
+  for(unsigned int i=0; i<jet_v_tight.size(); i++){
+    h_mv1weight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first),weight);
+    h_mv1cweight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+    h_mv1cweight_binned->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+    if(isMC){
+      switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
+      case 5:
+        h_mv1cweight_bottom->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+        break;
+      case 4:
+        h_mv1cweight_charm->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+        break;
+      case 15:
+        break;
+      default:
+        h_mv1cweight_light->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+      }
     }
-  
+  }
+
+
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v.push_back(jet_v[i]);
       h_bjet_rank->Fill(i,weight);
@@ -1653,6 +1712,10 @@ void analysis_Zmumu::Terminate()
   h_dijet_deta_tighteta->Write();
   h_mv1weight->Write();
   h_mv1cweight->Write();
+  h_mv1cweight_binned->Write();
+  h_mv1cweight_bottom->Write();
+  h_mv1cweight_charm->Write();
+  h_mv1cweight_light->Write();
 
   h_Z_mass_0j->Write();
   h_Z_mass_1j->Write();

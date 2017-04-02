@@ -253,6 +253,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "mv1c_bins"){
     chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "light_jets"){
+    chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "charm_jets"){
+    chooseHistOptions("mv1cweight_charm","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "bottom_jets"){
+    chooseHistOptions("mv1cweight_bottom","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 500000000;
     else logmax = 700000;
@@ -947,6 +956,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   if(var_2_plot == "n_jets" || var_2_plot == "n_jets_eta"){
     write_table(h_mc_sum, h_data, histo_name);
   }
+
+  //Write mc_sum as root file for further manipulation (like fitting)
+  string rootfile_name = "MC_histograms_root/"+var_2_plot + ".root";
+  TFile * f_root = TFile::Open(rootfile_name.c_str(),"UPDATE");
+  h_mc_sum->Write();
+  f_root->Close();
+
+
   /**************************************
    ********DRAW SUMMED HISTS************
    **********************************/

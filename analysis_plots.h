@@ -173,6 +173,12 @@ void write_table(TH1D * h_mc, TH1D * h_data, TString & process_name){
   tablefile << "==================================================================" << endl;
 }
 
+void close_files(TFile ** farray, const int farray_size){
+  for(int i = 0; i < farray_size; i++){
+    farray[i]->Close();
+  }
+}
+
 TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TString &h_name, vector<double> &xsec_values,TFile ** cfarray, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
   //check to see if file and histogram opens
   cout << "Opening " << process_str << endl;

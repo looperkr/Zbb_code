@@ -47,7 +47,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isArantxa = false;
   isGrid = false;
@@ -191,10 +191,14 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    tagging_bins[5] = 1.;
 
    h_mv1cweight_binned = new TH1D("mv1cweight_binned","mv1c weights", 5, tagging_bins);
-   //following three are MC only
+   //following six are MC only
    h_mv1cweight_light = new TH1D("mv1cweight_light","mv1c weight (light)", 5, tagging_bins);
    h_mv1cweight_charm = new TH1D("mv1cweight_charm","mv1c weight (charm)", 5, tagging_bins);
    h_mv1cweight_bottom = new TH1D("mv1cweight_bottom","mv1c weight (bottom)", 5, tagging_bins);
+   h_mv1cweight_light_had_match = new TH1D("mv1cweight_light_had_match","mv1c weight (light)", 5, tagging_bins);
+   h_mv1cweight_charm_had_match = new TH1D("mv1cweight_charm_had_match","mv1c weight (charm)", 5, tagging_bins);
+   h_mv1cweight_bottom_had_match = new TH1D("mv1cweight_bottom_had_match","mv1c weight (bottom)", 5, tagging_bins);
+
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
    h_bjet_pt = new TH1D("bjet_pt","b-tagged jet pT",4000,0,2000);
@@ -1345,7 +1349,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   
   for(unsigned int i = 0; i < jet_v.size(); i++){
     
-  if(isMC){
+    if(isMC){
       jet_i = jet_v[i].first;
       ajet.jetPt =jet_fourv.Pt(); //MeV
       ajet.jetEta = jet_AntiKt4LCTopo_constscale_eta->at(jet_i);
@@ -1371,28 +1375,46 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
       //if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_i) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
       //else weight *= resineff.first;
+    }
   }
  
   for(unsigned int i=0; i<jet_v_tight.size(); i++){
-    h_mv1weight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first),weight);
-    h_mv1cweight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
-    h_mv1cweight_binned->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+    mv1weight = jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first);
+    mv1cweight = jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first);
+    h_mv1weight->Fill(mv1weight,weight);
+    h_mv1cweight->Fill(mv1cweight,weight);
+    h_mv1cweight_binned->Fill(mv1cweight,weight);
     if(isMC){
       switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
       case 5:
-        h_mv1cweight_bottom->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+        h_mv1cweight_bottom->Fill(mv1cweight,weight);
         break;
       case 4:
-        h_mv1cweight_charm->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+        h_mv1cweight_charm->Fill(mv1cweight,weight);
         break;
       case 15:
         break;
       default:
-        h_mv1cweight_light->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
+        h_mv1cweight_light->Fill(mv1cweight,weight);
       }
     }
-  }
-
+    if(isMC){
+      for(unsigned int i=0; i<jet_v_tight.size(); i++){
+	int jet_flavor_had_match = getJetFlavourLabel(jet_v_tight[i].second.Eta(), jet_v_tight[i].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first));
+	switch (jet_flavor_had_match){
+	case 5:
+	  h_mv1cweight_bottom_had_match->Fill(mv1cweight,weight);
+	  break;
+	case 4:
+	  h_mv1cweight_charm_had_match->Fill(mv1cweight,weight);
+	  break;
+	case 15:
+	  break;
+	default:
+	  h_mv1cweight_light_had_match->Fill(mv1cweight,weight);
+	}
+      }
+    }
 
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v.push_back(jet_v[i]);
@@ -1401,7 +1423,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       h_bjet_y->Fill(jet_v[i].second.Rapidity(),weight);
     }
   }
-
+  
   if(met70){
     h_bjet_n->Fill(bjet_v.size(),weight);
   }
@@ -1716,6 +1738,9 @@ void analysis_Zmumu::Terminate()
   h_mv1cweight_bottom->Write();
   h_mv1cweight_charm->Write();
   h_mv1cweight_light->Write();
+  h_mv1cweight_bottom_had_match->Write();
+  h_mv1cweight_charm_had_match->Write();
+  h_mv1cweight_light_had_match->Write();
 
   h_Z_mass_0j->Write();
   h_Z_mass_1j->Write();
@@ -1964,4 +1989,144 @@ void analysis_Zmumu::rebuild_MET(){
   finalMET_phi=refFinal.phi();
   finalMET_etx=refFinal.et()*cos(refFinal.phi());
   finalMET_ety=refFinal.et()*sin(refFinal.phi());
+}
+
+bool analysis_Zmumu::isBHadron(int pdg){
+
+  bool acceptIt = 0;
+
+  if (abs(pdg) == 511) acceptIt = 1;
+  if (abs(pdg) == 521) acceptIt = 1;
+  if (abs(pdg) == 10511) acceptIt = 1;
+  if (abs(pdg) == 10521) acceptIt = 1;
+  if (abs(pdg) == 513) acceptIt = 1;
+  if (abs(pdg) == 523) acceptIt = 1;
+  if (abs(pdg) == 10513) acceptIt = 1;
+  if (abs(pdg) == 10523) acceptIt = 1;
+  if (abs(pdg) == 20513) acceptIt = 1;
+  if (abs(pdg) == 20523) acceptIt = 1;
+  if (abs(pdg) == 515) acceptIt = 1;
+  if (abs(pdg) == 525) acceptIt = 1;
+  if (abs(pdg) == 531) acceptIt = 1;
+  if (abs(pdg) == 10531) acceptIt = 1;
+  if (abs(pdg) == 533) acceptIt = 1;
+  if (abs(pdg) == 10533) acceptIt = 1;
+  if (abs(pdg) == 20533) acceptIt = 1;
+  if (abs(pdg) == 535) acceptIt = 1;
+  if (abs(pdg) == 541) acceptIt = 1;
+  if (abs(pdg) == 10541) acceptIt = 1;
+  if (abs(pdg) == 543) acceptIt = 1;
+  if (abs(pdg) == 10543) acceptIt = 1;
+  if (abs(pdg) == 20543) acceptIt = 1;
+  if (abs(pdg) == 545) acceptIt = 1;
+
+  if (abs(pdg) == 551) acceptIt = 1;
+  if (abs(pdg) == 10551) acceptIt = 1;
+  if (abs(pdg) == 100551) acceptIt = 1;
+  if (abs(pdg) == 110551) acceptIt = 1;
+  if (abs(pdg) == 200551) acceptIt = 1;
+  if (abs(pdg) == 210551) acceptIt = 1;
+  if (abs(pdg) == 553) acceptIt = 1;
+  if (abs(pdg) == 10553) acceptIt = 1;
+  if (abs(pdg) == 20553) acceptIt = 1;
+  if (abs(pdg) == 30553) acceptIt = 1;
+  if (abs(pdg) == 100553) acceptIt = 1;
+  if (abs(pdg) == 110553) acceptIt = 1;
+  if (abs(pdg) == 120553) acceptIt = 1;
+  if (abs(pdg) == 130553) acceptIt = 1;
+  if (abs(pdg) == 200553) acceptIt = 1;
+  if (abs(pdg) == 210553) acceptIt = 1;
+  if (abs(pdg) == 220553) acceptIt = 1;
+  if (abs(pdg) == 300553) acceptIt = 1;
+  if (abs(pdg) == 9000553) acceptIt = 1;
+  if (abs(pdg) == 9010553) acceptIt = 1;
+  if (abs(pdg) == 555) acceptIt = 1;
+  if (abs(pdg) == 10555) acceptIt = 1;
+  if (abs(pdg) == 20555) acceptIt = 1;
+  if (abs(pdg) == 100555) acceptIt = 1;
+  if (abs(pdg) == 110555) acceptIt = 1;
+  if (abs(pdg) == 120555) acceptIt = 1;
+  if (abs(pdg) == 200555) acceptIt = 1;
+  if (abs(pdg) == 557) acceptIt = 1;
+  if (abs(pdg) == 100557) acceptIt = 1;
+
+  if (abs(pdg) == 5122) acceptIt = 1;
+  if (abs(pdg) == 5112) acceptIt = 1;
+  if (abs(pdg) == 5212) acceptIt = 1;
+  if (abs(pdg) == 5222) acceptIt = 1;
+  if (abs(pdg) == 5114) acceptIt = 1;
+  if (abs(pdg) == 5214) acceptIt = 1;
+  if (abs(pdg) == 5224) acceptIt = 1;
+  if (abs(pdg) == 5132) acceptIt = 1;
+  if (abs(pdg) == 5232) acceptIt = 1;
+  if (abs(pdg) == 5312) acceptIt = 1;
+  if (abs(pdg) == 5322) acceptIt = 1;
+  if (abs(pdg) == 5314) acceptIt = 1;
+  if (abs(pdg) == 5324) acceptIt = 1;
+  if (abs(pdg) == 5332) acceptIt = 1;
+  if (abs(pdg) == 5334) acceptIt = 1;
+  if (abs(pdg) == 5142) acceptIt = 1;
+  if (abs(pdg) == 5242) acceptIt = 1;
+  if (abs(pdg) == 5412) acceptIt = 1;
+  if (abs(pdg) == 5422) acceptIt = 1;
+  if (abs(pdg) == 5414) acceptIt = 1;
+  if (abs(pdg) == 5424) acceptIt = 1;
+  if (abs(pdg) == 5342) acceptIt = 1;
+  if (abs(pdg) == 5432) acceptIt = 1;
+  if (abs(pdg) == 5434) acceptIt = 1;
+  if (abs(pdg) == 5442) acceptIt = 1;
+  if (abs(pdg) == 5444) acceptIt = 1;
+  if (abs(pdg) == 5512) acceptIt = 1;
+  if (abs(pdg) == 5522) acceptIt = 1;
+  if (abs(pdg) == 5514) acceptIt = 1;
+  if (abs(pdg) == 5524) acceptIt = 1;
+  if (abs(pdg) == 5532) acceptIt = 1;
+  if (abs(pdg) == 5534) acceptIt = 1;
+  if (abs(pdg) == 5542) acceptIt = 1;
+  if (abs(pdg) == 5544) acceptIt = 1;
+  if (abs(pdg) == 5554) acceptIt = 1;
+
+  return acceptIt;
+}
+
+bool analysis_Zmumu::isDHadron(int pdg){
+
+  int mpdg = abs(pdg);
+  return (( 400 < mpdg && mpdg < 499 )   ||
+	  ( 10400 < mpdg && mpdg < 10499 ) ||
+	  (  4000 < mpdg && mpdg < 4999  ) ||
+	  ( 20400 < mpdg && mpdg < 20499 ) );
+}
+
+int analysis_Zmumu::getJetFlavourLabel(double jet_eta, double jet_phi, int jet_flav){
+  double dRmin = 0.3;
+  double ptmin = 5000;
+
+  double dRB = 1.;
+  double dRC = 1.;
+
+  for(int i=0; i<mc_n; i++){
+    if(isBHadron(mc_pdgId->at(i)) && mc_pt->at(i) > ptmin){
+      // Match RECO jet to parton
+      double deta = mc_eta->at(i) - jet_eta;
+      double dphi = abs(mc_phi->at(i) - jet_phi);
+      if(dphi > TMath::Pi()) dphi = 2.*TMath::Pi() - dphi;
+      double dR = sqrt(pow(deta,2) + pow(dphi,2));
+      if(dR < dRB) dRB = dR;
+    }
+
+    if(isDHadron(mc_pdgId->at(i)) && mc_pt->at(i) > ptmin){
+      // Match RECO jet to parton
+      double deta = mc_eta->at(i) - jet_eta;
+      double dphi = abs(mc_phi->at(i) - jet_phi);
+      if(dphi > TMath::Pi()) dphi = 2.*TMath::Pi() - dphi;
+      double dR = sqrt(pow(deta,2) + pow(dphi,2));
+      if(dR < dRC) dRC = dR;
+    }
+  }
+
+  if(dRB < dRmin) return 5;
+  else if(dRC < dRmin) return 4;
+  else if(jet_flav == 15) return 15;
+  else return 0;
 }

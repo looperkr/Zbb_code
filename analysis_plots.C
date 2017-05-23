@@ -251,7 +251,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 0.1, 1000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mv1c_bins"){
-    chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0, 1, 10,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "light_jets"){
     chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
@@ -261,6 +261,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "bottom_jets"){
     chooseHistOptions("mv1cweight_bottom","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "light_jets_hmatch"){
+    chooseHistOptions("mv1cweight_light_had_match","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "charm_jets_hmatch"){
+    chooseHistOptions("mv1cweight_charm_had_match","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "bottom_jets_hmatch"){
+    chooseHistOptions("mv1cweight_bottom_had_match","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 500000000;
@@ -1005,7 +1014,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   pad1->Draw("9");
   pad1->cd();
 
-  //  SetFormats(h_data,x_name,y_name);
   if(include_sherpa){
     h_mc_sherpa_sum->SetLineStyle(2);
     h_mc_sherpa_sum->SetLineColor(2);
@@ -1013,7 +1021,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
 
   sum_stack->Draw("HIST");
-  //  h_mc_sherpa_sum->Draw("HIST EL SAME");
   if(include_sherpa) h_mc_sherpa_sum->Draw("HIST SAME");
   h_data->Draw("HIST ELP SAME");
   sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);

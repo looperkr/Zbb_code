@@ -47,10 +47,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isArantxa = false;
   isGrid = false;
+  isMJ = true;
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -193,11 +194,23 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_binned = new TH1D("mv1cweight_binned","mv1c weights", 5, tagging_bins);
    //following six are MC only
    h_mv1cweight_light = new TH1D("mv1cweight_light","mv1c weight (light)", 5, tagging_bins);
+   h_mv1cweight_light_up = new TH1D("mv1cweight_light_up","mv1c weight (light)", 5, tagging_bins);
+   h_mv1cweight_light_down = new TH1D("mv1cweight_light_down","mv1c weight (light)", 5, tagging_bins);
    h_mv1cweight_charm = new TH1D("mv1cweight_charm","mv1c weight (charm)", 5, tagging_bins);
+   h_mv1cweight_charm_up = new TH1D("mv1cweight_charm_up","mv1c weight (charm)", 5, tagging_bins);
+   h_mv1cweight_charm_down= new TH1D("mv1cweight_charm_down","mv1c weight (charm)", 5, tagging_bins);
    h_mv1cweight_bottom = new TH1D("mv1cweight_bottom","mv1c weight (bottom)", 5, tagging_bins);
+   h_mv1cweight_bottom_up = new TH1D("mv1cweight_bottom_up","mv1c weight (bottom)", 5, tagging_bins);
+   h_mv1cweight_bottom_down = new TH1D("mv1cweight_bottom_down","mv1c weight (bottom)", 5, tagging_bins);
    h_mv1cweight_light_had_match = new TH1D("mv1cweight_light_had_match","mv1c weight (light)", 5, tagging_bins);
+   h_mv1cweight_light_had_match_up = new TH1D("mv1cweight_light_had_match_up","mv1c weight (light)", 5, tagging_bins);
+   h_mv1cweight_light_had_match_down = new TH1D("mv1cweight_light_had_match_down","mv1c weight (light)", 5, tagging_bins);
    h_mv1cweight_charm_had_match = new TH1D("mv1cweight_charm_had_match","mv1c weight (charm)", 5, tagging_bins);
+   h_mv1cweight_charm_had_match_up = new TH1D("mv1cweight_charm_had_match_up","mv1c weight (charm)", 5, tagging_bins);
+   h_mv1cweight_charm_had_match_down = new TH1D("mv1cweight_charm_had_match_down","mv1c weight (charm)", 5, tagging_bins);
    h_mv1cweight_bottom_had_match = new TH1D("mv1cweight_bottom_had_match","mv1c weight (bottom)", 5, tagging_bins);
+   h_mv1cweight_bottom_had_match_up = new TH1D("mv1cweight_bottom_had_match_up","mv1c weight (bottom)", 5, tagging_bins);
+   h_mv1cweight_bottom_had_match_down = new TH1D("mv1cweight_bottom_had_match_down","mv1c weight (bottom)", 5, tagging_bins);
 
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
@@ -359,8 +372,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    calib = new Analysis::CalibrationDataInterfaceROOT("MV1c","packages/CalibrationDataInterface/share/BTagCalibration.env");
    ajet.jetAuthor = "AntiKt4TopoLCJVF0_5";
+   uncertainty = Analysis::None;
+   //   uncertainty = Analysis::SFEigen;
+   numVariation = 0;
 
-   //Analysis::Uncertainty uncertainty = Analysis::Total;
    /*~~~~~~~~~~~Muon trigger SF~~~~~~~~*/
    my_muonTrigSFTool = new LeptonTriggerSF(2012,"packages/TrigMuonEfficiency/share","muon_trigger_sf_2012_AtoL.p1328.root", "packages/ElectronEfficiencyCorrection/data", "rel17p2.v07" );
 
@@ -408,7 +423,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   good_mu_v.clear();
   good_mu_v_index.clear();
   Z_fourv.Clear();
-  
+
   Zmass = 0;
   jet_v.clear();
   jet_v_tight.clear();
@@ -677,13 +692,22 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //IP significance < 3
     h_d0sig_aftercut->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     
-    if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)) continue;
+    if(!isMJ){
+      if(!(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)) < 3)){
+	continue;
+      }
+    }
     
     h_d0sig->Fill(fabs(mu_trackd0pvunbiased->at(imu)/mu_tracksigd0pvunbiased->at(imu)));
     muon_cf[5]++;
     //isolation: ptcone20/pt < 0.1
     h_mu_iso->Fill(mu_ptcone20->at(imu)/m_ptCB_smeared);
-    if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
+    if(!isMJ){
+      if(!(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1)) continue;
+    }
+    else{
+      if(mu_ptcone20->at(imu)/m_ptCB_smeared < 0.1) continue;
+    }
     muon_cf[6]++;
     h_mu_iso_cut->Fill(mu_ptcone20->at(imu)/m_ptCB_smeared);
     //|eta| < 2.4
@@ -692,7 +716,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //impact parameter < 0.5 mm
     h_z0->Fill(mu_trackz0pvunbiased->at(imu));
     h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
-    if(!isArantxa){
+    if(!isArantxa && !isMJ){
 	//if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
       if(!(fabs(mu_trackz0pvunbiased->at(imu)) < 1.0)) continue; //changed to match 7 TeV cut (old cut was for staco muons? may want to optimize)
     }
@@ -781,6 +805,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   /*~~~~~~~~~build Z~~~~~~~~~~~~*/
   //require exactly two muons
+  
   if(good_mu_v.size() == 2){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
@@ -789,8 +814,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     icut++;
   }
   else return kFALSE;
+  
 
-  //TriggerSF (is this in the right spot???)
+  //TriggerSF
   if(isMC){
     double RunNumberPileupSF=m_pileupTool->GetRandomRunNumber(RunNumber,averageIntPerXing);
     if(RunNumberPileupSF == 0 && pileupweight != 0){
@@ -809,6 +835,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_triggerSF_size->Fill(sfEvt_trig.first);
   }
 
+  if(good_mu_v.size() == 2){
+    h_cutflow_w->Fill(Float_t(icut),weight);
+    h_cutflow->Fill(Float_t(icut));
+    if(isArantxa)cutdes[icut] = "Exactly 2 good muons with pT > 20 GeV";
+    else cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
+    icut++;
+  }
+  else return kFALSE;
+
   int mu1_ind = good_mu_v_index.at(0);
   int mu2_ind = good_mu_v_index.at(1);
   Z_fourv = good_mu_v.at(0) + good_mu_v.at(1);
@@ -824,6 +859,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(isArantxa){
     Zwindow_min = 71.0;
     Zwindow_max = 111.0;
+  }
+  else if(isMJ){
+    Zwindow_min = 70.0;
+    Zwindow_max = 120.0;
   }
   else{
     Zwindow_min = 76.0;
@@ -845,6 +884,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
     if(isArantxa) cutdes[icut] = "Mass cut:  71 < MZ < 111 GeV";
+    else if(isMJ) cutdes[icut] = "Mass cut: 70 < MZ < 120 GeV";
     else cutdes[icut] = "Mass cut:  76 < MZ < 106 GeV";
     icut++;
   }
@@ -1346,7 +1386,12 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   int jet_i;
   //bjet calibration
   //comment out until new skims are complete
-  
+
+  //weights for systematic variation
+  upweight = weight;
+  downweight = weight;
+
+  //testing data weights
   for(unsigned int i = 0; i < jet_v.size(); i++){
     
     if(isMC){
@@ -1370,14 +1415,48 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       }
       //   res = calib->getScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
       // resineff = calib->getInefficiencyScaleFactor(ajet, label.c_str(), "0_4051", uncertainty,mapIndex);
-      res = calib->getScaleFactor(ajet, label.c_str(), "continuous", Analysis::None);
-      if(fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
+      // res = calib->getScaleFactor(ajet, label.c_str(), "continuous", Analysis::None);
+      /*
+	CalibrationDataInterfaceROOT::getWeightScaleFactor(const CalibrationDataVariables& variables, const std::string& label,
+                              Uncertainty unc, unsigned int numVariation, unsigned int mapIndex) const;
+      
+	CalibrationDataInterfaceROOT:getScaleFactor(const CalibrationDataVariables& variables, const std::string& label,
+                                                const std::string& OP, Uncertainty unc = None) const;			     
+      */
+      
+      systematics = calib->listScaleFactorUncertainties(ajet.jetAuthor, label, "continuous", true);
+      eigenvariations = calib->getNumVariations(ajet.jetAuthor, label, "continuous", Analysis::SFEigen);
+      namedvariations = calib->getNumVariations(ajet.jetAuthor, label, "continuous", Analysis::SFNamed);
+      rescentral = calib->getWeightScaleFactor(ajet, label, Analysis::None, 0, mapIndex);
+      
+      float upvar = 0;
+      float downvar = 0;
 
-      //if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_i) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4) weight *= res.first;
-      //else weight *= resineff.first;
+      for(int e_val = 0; e_val < eigenvariations; e_val++){
+	res = calib->getWeightScaleFactor(ajet,label,Analysis::SFEigen,e_val, mapIndex);
+	if(fabs(jet_v[i].second.Eta()) < 2.4) {
+	  upvar += res.first-rescentral.first;
+	  downvar += rescentral.first - res.second;
+	}
+      }
+
+      for(int n_val = 0; n_val < namedvariations; n_val++){
+	res = calib->getWeightScaleFactor(ajet,label,Analysis::SFNamed,n_val, mapIndex);
+	if(fabs(jet_v[i].second.Eta()) < 2.4){
+	  upvar += res.first-rescentral.first;
+	  downvar += rescentral.first - res.second;
+	}
+      }
+
+      if(fabs(jet_v[i].second.Eta()) < 2.4){
+	weight *= rescentral.first;
+	upweight *= rescentral.first + upvar;
+	downweight *= rescentral.first  - downvar;
+      }
     }
   }
  
+
   for(unsigned int i=0; i<jet_v_tight.size(); i++){
     mv1weight = jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first);
     mv1cweight = jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first);
@@ -1388,30 +1467,43 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
       case 5:
         h_mv1cweight_bottom->Fill(mv1cweight,weight);
+	h_mv1cweight_bottom_up->Fill(mv1cweight,upweight);
+	h_mv1cweight_bottom_down->Fill(mv1cweight,downweight);
         break;
       case 4:
         h_mv1cweight_charm->Fill(mv1cweight,weight);
+	h_mv1cweight_charm_up->Fill(mv1cweight,upweight);
+	h_mv1cweight_charm_down->Fill(mv1cweight,downweight);
         break;
       case 15:
         break;
       default:
         h_mv1cweight_light->Fill(mv1cweight,weight);
+	h_mv1cweight_light_up->Fill(mv1cweight,upweight);
+	h_mv1cweight_light_down->Fill(mv1cweight,downweight);
       }
     }
+
     if(isMC){
       for(unsigned int i=0; i<jet_v_tight.size(); i++){
 	int jet_flavor_had_match = getJetFlavourLabel(jet_v_tight[i].second.Eta(), jet_v_tight[i].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first));
 	switch (jet_flavor_had_match){
 	case 5:
 	  h_mv1cweight_bottom_had_match->Fill(mv1cweight,weight);
+	  h_mv1cweight_bottom_had_match_up->Fill(mv1cweight,upweight);
+	  h_mv1cweight_bottom_had_match_down->Fill(mv1cweight,downweight);
 	  break;
 	case 4:
 	  h_mv1cweight_charm_had_match->Fill(mv1cweight,weight);
+	  h_mv1cweight_charm_had_match_up->Fill(mv1cweight,upweight);
+	  h_mv1cweight_charm_had_match_down->Fill(mv1cweight,downweight);
 	  break;
 	case 15:
 	  break;
 	default:
 	  h_mv1cweight_light_had_match->Fill(mv1cweight,weight);
+	  h_mv1cweight_light_had_match_up->Fill(mv1weight,upweight);
+	  h_mv1cweight_light_had_match_down->Fill(mv1cweight,downweight);
 	}
       }
     }
@@ -1736,11 +1828,23 @@ void analysis_Zmumu::Terminate()
   h_mv1cweight->Write();
   h_mv1cweight_binned->Write();
   h_mv1cweight_bottom->Write();
+  h_mv1cweight_bottom_up->Write();
+  h_mv1cweight_bottom_down->Write();
   h_mv1cweight_charm->Write();
+  h_mv1cweight_charm_up->Write();
+  h_mv1cweight_charm_down->Write();
   h_mv1cweight_light->Write();
+  h_mv1cweight_light_up->Write();
+  h_mv1cweight_light_down->Write();
   h_mv1cweight_bottom_had_match->Write();
+  h_mv1cweight_bottom_had_match_up->Write();
+  h_mv1cweight_bottom_had_match_down->Write();
   h_mv1cweight_charm_had_match->Write();
+  h_mv1cweight_charm_had_match_up->Write();
+  h_mv1cweight_charm_had_match_down->Write();
   h_mv1cweight_light_had_match->Write();
+  h_mv1cweight_light_had_match_up->Write();
+  h_mv1cweight_light_had_match_down->Write();
 
   h_Z_mass_0j->Write();
   h_Z_mass_1j->Write();
@@ -1752,6 +1856,7 @@ void analysis_Zmumu::Terminate()
   h_Z_mass_exactly1j->Write();
   h_Z_mass_1b->Write();
   h_Z_mass_2b->Write();
+
 
   h_Z_mass_MET->Write();
   h_Z_pt_MET->Write();

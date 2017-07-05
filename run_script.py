@@ -4,6 +4,7 @@ import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
 isMC = False
+isMJ = True
 
 file_list = str(sys.argv[1])
 
@@ -31,7 +32,7 @@ if isMC:
     elif "Sherpa" in generator:
         mapIndex = 3
     elif "Herwig" in generator:
-        mapIndex = 4
+        mapIndex = 1
     else: 
         print "DEBUG!"
         exit
@@ -49,18 +50,23 @@ if isMC:
         output_type = "singletop_SChan_Wmunu"
     elif output_type == "WtChanIncl":
         output_type = "singletop_WtChanIncl"
-    output_name = "./MC_histograms/" + output_type + "_hists.root"
+    output_name = "./MC_histograms/" + output_type + "_hists"
     print output_name
 else:
     output_el = file_list.split("_")
     output_el_el= output_el[-2].strip()
     output_type_name = output_el_el.split("/")
     output_type = output_type_name[-1].strip()
-    output_name = "./data_histograms/" + output_type + "_hists.root"
+    output_name = "./data_histograms/" + output_type + "_hists"
     print output_name
+if isMJ:
+    output_name += "_MJ.root"
+else:
+    output_name += ".root"
 
 if isMC:
     optionslist = output_name + ',' + str(mapIndex)
+    print optionslist
 else:
     optionslist = output_name
 gInterpreter.GenerateDictionary("vector<vector<int> >","vector")

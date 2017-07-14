@@ -11,7 +11,7 @@ single muon pT: mu_pt (before Z cut)
 single muon pT: mu_pt_Z (after Z cut)
 single muon phi: mu_phi
 single muon eta: mu_eta
-dimuon mass: dimu_mass
+dimuon mass: m_mumu (before Z window cut)
 dimuon mass: Z_mass (after Z window cut)
 dimuon y: Z_y
 dimuon pT (after Z window cuts): Z_pt
@@ -105,6 +105,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
       if(make_log) chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
       else chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 4000, 2, ratiomin, ratiomax);
     }
+  }
+  else if(var_2_plot == "m_mumu"){
+    chooseHistOptions("m_mumu","m_{#mu#mu} [GeV]","Events/GeV", 20, 300, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_nopw"){
     chooseHistOptions("Z_mass_nopw", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7,1.5);   //after Z mass window cut
@@ -1008,9 +1011,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
 
   //Write mc_sum as root file for further manipulation (like fitting)
-  string rootfile_name = "MC_histograms_root/"+var_2_plot + ".root";
-  TFile * f_root = TFile::Open(rootfile_name.c_str(),"UPDATE");
+  string rootfile_name = "MC_histograms_root/"+var_2_plot;
+  if(isMJ) rootfile_name += "_ctrlregion.root";
+  else rootfile_name += ".root";
+  TFile * f_root = TFile::Open(rootfile_name.c_str(),"RECREATE");
+  string mc_hist_name = var_2_plot+"_mc";
+  string data_hist_name = var_2_plot+"_data";
+  h_mc_sum->SetName(mc_hist_name.c_str());
+  h_data->SetName(data_hist_name.c_str());
   h_mc_sum->Write();
+  h_data->Write();
   f_root->Close();
 
 

@@ -47,11 +47,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
-  isArantxa = false;
-  isGrid = false;
-  isMJ = true;
+  isGrid = true;
+  isMJ = false;
+  isWideWindow = false;
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -242,57 +242,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_MET_1tag = new TH1D("met_1tag","MET (1 b-tag)",4000,0,2000);
    h_MET_2tag =new TH1D("met_2tag","MET (2 b-tag)",4000,0,2000);
 
-   //MV1/MET optimization histograms
-   h_mv1_85_met40_bjetn = new TH1D("mv1_85_met40_bjetn","#bjets, MET < 40, mv1 85% wp",12,0,12); 
-   h_mv1_80_met40_bjetn = new TH1D("mv1_80_met40_bjetn","#bjets, MET < 40, mv1 80% wp",12,0,12);
-   h_mv1_70_met40_bjetn = new TH1D("mv1_70_met40_bjetn","#bjets, MET < 40, mv1 70% wp",12,0,12);
-   h_mv1_60_met40_bjetn = new TH1D("mv1_60_met40_bjetn","#bjets, MET < 40, mv1 60% wp",12,0,12);
-   h_mv1c_80_met40_bjetn = new TH1D("mv1c_80_met40_bjetn","#bjets, MET < 40, mv1c 80% wp",12,0,12);
-   h_mv1c_70_met40_bjetn = new TH1D("mv1c_70_met40_bjetn","#bjets, MET < 40, mv1c 70% wp",12,0,12);
-   h_mv1c_60_met40_bjetn = new TH1D("mv1c_60_met40_bjetn","#bjets, MET < 40, mv1c 60% wp",12,0,12);
-   h_mv1c_57_met40_bjetn = new TH1D("mv1c_57_met40_bjetn","#bjets, MET < 40, mv1c 57% wp",12,0,12);
-   h_mv1c_50_met40_bjetn = new TH1D("mv1c_50_met40_bjetn","#bjets, MET < 40, mv1c 50% wp",12,0,12);
-
-   h_mv1_85_met50_bjetn = new TH1D("mv1_85_met50_bjetn","#bjets, MET < 50, mv1 85% wp",12,0,12);
-   h_mv1_80_met50_bjetn = new TH1D("mv1_80_met50_bjetn","#bjets, MET < 50, mv1 80% wp",12,0,12);
-   h_mv1_70_met50_bjetn = new TH1D("mv1_70_met50_bjetn","#bjets, MET < 50, mv1 70% wp",12,0,12);
-   h_mv1_60_met50_bjetn = new TH1D("mv1_60_met50_bjetn","#bjets, MET < 50, mv1 60% wp",12,0,12);
-   h_mv1c_80_met50_bjetn = new TH1D("mv1c_80_met50_bjetn","#bjets, MET < 50, mv1c 80% wp",12,0,12);
-   h_mv1c_70_met50_bjetn = new TH1D("mv1c_70_met50_bjetn","#bjets, MET < 50, mv1c 70% wp",12,0,12);
-   h_mv1c_60_met50_bjetn = new TH1D("mv1c_60_met50_bjetn","#bjets, MET < 50, mv1c 60% wp",12,0,12);
-   h_mv1c_57_met50_bjetn = new TH1D("mv1c_57_met50_bjetn","#bjets, MET < 50, mv1c 57% wp",12,0,12);
-   h_mv1c_50_met50_bjetn = new TH1D("mv1c_50_met50_bjetn","#bjets, MET < 50, mv1c 50% wp",12,0,12);
-
-   h_mv1_85_met60_bjetn = new TH1D("mv1_85_met60_bjetn","#bjets, MET < 60, mv1 85% wp",12,0,12);
-   h_mv1_80_met60_bjetn = new TH1D("mv1_80_met60_bjetn","#bjets, MET < 60, mv1 80% wp",12,0,12);
-   h_mv1_70_met60_bjetn = new TH1D("mv1_70_met60_bjetn","#bjets, MET < 60, mv1 70% wp",12,0,12);
-   h_mv1_60_met60_bjetn = new TH1D("mv1_60_met60_bjetn","#bjets, MET < 60, mv1 60% wp",12,0,12);
-   h_mv1c_80_met60_bjetn = new TH1D("mv1c_80_met60_bjetn","#bjets, MET < 60, mv1c 80% wp",12,0,12);
-   h_mv1c_70_met60_bjetn = new TH1D("mv1c_70_met60_bjetn","#bjets, MET < 60, mv1c 70% wp",12,0,12);
-   h_mv1c_60_met60_bjetn = new TH1D("mv1c_60_met60_bjetn","#bjets, MET < 60, mv1c 60% wp",12,0,12);
-   h_mv1c_57_met60_bjetn = new TH1D("mv1c_57_met60_bjetn","#bjets, MET < 60, mv1c 57% wp",12,0,12);
-   h_mv1c_50_met60_bjetn = new TH1D("mv1c_50_met60_bjetn","#bjets, MET < 60, mv1c 50% wp",12,0,12);
-
-   h_mv1_85_met70_bjetn = new TH1D("mv1_85_met70_bjetn","#bjets, MET < 70, mv1 85% wp",12,0,12);
-   h_mv1_80_met70_bjetn = new TH1D("mv1_80_met70_bjetn","#bjets, MET < 70, mv1 80% wp",12,0,12);
-   h_mv1_70_met70_bjetn = new TH1D("mv1_70_met70_bjetn","#bjets, MET < 70, mv1 70% wp",12,0,12);
-   h_mv1_60_met70_bjetn = new TH1D("mv1_60_met70_bjetn","#bjets, MET < 70, mv1 60% wp",12,0,12);
-   h_mv1c_80_met70_bjetn = new TH1D("mv1c_80_met70_bjetn","#bjets, MET < 70, mv1c 80% wp",12,0,12);
-   h_mv1c_70_met70_bjetn = new TH1D("mv1c_70_met70_bjetn","#bjets, MET < 70, mv1c 70% wp",12,0,12);
-   h_mv1c_60_met70_bjetn = new TH1D("mv1c_60_met70_bjetn","#bjets, MET < 70, mv1c 60% wp",12,0,12);
-   h_mv1c_57_met70_bjetn = new TH1D("mv1c_57_met70_bjetn","#bjets, MET < 70, mv1c 57% wp",12,0,12);
-   h_mv1c_50_met70_bjetn = new TH1D("mv1c_50_met70_bjetn","#bjets, MET < 70, mv1c 50% wp",12,0,12);
-
-   h_mv1_85_met80_bjetn = new TH1D("mv1_85_met80_bjetn","#bjets, MET < 80, mv1 85% wp",12,0,12);
-   h_mv1_80_met80_bjetn = new TH1D("mv1_80_met80_bjetn","#bjets, MET < 80, mv1 80% wp",12,0,12);
-   h_mv1_70_met80_bjetn = new TH1D("mv1_70_met80_bjetn","#bjets, MET < 80, mv1 70% wp",12,0,12);
-   h_mv1_60_met80_bjetn = new TH1D("mv1_60_met80_bjetn","#bjets, MET < 80, mv1 60% wp",12,0,12);
-   h_mv1c_80_met80_bjetn = new TH1D("mv1c_80_met80_bjetn","#bjets, MET < 80, mv1c 80% wp",12,0,12);
-   h_mv1c_70_met80_bjetn = new TH1D("mv1c_70_met80_bjetn","#bjets, MET < 80, mv1c 70% wp",12,0,12);
-   h_mv1c_60_met80_bjetn = new TH1D("mv1c_60_met80_bjetn","#bjets, MET < 80, mv1c 60% wp",12,0,12);
-   h_mv1c_57_met80_bjetn = new TH1D("mv1c_57_met80_bjetn","#bjets, MET < 80, mv1c 57% wp",12,0,12);
-   h_mv1c_50_met80_bjetn = new TH1D("mv1c_50_met80_bjetn","#bjets, MET < 80, mv1c 50% wp",12,0,12);
-
    //crosscheck histograms
    h_d0 = new TH1D("d0","d0",100,-50,50);
    h_d0sig = new TH1D("d0sig","d0sig",100,-50,50);
@@ -439,7 +388,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   weight_notriggerSF_nopileup = 1.;
   weight_nomuonSF = 1.;
   double sf = 1.;
-
 
   bch_bad = false;
   //MET optimization initialization
@@ -716,7 +664,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //impact parameter < 0.5 mm
     h_z0->Fill(mu_trackz0pvunbiased->at(imu));
     h_z0sintheta->Fill(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)));
-    if(!isArantxa && !isMJ){
+    if(!isMJ){
 	//if(!(fabs(mu_trackz0pvunbiased->at(imu)) * TMath::Sin(mu_tracktheta->at(imu)) < 0.5)) continue;
       if(!(fabs(mu_trackz0pvunbiased->at(imu)) < 1.0)) continue; //changed to match 7 TeV cut (old cut was for staco muons? may want to optimize)
     }
@@ -730,12 +678,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       muon_cf[8]++;
       mucut1 = true;
     }
-    if(isArantxa){
-      if(!(m_ptCB_smeared/1000. > 20.)) continue; //Arantxa's cut
-    }
-    else{
-      if(!(m_ptCB_smeared/1000. > 25.)) continue;
-    }
+        
+    if(!(m_ptCB_smeared/1000. > 25.)) continue;
+    
     mu_fourv.SetPtEtaPhiM(m_ptCB_smeared, m_eta, m_phi, m_mass);
     //    if(muonTriggerMatchTool->match(mu_fourv.Eta(),mu_fourv.Phi(),"EF_mu18_tight_mu8_EFFS")){
       //      muon_matched = true;
@@ -809,8 +754,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(good_mu_v.size() == 2){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
-    if(isArantxa)cutdes[icut] = "Exactly 2 good muons with pT > 20 GeV";
-    else cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
+    cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
     icut++;
   }
   else return kFALSE;
@@ -838,8 +782,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(good_mu_v.size() == 2){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
-    if(isArantxa)cutdes[icut] = "Exactly 2 good muons with pT > 20 GeV";
-    else cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
+    cutdes[icut] = "Exactly 2 good muons with pT > 25 GeV";
     icut++;
   }
   else return kFALSE;
@@ -856,11 +799,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   else return kFALSE;
 
-  if(isArantxa){
-    Zwindow_min = 71.0;
-    Zwindow_max = 111.0;
-  }
-  else if(isMJ){
+  if(isMJ || isWideWindow){
     Zwindow_min = 70.0;
     Zwindow_max = 120.0;
   }
@@ -870,7 +809,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   h_m_mumu->Fill(Zmass,weight); // dimuon spectrum before mass window selection
   
-  if(Zmass > Zwindow_min && Zmass < Zwindow_max && ((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1)){
+  if(Zmass > Zwindow_min && Zmass < Zwindow_max){
     //muon scale factor
     if(isMC){
       sf *= m_MCPsf->scaleFactor(mu_charge->at(mu1_ind),good_mu_v.at(0));
@@ -883,23 +822,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
-    if(isArantxa) cutdes[icut] = "Mass cut:  71 < MZ < 111 GeV";
-    else if(isMJ) cutdes[icut] = "Mass cut: 70 < MZ < 120 GeV";
+    if(isMJ || isWideWindow) cutdes[icut] = "Mass cut: 70 < MZ < 120 GeV";
     else cutdes[icut] = "Mass cut:  76 < MZ < 106 GeV";
     icut++;
   }
   else return kFALSE;
-
-  //deltaR(mu,mu) > 0.2
-  if(isArantxa){
-    if(good_mu_v.at(0).DeltaR(good_mu_v.at(1)) > 0.2){
-      h_cutflow_w->Fill(Float_t(icut),weight);
-      h_cutflow->Fill(Float_t(icut));
-      cutdes[icut] = "DeltaR(mu,mu) > 0.2";
-      icut++;
-    }
-    else return kFALSE;
-  }
 
   //Fill inclusive Z histograms
   if(isMC && weight == 0) {
@@ -917,10 +844,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_mu_eta->Fill(good_mu_v.at(1).Eta(),weight);
   h_mu_phi->Fill(good_mu_v.at(0).Phi(),weight);
   h_mu_phi->Fill(good_mu_v.at(1).Phi(),weight);
-
+  
   h_pileup_avg_Zsel_norw->Fill(averageIntPerXing,weight_nopw);
   h_pileup_Zsel_norw->Fill(actualIntPerXing,weight_nopw);
-
+  
   if(isMC){
     h_pileup_avg_Zsel->Fill(averageIntPerXing,weight);
     h_pileup_Zsel->Fill(actualIntPerXing,weight);
@@ -934,9 +861,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_Z_pt_nopw->Fill(Z_fourv.Pt()/1000.,weight_nopw);
   h_Z_y_nopw->Fill(Z_fourv.Rapidity(),weight_nopw);
   h_Z_phi_nopw->Fill(Z_fourv.Phi(),weight_nopw);
-
+  
   n_zevents++;
-
+  
   /*~~~~~~~~~jet selection~~~~~~~~~~~*/
   int jetn_final = 0;
   int jetn_final_tight = 0;
@@ -1028,16 +955,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     //jet overlap removal
     deltaR_jlep1 = jet_fourv.DeltaR(good_mu_v.at(0));
     deltaR_jlep2 = jet_fourv.DeltaR(good_mu_v.at(1));
-    if(isArantxa){
-      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) {
-	continue;
-      }
-    }
-    else{
-      if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5){
-	continue;
-      }
-    }
+    if(deltaR_jlep1 < 0.5 || deltaR_jlep2 < 0.5) continue;
 
     //pT > 30 GeV
     if(!(jet_fourv.Pt()/1000. > 30.0)) continue;
@@ -1126,8 +1044,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(EventNumber == 91972557) eventcheckcut = icut;
   rebuild_MET();
   h_MET->Fill(finalMET_et/1000.,weight);
-  //Fill Z+jets histograms (selections complete)
 
+  //Fill Z+jets histograms (selections complete)
   h_Z_mass_0j->Fill(Zmass,weight);
   if(jet_v.size() == 0) h_Z_mass_exactly0j->Fill(Zmass,weight);
   if(jet_v.size() == 1) h_Z_mass_exactly1j->Fill(Zmass,weight);
@@ -1300,28 +1218,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_4jet_y->Fill(jet_v[3].second.Rapidity(),weight);
   }
 
-  //moved to after b-tag calibration
-  /*
-  for(unsigned int i=0; i<jet_v_tight.size(); i++){
-    h_mv1weight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v_tight[i].first),weight);
-    h_mv1cweight->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
-    h_mv1cweight_binned->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
-    if(isMC){
-      switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
-      case 5:
-	h_mv1cweight_bottom->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
-	break;
-      case 4:
-	h_mv1cweight_charm->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
-	break;
-      case 15:
-	break;
-      default:
-	h_mv1cweight_light->Fill(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first),weight);
-      }
-    }
-  }
-  */
+
   if(jet_v_tight.size() > 0){
     h_leadjet_pt_tighteta->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
     h_leadjet_y_tighteta->Fill(jet_v_tight[0].second.Rapidity(),weight);
@@ -1549,61 +1446,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
 
-  if(met40 && (entry%10 == 0 || entry%10 == 5)){
-    h_mv1_85_met40_bjetn->Fill(bjet_v_mv1_85.size(),weight);
-    h_mv1_80_met40_bjetn->Fill(bjet_v_mv1_80.size(),weight);
-    h_mv1_70_met40_bjetn->Fill(bjet_v_mv1_70.size(),weight);
-    h_mv1_60_met40_bjetn->Fill(bjet_v_mv1_60.size(),weight);
-    h_mv1c_80_met40_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
-    h_mv1c_70_met40_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
-    h_mv1c_60_met40_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
-    h_mv1c_57_met40_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
-    h_mv1c_50_met40_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
-  }
-  if(met50 && (entry%10 == 1 || entry%10 == 6 )){
-    h_mv1_85_met50_bjetn->Fill(bjet_v_mv1_85.size(),weight);
-    h_mv1_80_met50_bjetn->Fill(bjet_v_mv1_80.size(),weight);
-    h_mv1_70_met50_bjetn->Fill(bjet_v_mv1_70.size(),weight);
-    h_mv1_60_met50_bjetn->Fill(bjet_v_mv1_60.size(),weight);
-    h_mv1c_80_met50_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
-    h_mv1c_70_met50_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
-    h_mv1c_60_met50_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
-    h_mv1c_57_met50_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
-    h_mv1c_50_met50_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
-  }
-  if(met60 && (entry%10 == 2 || entry%10 == 7)){
-    h_mv1_85_met60_bjetn->Fill(bjet_v_mv1_85.size(),weight);
-    h_mv1_80_met60_bjetn->Fill(bjet_v_mv1_80.size(),weight);
-    h_mv1_70_met60_bjetn->Fill(bjet_v_mv1_70.size(),weight);
-    h_mv1_60_met60_bjetn->Fill(bjet_v_mv1_60.size(),weight);
-    h_mv1c_80_met60_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
-    h_mv1c_70_met60_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
-    h_mv1c_60_met60_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
-    h_mv1c_57_met60_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
-    h_mv1c_50_met60_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
-  }
-  if(met70 && (entry%10 == 3 || entry%10 == 8)){
-    h_mv1_85_met70_bjetn->Fill(bjet_v_mv1_85.size(),weight);
-    h_mv1_80_met70_bjetn->Fill(bjet_v_mv1_80.size(),weight);
-    h_mv1_70_met70_bjetn->Fill(bjet_v_mv1_70.size(),weight);
-    h_mv1_60_met70_bjetn->Fill(bjet_v_mv1_60.size(),weight);
-    h_mv1c_80_met70_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
-    h_mv1c_70_met70_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
-    h_mv1c_60_met70_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
-    h_mv1c_57_met70_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
-    h_mv1c_50_met70_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
-  }
-  if(met80 && (entry%10 == 4 || entry%10 == 9)){
-    h_mv1_85_met80_bjetn->Fill(bjet_v_mv1_85.size(),weight);
-    h_mv1_80_met80_bjetn->Fill(bjet_v_mv1_80.size(),weight);
-    h_mv1_70_met80_bjetn->Fill(bjet_v_mv1_70.size(),weight);
-    h_mv1_60_met80_bjetn->Fill(bjet_v_mv1_60.size(),weight);
-    h_mv1c_80_met80_bjetn->Fill(bjet_v_mv1c_80.size(),weight);
-    h_mv1c_70_met80_bjetn->Fill(bjet_v_mv1c_70.size(),weight);
-    h_mv1c_60_met80_bjetn->Fill(bjet_v_mv1c_60.size(),weight);
-    h_mv1c_57_met80_bjetn->Fill(bjet_v_mv1c_57.size(),weight);
-    h_mv1c_50_met80_bjetn->Fill(bjet_v_mv1c_50.size(),weight);
-  }
 
   if(bjet_v.size() >= 1){
     h_MET_1tag->Fill(finalMET_et/1000.);
@@ -1895,57 +1737,6 @@ void analysis_Zmumu::Terminate()
   h_MET->Write();
   h_MET_1tag->Write();
   h_MET_2tag->Write();
-
-  //mv1 optimization
-  h_mv1_85_met40_bjetn->Write();
-  h_mv1_80_met40_bjetn->Write();
-  h_mv1_70_met40_bjetn->Write();
-  h_mv1_60_met40_bjetn->Write();
-  h_mv1c_80_met40_bjetn->Write();
-  h_mv1c_70_met40_bjetn->Write();
-  h_mv1c_60_met40_bjetn->Write();
-  h_mv1c_57_met40_bjetn->Write();
-  h_mv1c_50_met40_bjetn->Write();
-
-  h_mv1_85_met50_bjetn->Write();
-  h_mv1_80_met50_bjetn->Write();
-  h_mv1_70_met50_bjetn->Write();
-  h_mv1_60_met50_bjetn->Write();
-  h_mv1c_80_met50_bjetn->Write();
-  h_mv1c_70_met50_bjetn->Write();
-  h_mv1c_60_met50_bjetn->Write();
-  h_mv1c_57_met50_bjetn->Write();
-  h_mv1c_50_met50_bjetn->Write();
-
-  h_mv1_85_met60_bjetn->Write();
-  h_mv1_80_met60_bjetn->Write();
-  h_mv1_70_met60_bjetn->Write();
-  h_mv1_60_met60_bjetn->Write();
-  h_mv1c_80_met60_bjetn->Write();
-  h_mv1c_70_met60_bjetn->Write();
-  h_mv1c_60_met60_bjetn->Write();
-  h_mv1c_57_met60_bjetn->Write();
-  h_mv1c_50_met60_bjetn->Write();
-
-  h_mv1_85_met70_bjetn->Write();
-  h_mv1_80_met70_bjetn->Write();
-  h_mv1_70_met70_bjetn->Write();
-  h_mv1_60_met70_bjetn->Write();
-  h_mv1c_80_met70_bjetn->Write();
-  h_mv1c_70_met70_bjetn->Write();
-  h_mv1c_60_met70_bjetn->Write();
-  h_mv1c_57_met70_bjetn->Write();
-  h_mv1c_50_met70_bjetn->Write();
-
-  h_mv1_85_met80_bjetn->Write();
-  h_mv1_80_met80_bjetn->Write();
-  h_mv1_70_met80_bjetn->Write();
-  h_mv1_60_met80_bjetn->Write();
-  h_mv1c_80_met80_bjetn->Write();
-  h_mv1c_70_met80_bjetn->Write();
-  h_mv1c_60_met80_bjetn->Write();
-  h_mv1c_57_met80_bjetn->Write();
-  h_mv1c_50_met80_bjetn->Write();
 
   h_d0->Write();
   h_d0sig->Write();

@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = true;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
   
@@ -85,7 +85,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    n_events = 0;
    n_zevents = 0;
    n_true_bjets = 0;
-   n_passing_jets = 0;
    eventcheckcut = -1;
    h_good_zeroweight_events = new TH1D("good_zeroweight_events","good_zeroweight_events",1,0,1);
    h_good_zeroweight_events_pw = new TH1D("good_zeroweight_events_pw","good_zeroweight_events_pw",1,0,1);
@@ -153,7 +152,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_3jet_y = new TH1D("third_jet_y","3rd jet y",240,-6,6);
    h_4jet_pt = new TH1D("fourth_jet_pt","4th jet pT",4000,0,2000);
    h_4jet_y = new TH1D("fourth_jet_y","4th jet y",240,-6,6);
-   h_Zpt_v_jj_pt = new TH2D("Zpt_v_jj_pt","Z pT v. dijet pT",4000,0,2000,4000,0,2000);
 
    //light jet distributions in tracking volume: |eta| < 2.4
    h_jet_n_tighteta = new TH1D("jet_n_tighteta","number of jets per event (|#eta| < 2.4)",15,0,15);
@@ -171,15 +169,51 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_dijet_dy_tighteta = new TH1D("dijet_dy_tighteta","#Delta y between jets (|#eta| < 2.4)",200,-5,5);
    h_dijet_deta_tighteta = new TH1D("dijet_deta_tighteta","#Delta #eta between jets (|#eta| < 2.4)",200,-5,5);
 
+
+   //All histograms after this point have MET cut applied
+
    h_Z_mass_MET = new TH1D("Z_mass_MET","Z mass after MET cut",4000,0,2000);
    h_Z_pt_MET = new TH1D("Z_pt_MET","Z pT after MET cut",4000,0,2000);
-   h_njets_MET = new TH1D("njets_MET","N_jets after MET cut",12,0,12);
+   h_Z_mass_0j_MET = new TH1D("Z_mass_0j_MET","Dimuon mass, >= 0j, after MET cut",4000,0,2000);
+   h_Z_mass_1j_MET = new TH1D("Z_mass_1j_MET","Dimuon mass, >= 1j, after MET cut",4000,0,2000);
+   h_Z_mass_2j_MET = new TH1D("Z_mass_2j_MET","Dimuon mass, >= 2j, after MET cut",4000,0,2000);
+   h_Z_mass_3j_MET = new TH1D("Z_mass_3j_MET","Dimuon mass, >= 3j, after MET cut",4000,0,2000);
+   h_Z_mass_4j_MET = new TH1D("Z_mass_4j_MET","Dimuon mass, >= 4j, after MET cut",4000,0,2000);
+   h_Z_mass_5j_MET = new TH1D("Z_mass_5j_MET","Dimuon mass, >= 5j, after MET cut",4000,0,2000);
+
+   h_Z_mass_1j_tighteta_MET = new TH1D("Z_mass_1j_tighteta_MET","Dimuon mass, >= 1j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
+   h_Z_mass_2j_tighteta_MET = new TH1D("Z_mass_2j_tighteta_MET","Dimuon mass, >= 2j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
+   h_Z_mass_3j_tighteta_MET = new TH1D("Z_mass_3j_tighteta_MET","Dimuon mass, >= 3j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
+   h_Z_mass_4j_tighteta_MET = new TH1D("Z_mass_4j_tighteta_MET","Dimuon mass, >= 4j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
+   h_Z_mass_5j_tighteta_MET = new TH1D("Z_mass_5j_tighteta_MET","Dimuon mass, >= 5j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
+
+   h_jet_n_MET = new TH1D("jet_n_MET","N_jets after MET cut",12,0,12);
    h_jet_pt_MET = new TH1D("jet_pt_MET","jet pT after MET cut",4000,0,2000);
-   h_leadjet_pt_MET = new TH1D("jet_leading_pt_MET","Leading jet pT after MET cut",4000,0,2000);
-   h_dijet_m_MET = new TH1D("dijet_m_MET","Dijet mass after MET cut",4000,0,2000);
-   h_Zpt_v_jj_pt_MET = new TH2D("Zpt_v_jj_pt_MET","Zpt versus dijet pT after MET cut",4000,0,2000,4000,0,2000);
+   h_jet_y_MET = new TH1D("jet_y_MET","jet rapidity after MET cut",120,-6,6);
    h_jet_st_MET = new TH1D("jet_st_MET","ST after MET cut",4000,0,2000);
    h_jet_mu_ht_MET = new TH1D("jet_ht_MET","HT after MET cut",4000,0,2000);
+   h_leadjet_pt_MET = new TH1D("jet_pt_lead_MET","Leading jet pT after MET cut",4000,0,2000);
+   h_leadjet_y_MET = new TH1D("jet_y_lead_MET","leading jet y after MET",240,-6,6); 
+   h_subjet_pt_MET = new TH1D("jet_pt_sublead_MET","subleading jet pT after MET",4000,0,2000);
+   h_subjet_y_MET = new TH1D("jet_y_sublead_MET","subleading jet y after MET",240,-6,6);
+   h_dijet_m_MET = new TH1D("dijet_m_MET","Dijet mass after MET cut",4000,0,2000);
+
+   h_jet_n_tighteta_MET = new TH1D("jet_n_tighteta_MET","number of jets per event (|#eta| < 2.4) after MET cut",15,0,15);
+   h_jet_pt_tighteta_MET = new TH1D("jet_pt_tighteta_MET","jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
+   h_jet_y_tighteta_MET = new TH1D("jet_y_tighteta_MET","jet rapidity (|#eta| < 2.4) after MET cut",120,-6,6);
+   h_jet_st_tighteta_MET = new TH1D("jet_st_tighteta_MET","ST (|#eta| < 2.4) after MET cut",4000,0,2000);
+   h_jet_mu_ht_tighteta_MET = new TH1D("jet_mu_ht_tighteta_MET","HT (|#eta| < 2.4) after MET cut",4000,0,2000);
+   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
+   h_leadjet_y_tighteta_MET = new TH1D("jet_y_lead_tighteta_MET","leading jet y (|#eta| < 2.4) after MET cut",240,-6,6);
+   h_subjet_pt_tighteta_MET = new TH1D("jet_pt_sublead_tighteta_MET","subleading jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
+   h_subjet_y_tighteta_MET = new TH1D("jet_y_sublead_tighteta_MET","subleading jet y (|#eta| < 2.4) after MET cut",240,-6,6);
+   h_dijet_m_tighteta_MET = new TH1D("dijet_m_tighteta_MET","dijet mass (|#eta| < 2.4) after MET cut",4000,0,2000);
+   h_dijet_dR_tighteta_MET = new TH1D("dijet_dR_tighteta_MET","#Delta R between jets (|#eta| < 2.4) after MET cut",110,0,5.5);
+   h_dijet_dphi_tighteta_MET = new TH1D("dijet_dphi_tighteta_MET","#Delta#phi between jets (|#eta| < 2.4) after MET cut",160,-4,4);
+   h_dijet_dy_tighteta_MET = new TH1D("dijet_dy_tighteta_MET","#Delta y between jets (|#eta| < 2.4) after MET cut",200,-5,5);
+   h_dijet_deta_tighteta_MET = new TH1D("dijet_deta_tighteta_MET","#Delta #eta between jets (|#eta| < 2.4) after MET cut",200,-5,5);
+
+
 
    h_mv1weight = new TH1D("mv1weight","mv1weight",500,0,1);
    h_mv1cweight = new TH1D("mv1cweight","mv1cweight",500,0,1);
@@ -236,8 +270,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_bjet_rank = new TH1D("bjet_rank","p_{T} rank of b-tagged jets",20,0,20);
    h_bjet_pt_bb = new TH1D("bjet_pt_bb","di b-jet pT",4000,0,2000);
    h_bjet_pt_bb_mv1c = new TH1D("bjet_pt_bb_mv1c","di b-jet pT (MV1c)",4000,0,2000);
-   h_Zpt_v_bb_pt = new TH2D("Zpt_v_bb_pt","Z pT versus di b-jet pT",4000,0,2000,4000,0,2000);
-   h_Zpt_v_bb_pt_mv1c =new TH2D("Zpt_v_bb_pt_mv1c","Z pT versus di b-jet pT (MV1c)",4000,0,2000,4000,0,2000);
    h_MET = new TH1D("met","MET",4000,0,2000);
    h_MET_1tag = new TH1D("met_1tag","MET (1 b-tag)",4000,0,2000);
    h_MET_2tag =new TH1D("met_2tag","MET (2 b-tag)",4000,0,2000);
@@ -865,8 +897,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   n_zevents++;
   
   /*~~~~~~~~~jet selection~~~~~~~~~~~*/
-  int jetn_final = 0;
-  int jetn_final_tight = 0;
   float deltaR_jlep1 = 0 ;
   float deltaR_jlep2 = 0;
 
@@ -980,28 +1010,25 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       pt_bch_v.push_back(jet_fourv.Pt());
       }
 
-    jetn_final++;
-    n_passing_jets++;
     jet_pair.first = ijet;
     jet_pair.second = jet_fourv;
     jet_v.push_back(jet_pair);
-    h_jet_pt->Fill(jet_fourv.Pt()/1000.,weight);
-    h_jet_y->Fill(jet_fourv.Rapidity(),weight);
+    //    h_jet_pt->Fill(jet_fourv.Pt()/1000.,weight);
+    //    h_jet_y->Fill(jet_fourv.Rapidity(),weight);
 
     //tighter eta selection: |eta| < 2.4
     if(fabs(jet_AntiKt4LCTopo_constscale_eta->at(ijet)) > 2.4) continue;
-    jetn_final_tight++;
     jet_pair_tight.first = ijet;
     jet_pair_tight.second = jet_fourv;
     jet_v_tight.push_back(jet_pair_tight);
-    h_jet_pt_tighteta->Fill(jet_fourv.Pt()/1000.,weight);
-    h_jet_y_tighteta->Fill(jet_fourv.Rapidity(),weight);
+    //    h_jet_pt_tighteta->Fill(jet_fourv.Pt()/1000.,weight);
+    //    h_jet_y_tighteta->Fill(jet_fourv.Rapidity(),weight);
 
-  }
+  } //end of jet loop
 
   //Check event 91972557  
   if(EventNumber == 91972557){
-    for(int j = 0; j < jet_v.size(); j++){
+    for(unsigned int j = 0; j < jet_v.size(); j++){
       eventcheck_pair.first = jet_v[j].second;
       eventcheck_pair.second = jet_AntiKt4LCTopo_jvtxf->at(jet_v[j].first);
       eventmap_pair.first = EventNumber;
@@ -1045,7 +1072,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   rebuild_MET();
   h_MET->Fill(finalMET_et/1000.,weight);
 
-  //Fill Z+jets histograms (selections complete)
+  //Fill Z+jets histograms (selections complete) (except MET)
   h_Z_mass_0j->Fill(Zmass,weight);
   if(jet_v.size() == 0) h_Z_mass_exactly0j->Fill(Zmass,weight);
   if(jet_v.size() == 1) h_Z_mass_exactly1j->Fill(Zmass,weight);
@@ -1065,9 +1092,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_Z_mass_5j->Fill(Zmass,weight);
   }
 
-  h_jet_n->Fill(jetn_final,weight);
-  h_jet_n_tighteta->Fill(jetn_final_tight,weight);
-
+  h_jet_n->Fill(jet_v.size(),weight);
+  h_jet_n_tighteta->Fill(jet_v_tight.size(),weight);
+  for(unsigned int i = 0; i < jet_v.size(); i++){
+    h_jet_pt->Fill(jet_v[i].second.Pt()/1000.,weight);
+    h_jet_y->Fill(jet_v[i].second.Rapidity(),weight);
+  }
+  for(unsigned int i = 0; i < jet_v_tight.size(); i++){
+    h_jet_pt_tighteta->Fill(jet_v[i].second.Pt()/1000.,weight);
+    h_jet_y_tighteta->Fill(jet_v[i].second.Rapidity(),weight);
+  }
   //Add pTs for HT and ST
   //ST: scalar sum of jet pTs
   //HT: scalar sum of jet and lepton pTs
@@ -1207,7 +1241,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_dijet_deta->Fill(fabs(del_eta),weight);
     h_dijet_dR_eta->Fill(del_r_eta,weight);
     h_dijet_dR_y->Fill(del_r_y,weight);
-    h_Zpt_v_jj_pt->Fill(Z_fourv.Pt()/1000.,tmp_4v.Pt()/1000.,weight);
   }
   if(jet_v.size() > 2){
     h_3jet_pt->Fill(jet_v[2].second.Pt()/1000.,weight);
@@ -1251,28 +1284,57 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(met70){
     h_Z_mass_MET->Fill(Zmass,weight);
     h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
-    h_njets_MET->Fill(jetn_final,weight);
-    for(int i = 0; i < jet_v.size(); i++){
+    h_jet_n_MET->Fill(jet_v.size(),weight);
+    h_Z_mass_0j_MET->Fill(Zmass,weight);
+    for(unsigned int i = 0; i < jet_v.size(); i++){
       h_jet_pt_MET->Fill(jet_v[i].second.Pt()/1000.,weight);
+      h_jet_y_MET->Fill(jet_v[i].second.Rapidity(),weight);
     }
     if(jet_v.size() > 0){
       h_leadjet_pt_MET->Fill(jet_v[0].second.Pt()/1000.,weight);
+      h_leadjet_y_MET->Fill(jet_v[0].second.Rapidity(),weight);
       h_jet_st_MET->Fill(st/1000.,weight);
       h_jet_mu_ht_MET->Fill(ht/1000.,weight);
+      h_Z_mass_1j_MET->Fill(Zmass,weight);
     }
     if(jet_v.size() > 1){
+      h_subjet_pt_MET->Fill(jet_v[1].second.Pt()/1000.,weight);
+      h_subjet_y_MET->Fill(jet_v[1].second.Rapidity()/1000.,weight);
       TLorentzVector dijet_fourv = jet_v[0].second + jet_v[1].second;
       h_dijet_m_MET->Fill(dijet_fourv.M()/1000.,weight);
-      h_Zpt_v_jj_pt_MET->Fill(Z_fourv.Pt()/1000.,dijet_fourv.Pt()/1000.,weight);
+      h_Z_mass_2j_MET->Fill(Zmass,weight);
     }
+    if(jet_v.size() > 2) h_Z_mass_3j_MET->Fill(Zmass,weight);
+    if(jet_v.size() > 3) h_Z_mass_4j_MET->Fill(Zmass,weight);
+    if(jet_v.size() > 4) h_Z_mass_5j_MET->Fill(Zmass,weight);
+    //tight eta distributions 
+    h_jet_n_tighteta_MET->Fill(jet_v_tight.size(),weight);
+    for(unsigned int i = 0; i < jet_v_tight.size(); i++){
+      h_jet_pt_tighteta_MET->Fill(jet_v_tight[i].second.Pt()/1000.,weight);
+      h_jet_y_tighteta_MET->Fill(jet_v_tight[i].second.Rapidity(),weight);
+    }
+    if(jet_v_tight.size() > 0){
+      h_leadjet_pt_tighteta_MET->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+      h_leadjet_y_tighteta_MET->Fill(jet_v_tight[0].second.Rapidity(),weight);
+      h_jet_st_tighteta_MET->Fill(st_tight,weight);
+      h_jet_mu_ht_tighteta_MET->Fill(ht_tight,weight);
+      h_Z_mass_1j_tighteta_MET->Fill(Zmass,weight);
+    }
+    if(jet_v_tight.size() > 1){
+      h_subjet_pt_tighteta_MET->Fill(jet_v_tight[1].second.Pt()/1000.,weight);
+      h_subjet_y_tighteta_MET->Fill(jet_v_tight[1].second.Rapidity(),weight);
+      TLorentzVector dijet_fourv_tight = jet_v_tight[0].second + jet_v_tight[1].second;
+      h_dijet_m_tighteta_MET->Fill(dijet_fourv_tight.M()/1000.,weight);
+      h_Z_mass_2j_tighteta_MET->Fill(Zmass,weight);
+    }
+    if(jet_v_tight.size() > 2) h_Z_mass_3j_tighteta_MET->Fill(Zmass,weight);
+    if(jet_v_tight.size() > 3) h_Z_mass_4j_tighteta_MET->Fill(Zmass,weight);
+    if(jet_v_tight.size() > 4) h_Z_mass_5j_tighteta_MET->Fill(Zmass,weight);
+
   }
 
   //btag optimization   
 
-  float mv1_85_wp = 0.1340;
-  float mv1_80_wp = 0.3511;
-  float mv1_70_wp = 0.7892;
-  float mv1_60_wp = 0.9827;
   float mv1c_80_wp = 0.4051;
   float mv1c_70_wp = 0.7068;
   float mv1c_60_wp = 0.8349;
@@ -1417,18 +1479,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_bjet_n->Fill(bjet_v.size(),weight);
   }
   for(unsigned int i = 0; i < jet_v.size(); i++){
-    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_85_wp && fabs(jet_v[i].second.Eta()) < 2.4){
-      bjet_v_mv1_85.push_back(jet_v[i]);
-    }
-    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
-      bjet_v_mv1_80.push_back(jet_v[i]);
-    }
-    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_70_wp && fabs(jet_v[i].second.Eta()) < 2.4){
-      bjet_v_mv1_70.push_back(jet_v[i]);
-    }
-    if(jet_AntiKt4LCTopo_flavor_weight_MV1->at(jet_v[i].first) > mv1_60_wp && fabs(jet_v[i].second.Eta()) < 2.4){
-      bjet_v_mv1_60.push_back(jet_v[i]);
-    }
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v_mv1c_80.push_back(jet_v[i]);
     }
@@ -1469,7 +1519,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       h_bjet_pt_bb->Fill(b_jets_sum.Pt()/1000.,weight);
       double delta_eta_bb = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
       h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
-      h_Zpt_v_bb_pt->Fill(Z_fourv.Pt()/1000.,b_jets_sum.Pt()/1000.,weight);
       h_Z_mass_2b->Fill(Zmass,weight);
     }
   }
@@ -1500,7 +1549,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_bjet_pt_bb_mv1c->Fill(b_jets_sum_mv1c.Pt()/1000.,weight);
     double delta_eta_bb_mv1c = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
     h_bjet_deltaeta_bb_mv1c->Fill(delta_eta_bb_mv1c,weight);
-    h_Zpt_v_bb_pt_mv1c->Fill(Z_fourv.Pt()/1000.,b_jets_sum_mv1c.Pt()/1000.,weight);
   }
 
    return kTRUE;
@@ -1651,7 +1699,6 @@ void analysis_Zmumu::Terminate()
   h_3jet_y->Write();
   h_4jet_pt->Write();
   h_4jet_y->Write();
-  h_Zpt_v_jj_pt->Write();
   h_jet_n_tighteta->Write();
   h_jet_pt_tighteta->Write();
   h_jet_y_tighteta->Write();
@@ -1702,13 +1749,43 @@ void analysis_Zmumu::Terminate()
 
   h_Z_mass_MET->Write();
   h_Z_pt_MET->Write();
-  h_njets_MET->Write();
+  h_Z_mass_0j_MET->Write();
+  h_Z_mass_1j_MET->Write();
+  h_Z_mass_2j_MET->Write();
+  h_Z_mass_3j_MET->Write();
+  h_Z_mass_4j_MET->Write();
+  h_Z_mass_5j_MET->Write();
+  h_Z_mass_1j_tighteta_MET->Write();
+  h_Z_mass_2j_tighteta_MET->Write();
+  h_Z_mass_3j_tighteta_MET->Write();
+  h_Z_mass_4j_tighteta_MET->Write();
+  h_Z_mass_5j_tighteta_MET->Write();
+
+  h_jet_n_MET->Write();
   h_jet_pt_MET->Write();
   h_leadjet_pt_MET->Write();
   h_dijet_m_MET->Write();
-  h_Zpt_v_jj_pt_MET->Write();
   h_jet_st_MET->Write();
   h_jet_mu_ht_MET->Write();
+  h_jet_y_MET->Write();
+  h_leadjet_y_MET->Write();
+  h_subjet_pt_MET->Write();
+  h_subjet_y_MET->Write();
+
+  h_jet_n_tighteta_MET->Write();
+  h_jet_pt_tighteta_MET->Write();
+  h_jet_y_tighteta_MET->Write();
+  h_jet_st_tighteta_MET->Write();
+  h_jet_mu_ht_tighteta_MET->Write();
+  h_leadjet_pt_tighteta_MET->Write();
+  h_leadjet_y_tighteta_MET->Write();
+  h_subjet_pt_tighteta_MET->Write();
+  h_subjet_y_tighteta_MET->Write();
+  h_dijet_m_tighteta_MET->Write();
+  h_dijet_dR_tighteta_MET->Write();
+  h_dijet_dphi_tighteta_MET->Write();
+  h_dijet_dy_tighteta_MET->Write();
+  h_dijet_deta_tighteta_MET->Write();
 
   h_bjet_n->Write();
   h_bjet_pt->Write();
@@ -1732,8 +1809,6 @@ void analysis_Zmumu::Terminate()
   h_bjet_rank->Write();
   h_bjet_pt_bb->Write();
   h_bjet_pt_bb_mv1c->Write();
-  h_Zpt_v_bb_pt->Write();
-  h_Zpt_v_bb_pt_mv1c->Write();
   h_MET->Write();
   h_MET_1tag->Write();
   h_MET_2tag->Write();

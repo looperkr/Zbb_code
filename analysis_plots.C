@@ -5,36 +5,8 @@ Last edited: 10 Dec 2015
 Last edited by: K. Looper
 Note: support for Evelin's code removed 5 Nov. See backup code to run on that.
 */
-/*
-Variables that can be plotted:
-single muon pT: mu_pt (before Z cut)
-single muon pT: mu_pt_Z (after Z cut)
-single muon phi: mu_phi
-single muon eta: mu_eta
-dimuon mass: m_mumu (before Z window cut)
-dimuon mass: Z_mass (after Z window cut)
-dimuon y: Z_y
-dimuon pT (after Z window cuts): Z_pt
-number of jets: n_jets
-jet pT: jet_pt
-number of jets (for given jet pT cut): jet_n_X, X = [35,40,45,50,55,60]
-jet y: jet_y
-leading jet pT: lead_jet_pt
-jet pT scalar sum (ST): jet_st
-jet pT and muon scalar sum (HT): jet_ht
-dijet invariant mass (leading and subleading): dijet_m
-number of b-tagged jets: n_bjets
-pT of b-tagged jets:  bjet_pt
-rapidity of b-tagged jets: bjet_y
-pT of leading b-tagged jet: bjet_lead_pt
-pT of subleading b-tagged jet: bjet_sublead_pt
-dijet invariant mass of leading and subleading b-tagged jet: bjet_mass
-Delta R between leading and subleading b-tagged jets: deltaR_bb
-Delta R between leading b-tagged jet and Z: deltaR_Zb
-Delta phi between leading b-tagged jet and Z: deltaphi_Zb
-Rank of the bjet among all the jets: bjet_rank
-Di-bjet pT: bjet_pt_bb
-*/
+
+
 
 #include <iostream>
 #include <string>
@@ -49,16 +21,15 @@ Di-bjet pT: bjet_pt_bb
 #include "THStack.h"
 
 
-void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool include_sherpa, bool isMJ=false){
+void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool include_sherpa, bool isMJ=false, bool isWide=false){
 
   int j = 0; //debugging iterator
   //plot luminosity
   double lumi;
   if(scale_to_lumi){
     //luminosity in picobarns
-    //    lumi = 3413.06; //second packages run
     lumi = 20239.2; //lumi calculator
-	//lumi = 20281.48; //arantxa
+    //lumi = 20281.48; //arantxa
     //    lumi = 785.355; //period A
     //lumi = 794.02; // period A arantxa
     //lumi = 5047.21; //period B
@@ -70,7 +41,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     //    lumi = 1021.54; //period I
     //    lumi = 2609.89; //period J
     //  lumi = 846.306; //period L
-      //    lumi = 21300.0; //nominal 8 TeV
   }
   else{
     lumi = 5000.0;
@@ -98,7 +68,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 0.1, 1000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass"){
-    if(!isMJ){
+    if(!isMJ && !isWide){
       chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
     }
     else{
@@ -119,10 +89,41 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("Z_mass_0j", "m_{#mu#mu} [GeV]",  "Events/GeV", 60, 120, 1,  1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_MET"){
-    chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    if(!isMJ && !isWide){
+      chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    }
+    else{
+      if(make_log) chooseHistOptions("Z_mass_MET","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
+      else chooseHistOptions("Z_mass_MET","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 4000, 2, ratiomin, ratiomax);
+    }
   }
   else if(var_2_plot == "Z_mass_exactly0j"){
     chooseHistOptions("Z_mass_exactly0j", "m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_mass_1j"){
+    if(!isMJ && !isWide){
+      chooseHistOptions("Z_mass_1j", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax); 
+    }
+    else{
+      chooseHistOptions("Z_mass_1j","m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
+    }
+  }
+  else if(var_2_plot == "Z_mass_1j_MET"){
+    if(!isMJ && !isWide){
+      chooseHistOptions("Z_mass_1j_MET", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax);
+    }
+    else{
+      chooseHistOptions("Z_mass_1j_MET","m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
+    }
+  }
+  else if(var_2_plot == "Z_mass_1j_tight_MET"){
+    if(!isMJ && !isWide){
+      chooseHistOptions("Z_mass_1j_tighteta_MET", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax);
+    }
+    else{
+      chooseHistOptions("Z_mass_1j_tighteta_MET","m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
+    }
+ 
   }
   else if(var_2_plot == "Z_mass_1b"){
     chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV] (N_{b-jets} #geq 1)",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
@@ -260,7 +261,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 0.1, 1000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mv1c_bins"){
-    chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0, 1, 10,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0, 1, 100,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "light_jets"){
     chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
@@ -518,7 +519,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_arantxa/";
 
   //Sherpa Zmumu
-  
+
+  string file_suffix;
+  if(isMJ) file_suffix = "_MJ.root";
+  else if(isWide) file_suffix = "_wide.root";
+  else file_suffix = ".root";
+
   string mc_type_zmumu_sherpa = "Zmumu_sherpa";
   const int n_files_zmumu_sherpa = 1;
   TFile * fzmumu_sherpa[1];
@@ -528,8 +534,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string zmumu_sherpa_cf_name;
   zmumu_sherpa_name = "SherpaZmumu_hists";
   zmumu_sherpa_cf_name = cutflow_h_path + zmumu_sherpa_name + ".root";
-  if(isMJ) zmumu_sherpa_name += "_MJ.root";
-  else zmumu_sherpa_name += ".root";
+  zmumu_sherpa_name += file_suffix;
   fname_zmumu_sherpa[0] = zmumu_sherpa_name;
   zmumu_sherpa_name = mc_path + zmumu_sherpa_name;
   if(include_sherpa){
@@ -549,8 +554,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0;i<6;i++){
     zmumu_name = "ZmumuNp"+ NumToStr(i) + "_hists";
     zmumu_cf_name = cutflow_h_path + zmumu_name + ".root";
-    if(isMJ) zmumu_name += "_MJ.root";
-    else zmumu_name += ".root";
+    zmumu_name += file_suffix;
     fname_zmumu[i] = zmumu_name;
     zmumu_name = mc_path + zmumu_name;
     fzmumu[i] = TFile::Open(zmumu_name.c_str(),"UPDATE");
@@ -569,8 +573,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0;i<4;i++){
     zmumubb_name = "ZmumubbNp" + NumToStr(i) + "_hists";
     zmumubb_cf_name = cutflow_h_path + zmumubb_name + ".root";
-    if(isMJ) zmumubb_name += "_MJ.root";
-    else zmumubb_name += ".root";
+    zmumubb_name += file_suffix;
     fname_zmumubb[i] = zmumubb_name;
     zmumubb_name = mc_path + zmumubb_name;
     fzmumubb[i] = TFile::Open(zmumubb_name.c_str(),"UPDATE");
@@ -589,8 +592,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0;i<4;i++){
     zmumucc_name = "ZmumuccNp" + NumToStr(i) + "_hists";
     zmumucc_cf_name = cutflow_h_path + zmumucc_name + ".root";
-    if(isMJ) zmumucc_name += "_MJ.root";
-    else zmumucc_name += ".root";
+    zmumucc_name += file_suffix;
     fname_zmumucc[i] = zmumucc_name;
     zmumucc_name = mc_path + zmumucc_name;
     fzmumucc[i] = TFile::Open(zmumucc_name.c_str(),"UPDATE");
@@ -609,8 +611,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<6; i++){
     ztautau_name = "ZtautauNp" + NumToStr(i) + "_hists";
     ztautau_cf_name = cutflow_h_path + ztautau_name + ".root";
-    if(isMJ) ztautau_name += "_MJ.root";
-    else ztautau_name += ".root";
+    ztautau_name += file_suffix;
     fname_ztautau[i] = ztautau_name;
     ztautau_name = mc_path + ztautau_name;
     fztautau[i] = TFile::Open(ztautau_name.c_str(),"UPDATE");
@@ -629,8 +630,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<6; i++){
     wmunu_name = "WmunuNp" + NumToStr(i) + "_hists";
     wmunu_cf_name = cutflow_h_path + wmunu_name + ".root";
-    if(isMJ) wmunu_name += "_MJ.root";
-    else wmunu_name += ".root";
+    wmunu_name += file_suffix;
     fname_wmunu[i] = wmunu_name;
     wmunu_name = mc_path + wmunu_name;
     fwmunu[i] = TFile::Open(wmunu_name.c_str(),"UPDATE");
@@ -649,8 +649,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<4; i++){
     wcc_name = "WccNp" + NumToStr(i) + "_hists";
     wcc_cf_name = cutflow_h_path + wcc_name + ".root";
-    if(isMJ) wcc_name += "_MJ.root";
-    else wcc_name += ".root";
+    wcc_name += file_suffix;
     fname_wcc[i] = wcc_name;
     wcc_name = mc_path + wcc_name;
     fwcc[i] = TFile::Open(wcc_name.c_str(),"UPDATE");
@@ -669,8 +668,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<5; i++){
     wc_name = "WcNp" + NumToStr(i) + "_hists";
     wc_cf_name= cutflow_h_path + wc_name + ".root";
-    if(isMJ) wc_name += "_MJ.root";
-    else wc_name += ".root";
+    wc_name += file_suffix;
     fname_wc[i] = wc_name;
     wc_name = mc_path + wc_name;
     fwc[i] = TFile::Open(wc_name.c_str(),"UPDATE");
@@ -689,8 +687,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<4; i++){
     wbb_name = "WbbNp" + NumToStr(i) + "_hists";
     wbb_cf_name= cutflow_h_path + wbb_name + ".root";
-    if(isMJ) wbb_name += "_MJ.root";
-    else wbb_name += ".root";
+    wbb_name += file_suffix;
     fname_wbb[i] = wbb_name;
     wbb_name = mc_path + wbb_name;
     fwbb[i] = TFile::Open(wbb_name.c_str(),"UPDATE");
@@ -706,8 +703,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string fname_ttbar[1];
   string ttbar_name = mc_type_ttbar + "_hists";
   string ttbar_cf_name = cutflow_h_path + ttbar_name + ".root";
-  if(isMJ) ttbar_name += "_MJ.root";
-  else ttbar_name += ".root";
+  ttbar_name += file_suffix;
   fname_ttbar[0] = ttbar_name;
   ttbar_name = mc_path + ttbar_name;
   fttbar[0] = TFile::Open(ttbar_name.c_str(),"UPDATE");
@@ -749,8 +745,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     else if(i==2) singletop_name = "schanLepPythia_hists";
     else if(i==3) singletop_name = "WtchanPythia_hists";
     singletop_cf_name = cutflow_h_path + singletop_name + ".root";
-    if(isMJ) singletop_name += "_MJ.root";
-    else singletop_name += ".root";
+    singletop_name += file_suffix;
     fname_singletop[i] = singletop_name;
     cout << singletop_cf_name << endl;
     singletop_name = mc_path + singletop_name;
@@ -776,8 +771,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     else if(i==4) diboson_name = "ZZtomumuqq_hists";
     else if(i==5) diboson_name = "ZZtotautauqq_hists";
     diboson_cf_name = cutflow_h_path + diboson_name + ".root";
-    if(isMJ) diboson_name += "_MJ.root";
-    else diboson_name += ".root";
+    diboson_name += file_suffix;
     fname_diboson[i] = diboson_name;
     cout << diboson_name << endl;
     diboson_name = mc_path + diboson_name;
@@ -798,12 +792,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   TFile *fdata;
   string data_name = data_path + "alldata";
   if(isMJ) data_name += "_MJ.root";
+  else if(isWide) data_name += "_wide.root";
   else data_name += ".root";
   //string data_name = data_path + "periodH.root";
   if(var_2_plot == "bottom_jets_hmatch_up" || var_2_plot == "bottom_jets_hmatch_down"){histo_name = "mv1cweight_bottom_had_match";}
   fdata = TFile::Open(data_name.c_str(),"UPDATE");
   TH1D *h_data = (TH1D*)fdata->Get(histo_name);
   h_data->GetXaxis()->SetRangeUser(x_min,x_max);
+  h_data->SetLineWidth(5);
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~~~~~~~~~~~~~~~ADD HISTOGRAMS~~~~~~~~~~~~~~~~~
@@ -844,6 +840,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_diboson_sum->SetFillColor(kOrange);
 
   gStyle->SetOptStat("");
+
+  h_zmumu_sum->SetLineWidth(5);
+  h_zmumubb_sum->SetLineWidth(5);
+  h_zmumucc_sum->SetLineWidth(5);
+  h_ztautau_sum->SetLineWidth(5);
+  h_wjets_sum->SetLineWidth(5);
+  h_ttbar_sum->SetLineWidth(5);
+  h_singletop_sum->SetLineWidth(5);
+  h_diboson_sum->SetLineWidth(5);
 
   double zplusjets_sum = h_zmumu_sum->Integral();
   zplusjets_sum += h_zmumubb_sum->Integral();
@@ -989,6 +994,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   float data_events = h_data->Integral();
   cout << "Data sum: " << data_events << endl;
 
+  float data_minus_background = data_events;
+  data_minus_background -= h_ztautau_sum->Integral();
+  data_minus_background -= h_wjets_sum->Integral();
+  data_minus_background -= h_ttbar_sum->Integral();
+  data_minus_background -= h_singletop_sum->Integral();
+  data_minus_background -= h_diboson_sum->Integral();
+
+  cout << "Data minus background (Z+jets): " << data_minus_background << endl;
+
   float percent_difference = (data_events-mc_events)/data_events;
   cout << "Percentage difference: " << percent_difference << endl;
   float percentage_difference_sherpa;
@@ -1013,6 +1027,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //Write mc_sum as root file for further manipulation (like fitting)
   string rootfile_name = "MC_histograms_root/"+var_2_plot;
   if(isMJ) rootfile_name += "_ctrlregion.root";
+  else if(isWide) rootfile_name += "_wide.root";
   else rootfile_name += ".root";
   TFile * f_root = TFile::Open(rootfile_name.c_str(),"RECREATE");
   string mc_hist_name = var_2_plot+"_mc";
@@ -1028,7 +1043,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
    ********DRAW SUMMED HISTS************
    **********************************/
   string canvas_name = var_2_plot + "canvas";
-  TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),900,900);
+  TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),2700,2700);
 
   float mc_max = h_mc_sum_clone->GetMaximum();
   float data_max = h_data->GetMaximum();
@@ -1072,6 +1087,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
 
   sum_stack->Draw("HIST");
+  sum_stack->GetXaxis()->SetNdivisions(000);
   if(include_sherpa) h_mc_sherpa_sum->Draw("HIST SAME");
   h_data->Draw("HIST ELP SAME");
   sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
@@ -1174,12 +1190,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
   TImage *img = TImage::Create();
   img->FromPad(c1);
-  string img_name;
+  string img_name = plt_dir + "/" + var_2_plot;
+  if(isMJ) img_name += "_MJ";
+  else if(isWide) img_name += "_wide";
   if(make_log){
-    img_name = plt_dir + "/" + var_2_plot + ".png";
+    img_name += ".png";
   }
   else{
-    img_name = plt_dir + "/" + var_2_plot + "nolog.png";
+    img_name += "nolog.png";
   }
   img->WriteImage(img_name.c_str());
 

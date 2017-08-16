@@ -51,7 +51,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   isData = !isMC;
   isGrid = false;
   isMJ = false;
-  isWideWindow = false;
+  isWideWindow = true;
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());

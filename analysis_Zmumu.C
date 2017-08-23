@@ -49,9 +49,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = true;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
-  isWideWindow = true;
+  isWideWindow = false;
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -864,6 +864,12 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(isMC && weight == 0) {
     h_good_zeroweight_events->Fill(0);
     if(pileupweight == 0) h_good_zeroweight_events_pw->Fill(0);
+  }
+
+  //testing truth variable
+  if(isMC){
+    if(mu_truth_mothertype->at(good_mu_v_index.at(0)) == 23) cout << "TEST WORKED: is Z" << endl;
+    else cout << "TEST WORKED: NOT Z" << endl;
   }
   h_Z_mumu->Fill(Zmass,weight);
   h_Z_pt->Fill(Z_fourv.Pt()/1000.,weight);

@@ -213,7 +213,6 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     else if(file_name[i] == "WZtomunuqq_hists.root"){
       eventn_array[i] = 840000;
       }*/
-    cout << "debug1" << endl;
     //if(process_str == "wmunu" && i == 1) eventn_array[i] = 13094468;
     //else if(process_str == "wmunu" && i == 2) eventn_array[i] = 8216080;
     //else if(process_str == "wc" && i == 0) eventn_array[i] = 5059786;

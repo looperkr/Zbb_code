@@ -56,16 +56,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
   //Plot options for chosen variable
   if(var_2_plot == "mu_pt"){
-    chooseHistOptions("mu_pt_nocut", "p_{T}^{#mu} [GeV]", "Events/0.5 GeV", 0, 200, 0.01,  1000000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mu_pt_nocut", "p_{T}^{#mu} [GeV]", "Events/0.5 GeV", 0, 200, 1,  1000000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_pt_Z"){
-    chooseHistOptions("mu_pT","p_{T}^{#mu} [GeV]", "Events/5 GeV", 15, 400, 0.1, 1000000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("mu_pT","p_{T}^{#mu} [GeV]", "Events/5 GeV", 15, 400, 1, 1000000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_phi"){
-    chooseHistOptions("mu_phi","#phi^{#mu}","Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 0.1, 1000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mu_phi","#phi^{#mu}","Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 1, 1000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_eta"){
-    chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 0.1, 1000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 1, 1000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass"){
     if(!isMJ && !isWide){
@@ -78,12 +78,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "m_mumu"){
     chooseHistOptions("m_mumu","m_{#mu#mu} [GeV]","Events/GeV", 20, 300, 1, 1000000000, 2, 0.7, 1.5);
-  }
-  else if(var_2_plot == "Z_mass_nopw"){
-    chooseHistOptions("Z_mass_nopw", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7,1.5);   //after Z mass window cut
-  }
-  else if(var_2_plot == "m_mumu"){
-    chooseHistOptions("m_mumu",  "m_{#mu#mu} [GeV]", "Events/GeV", 40, 200, 1, 1000000000, 2, ratiomin, ratiomax); // before Z mass window cut
   }
   else if(var_2_plot == "Z_mass_0j"){
     chooseHistOptions("Z_mass_0j", "m_{#mu#mu} [GeV]",  "Events/GeV", 60, 120, 1,  1000000000, 2, ratiomin, ratiomax);
@@ -133,90 +127,89 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_y"){
     if(make_log) logmax = 1000000000;
-    chooseHistOptions("Z_y", "Z rapidity", "Events/0.1", -3.5, 3.5, 0.1, logmax, 2, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "Z_y_nopw"){
-    if(make_log) logmax = 1000000000;
-    chooseHistOptions("Z_y_nopw", "Z rapidity", "Events/0.1", -3.5, 3.5, 0.1, logmax, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_y", "Z rapidity", "Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_eta"){
     if(make_log) logmax = 1000000000;
-    chooseHistOptions("Z_eta", "Z pseudorapidity", "Events/0.1", -6., 6., 0.1, logmax, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_eta", "Z pseudorapidity", "Events/0.1", -6., 6., 1, logmax, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_phi"){
-    chooseHistOptions("Z_phi", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 0.1, 100000000, 1, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "Z_phi_nopw"){
-    chooseHistOptions("Z_phi_nopw", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 0.1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_phi", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt"){
-    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 800., 0.1, 100000000, 100, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "Z_pt_nopw"){
-    chooseHistOptions("Z_pT_nopw","Z p_{T}","Events/50 GeV", 0., 800., 0.1,100000000, 100, ratiomin, ratiomax);
+    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met"){
-    chooseHistOptions("met","MET","Events/5 GeV", 0., 200., 0.1, 100000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("met","MET","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met_1tag"){
-    chooseHistOptions("met_1tag","MET( >= 1 b)","Events/5 GeV", 0., 200., 0.1, 100000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("met_1tag","MET( >= 1 b)","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets"){
     chooseHistOptions("jet_n", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "jet_pt"){
+    chooseHistOptions("jet_pt","jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_y"){
+    chooseHistOptions("jet_y", "jet rapidity", "Events/0.4", -5, 5, 1, 1000000000, 4, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_st"){
+    chooseHistOptions("jet_st","ST [GeV]", "Events/10 GeV", 25., 500., 1, 1000000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_ht"){
+    chooseHistOptions("jet_mu_ht","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "lead_jet_pt"){
+    chooseHistOptions("jet_pt_lead","leading jet pT [GeV]", "Events/GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "lead_jet_y"){
+    chooseHistOptions("jet_y_lead","leading jet rapidity", "Events/0.4", -4.5, 4.5, 1, 10000000, 4, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "dijet_m"){
+    chooseHistOptions("dijet_m", "m_{jj} [GeV]", "Events/20 GeV", 0., 1000., 1, 100000000, 40, ratiomin, ratiomax);
+  }
   else if(var_2_plot == "n_jets_tight"){
     chooseHistOptions("jet_n_tighteta", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "n_jets_met"){
-    chooseHistOptions("njets_MET", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "n_jets_eta"){
-    chooseHistOptions("jet_n_tight_eta", "#jets/events (|eta| < 2.4)", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "jet_pt"){
-    chooseHistOptions("jet_pt","jet pT [GeV]", "Events/10 GeV", 0., 500., 0.1, 10000000, 20, ratiomin, ratiomax);
-  }
   else if(var_2_plot == "jet_pt_tight"){
-    chooseHistOptions("jet_pt_tighteta","jet pT [GeV]","Events/10 GeV", 0., 500., 0.1, 10000000, 20, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "jet_pt_met"){
-    chooseHistOptions("jet_pt_MET","jet pT (MET < 70 GeV) [GeV]", "Events/10 GeV", 0., 500., 0.1, 10000000, 20, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "jet_pt_eta"){
-    chooseHistOptions("jet_pt_tight_eta","jet pT [GeV]","Events/10 GeV", 0., 500., 0.1, 10000000,20, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "lead_jet_pt"){
-    chooseHistOptions("jet_pt_lead","leading jet pT [GeV]", "Events/GeV", 0., 500., 0.1, 10000000,20, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "lead_jet_pt_tight"){
-    chooseHistOptions("jet_pt_lead_tighteta","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 0.1, 10000000,20, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "jet_y"){
-    chooseHistOptions("jet_y", "jet rapidity", "Events/0.4", -5, 5, 0.1, 1000000000, 4, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt_tighteta","jet pT [GeV]","Events/10 GeV", 0., 500., 1, 10000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_y_tight"){
-    chooseHistOptions("jet_y_tighteta", "jet rapidity", "Events/0.4",  -3.5, 3.5, 0.1, 1000000000, 4, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "leadjet_y"){
-    chooseHistOptions("jet_y_lead","leading jet rapidity", "Events/0.4", -4.5, 4.5, 0.1, 10000000, 4, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "jet_st"){
-    chooseHistOptions("jet_st","ST [GeV]", "Events/10 GeV", 25., 500., 0.1, 1000000000, 20, ratiomin, ratiomax);
-  }
+    chooseHistOptions("jet_y_tighteta", "jet rapidity", "Events/0.4",  -3.5, 3.5, 1, 1000000000, 4, ratiomin, ratiomax);
+  } 
   else if(var_2_plot == "jet_st_tight"){
-    chooseHistOptions("jet_st_tighteta","ST [GeV]", "Events/10 GeV", 25.,500., 0.1, 1000000000, 20, ratiomin, ratiomax);
-  }
-  else if(var_2_plot == "jet_ht"){
-    chooseHistOptions("jet_mu_ht","HT [GeV]", "Events/10 GeV", 0., 1000., 0.1, 1000000000, 20, ratiomin, ratiomax);
+    chooseHistOptions("jet_st_tighteta","ST [GeV]", "Events/10 GeV", 25.,500., 1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_ht_tight"){
-    chooseHistOptions("jet_mu_ht_tighteta","HT [GeV]", "Events/10 GeV", 0., 1000., 0.1, 1000000000, 20, ratiomin, ratiomax);
+    chooseHistOptions("jet_mu_ht_tighteta","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 20, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "dijet_m"){
-    chooseHistOptions("dijet_m", "m_{jj} [GeV]", "Events/20 GeV", 0., 1000., 0.1, 100000000, 40, ratiomin, ratiomax);
+  else if(var_2_plot == "lead_jet_pt_tight"){
+    chooseHistOptions("jet_pt_lead_tighteta","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m_tight"){
-    chooseHistOptions("dijet_m_tighteta", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 0.1, 100000000, 40,ratiomin, ratiomax);
+    chooseHistOptions("dijet_m_tighteta", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 1, 100000000, 40,ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "n_jets_tightmet"){
+    chooseHistOptions("jet_n_tighteta_MET", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_pt_tightmet"){
+    chooseHistOptions("jet_pt_tighteta_MET","jet pT [GeV]","Events/10 GeV", 0., 500., 1, 10000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_y_tightmet"){
+    chooseHistOptions("jet_y_tighteta_MET", "jet rapidity", "Events/0.4",  -3.5, 3.5, 1, 1000000000, 4, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_st_tightmet"){
+    chooseHistOptions("jet_st_tighteta_MET","ST [GeV]", "Events/10 GeV", 25.,500., 1, 1000000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "jet_ht_tightmet"){
+    chooseHistOptions("jet_mu_ht_tighteta_MET","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "lead_jet_pt_tightmet"){
+    chooseHistOptions("jet_pt_lead_tighteta_MET","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "dijet_m_tightmet"){
+    chooseHistOptions("dijet_m_tighteta_MET", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 1, 100000000, 40,ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_bjets"){
     chooseHistOptions("bjet_n", "N_{bjets}","Events", 0., 5., 1, 10000000, 1, ratiomin, ratiomax);
@@ -225,77 +218,84 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("bjet_pt", "p_{T}(b-jets) [GeV]","Events/10 GeV", 0., 500, 1, 100000, 40, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_y"){
-    chooseHistOptions("bjet_y", "b-jet rapidity", "Events/0.2",-3.5, 3.5, 0.1, 5000000, 4, ratiomin, ratiomax);
+    chooseHistOptions("bjet_y", "b-jet rapidity", "Events/0.2",-3.5, 3.5, 1, 5000000, 4, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_lead_pt"){
-    chooseHistOptions("bjet_lead_pt","p_{T}(leading b-jet) [GeV]", "Events/10 GeV", 0, 500, 0.1, 100000, 20, ratiomin, ratiomax);
+    chooseHistOptions("bjet_lead_pt","p_{T}(leading b-jet) [GeV]", "Events/10 GeV", 0, 500, 1, 100000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_sublead_pt"){
-    chooseHistOptions("bjet_sublead_pt","p_{T}(subleading b-jet) [GeV]", "Events/10 GeV", 0, 500, 0.1,100000,20, ratiomin, ratiomax);
+    chooseHistOptions("bjet_sublead_pt","p_{T}(subleading b-jet) [GeV]", "Events/10 GeV", 0, 500, 1,100000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_mass"){
-    chooseHistOptions("bjet_m_bb", "m(b,b) [GeV]", "Events/10 GeV", 0, 400, 0.1, 400, 20, ratiomin, ratiomax);
+    if(make_log) chooseHistOptions("bjet_m_bb", "m(b,b) [GeV]", "Events/10 GeV", 0, 500, 1, 10000, 20, ratiomin, ratiomax);
+    else chooseHistOptions("bjet_m_bb", "m(b,b) [GeV]", "Events/10 GeV", 0, 400, 1, 1000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaR_bb"){
-    chooseHistOptions("bjet_delR_bb", "#Delta R (b,b)", "Events/0.5", 0, 5.0, 0.1, 2500, 10, ratiomin, ratiomax);
+    chooseHistOptions("bjet_delR_bb", "#Delta R (b,b)", "Events/0.5", 0, 5.0, 1, 3000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaphi_bb"){
-    chooseHistOptions("bjet_delphi_bb",  "#Delta#phi (b,b)", "Events/0.5", 0., 3.5, 0.1, 4000, 10, ratiomin, ratiomax);
+    chooseHistOptions("bjet_delphi_bb",  "#Delta#phi (b,b)", "Events/0.5", 0., 3.5, 1, 4000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaeta_bb"){
-    chooseHistOptions("bjet_deltaeta_bb","|#Delta#eta (b,b)|","Events/0.5", 0., 5.5, 0.1, 3000, 10, ratiomin, ratiomax);
+    chooseHistOptions("bjet_deltaeta_bb","|#Delta#eta (b,b)|","Events/0.5", 0., 5.5, 1, 3000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaR_Zb"){
-    chooseHistOptions("bjet_delR_Zb", "#Delta R(Z,b)","Events/0.5", 0., 5.0, 0.1, 30000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("bjet_delR_Zb", "#Delta R(Z,b)","Events/0.5", 0., 5.0, 1, 30000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaphi_Zb"){
-    chooseHistOptions("bjet_deltaphi_bZ", "#Delta #phi (Z,b)", "Events/0.5", 0, 3.5, 0.1, 100000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("bjet_deltaphi_bZ", "#Delta #phi (Z,b)", "Events/0.5", 0, 3.5, 1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "deltaeta_Zb"){
-    chooseHistOptions("bjet_deltaeta_Zb", "#Delta#eta (Z,b)", "Events/0.5", 0., 5.5, 0.1, 30000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("bjet_deltaeta_Zb", "#Delta#eta (Z,b)", "Events/0.5", 0., 5.5, 1, 30000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bjet_pt_bb"){
-    chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 0.1, 1000, 20, ratiomin, ratiomax);
+    if(make_log) chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 1, 100000, 20, ratiomin, ratiomax);
+    else chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 1, 400, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mv1cweight"){
-    chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 0.1, 1000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 1, 10000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mv1c_bins"){
     chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0, 1, 100,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "light_jets"){
-    chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "charm_jets"){
-    chooseHistOptions("mv1cweight_charm","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_charm","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bottom_jets"){
-    chooseHistOptions("mv1cweight_bottom","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_bottom","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "light_jets_hmatch"){
-    chooseHistOptions("mv1cweight_light_had_match","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_light_had_match","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "charm_jets_hmatch"){
-    chooseHistOptions("mv1cweight_charm_had_match","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_charm_had_match","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bottom_jets_hmatch"){
-    chooseHistOptions("mv1cweight_bottom_had_match","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_bottom_had_match","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bottom_jets_hmatch_up"){
-    chooseHistOptions("mv1cweight_bottom_had_match_up","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_bottom_had_match_up","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot =="bottom_jets_hmatch_down"){
-    chooseHistOptions("mv1cweight_bottom_had_match_down","mv1c weight", "Events",0,1,0.1,100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mv1cweight_bottom_had_match_down","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 500000000;
     else logmax = 700000;
-    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 45, 1, logmax, 1, ratiomin, ratiomax);
+    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup_noweight"){
     if(make_log) logmax = 500000000;
     else logmax = 700000;
-    chooseHistOptions("pileup_Z_avg_norw", "pileup", "Events", 0, 45, 1, logmax, 20, ratiomin, ratiomax);
+    chooseHistOptions("pileup_Z_avg_norw", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "actual_pileup"){
+    if(make_log) logmax = 500000000;
+    else logmax = 700000;
+    chooseHistOptions("pileup_Z", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
   }
   else{
     cout << "This variable is not supported" << endl;
@@ -799,7 +799,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   fdata = TFile::Open(data_name.c_str(),"UPDATE");
   TH1D *h_data = (TH1D*)fdata->Get(histo_name);
   h_data->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_data->SetLineWidth(5);
+  //  h_data->SetLineWidth(5);
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~~~~~~~~~~~~~~~ADD HISTOGRAMS~~~~~~~~~~~~~~~~~
@@ -841,7 +841,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
   gStyle->SetOptStat("");
 
-  h_zmumu_sum->SetLineWidth(5);
+  /*  h_zmumu_sum->SetLineWidth(5);
   h_zmumubb_sum->SetLineWidth(5);
   h_zmumucc_sum->SetLineWidth(5);
   h_ztautau_sum->SetLineWidth(5);
@@ -849,6 +849,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_ttbar_sum->SetLineWidth(5);
   h_singletop_sum->SetLineWidth(5);
   h_diboson_sum->SetLineWidth(5);
+  */
 
   double zplusjets_sum = h_zmumu_sum->Integral();
   zplusjets_sum += h_zmumubb_sum->Integral();
@@ -1043,7 +1044,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
    ********DRAW SUMMED HISTS************
    **********************************/
   string canvas_name = var_2_plot + "canvas";
-  TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),2700,2700);
+  TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),800,800);
 
   float mc_max = h_mc_sum_clone->GetMaximum();
   float data_max = h_data->GetMaximum();
@@ -1188,18 +1189,19 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   c1->cd();
   c1->Update();
 
-  TImage *img = TImage::Create();
-  img->FromPad(c1);
+  //TImage *img = TImage::Create();
+  //img->FromPad(c1);
   string img_name = plt_dir + "/" + var_2_plot;
   if(isMJ) img_name += "_MJ";
   else if(isWide) img_name += "_wide";
   if(make_log){
-    img_name += ".png";
+    img_name += ".pdf";
   }
   else{
-    img_name += "nolog.png";
+    img_name += "nolog.pdf";
   }
-  img->WriteImage(img_name.c_str());
+  //  img->WriteImage(img_name.c_str());
+  c1->SaveAs(img_name.c_str());
 
   cout << img_name << endl;
 

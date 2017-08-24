@@ -4,7 +4,8 @@ import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
 isMC = False
-isMJ = True
+isMJ = False
+isWide = False
 
 file_list = str(sys.argv[1])
 
@@ -28,9 +29,9 @@ if isMC:
     if "Pythia" in generator:
         mapIndex = 0
     elif "Jimmy" in generator:
-        mapIndex = 2
+        mapIndex = 1
     elif "Sherpa" in generator:
-        mapIndex = 3
+        mapIndex = 2
     elif "Herwig" in generator:
         mapIndex = 1
     else: 
@@ -61,6 +62,8 @@ else:
     print output_name
 if isMJ:
     output_name += "_MJ.root"
+elif isWide:
+    output_name += "_wide.root"
 else:
     output_name += ".root"
 

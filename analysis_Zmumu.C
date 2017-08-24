@@ -47,9 +47,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
   
@@ -129,8 +129,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_pileupSF = new TH1D("pileup_rw_sf","pileup reweighting scale factor",5000,-2.5,2.5);
    h_pileup_Zsel = new TH1D("pileup_Z","pileup (event with Z candidate)",5000,0.,50);
    h_pileup_Zsel_norw = new TH1D("pileup_Z_norw","pileup (event with Z candidate)",5000,0.,50);
-   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",51,-0.5,50.5);
-   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",51,-0.5,50.5);
+   //   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",51,-0.5,50.5);
+   //   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",51,-0.5,50.5);
+   h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",5000,0.,50.);
+   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -866,11 +868,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(pileupweight == 0) h_good_zeroweight_events_pw->Fill(0);
   }
 
-  //testing truth variable
-  if(isMC){
-    if(mu_truth_mothertype->at(good_mu_v_index.at(0)) == 23) cout << "TEST WORKED: is Z" << endl;
-    else cout << "TEST WORKED: NOT Z" << endl;
-  }
   h_Z_mumu->Fill(Zmass,weight);
   h_Z_pt->Fill(Z_fourv.Pt()/1000.,weight);
   h_Z_y->Fill(Z_fourv.Rapidity(),weight);
@@ -1322,8 +1319,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(jet_v_tight.size() > 0){
       h_leadjet_pt_tighteta_MET->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
       h_leadjet_y_tighteta_MET->Fill(jet_v_tight[0].second.Rapidity(),weight);
-      h_jet_st_tighteta_MET->Fill(st_tight,weight);
-      h_jet_mu_ht_tighteta_MET->Fill(ht_tight,weight);
+      h_jet_st_tighteta_MET->Fill(st_tight/1000.,weight);
+      h_jet_mu_ht_tighteta_MET->Fill(ht_tight/1000.,weight);
       h_Z_mass_1j_tighteta_MET->Fill(Zmass,weight);
     }
     if(jet_v_tight.size() > 1){

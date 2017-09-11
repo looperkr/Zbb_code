@@ -62,14 +62,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mu_pT","p_{T}^{#mu} [GeV]", "Events/5 GeV", 15, 400, 1, 1000000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_phi"){
-    chooseHistOptions("mu_phi","#phi^{#mu}","Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 1, 1000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mu_phi","#phi^{#mu}","Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mu_eta"){
-    chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 1, 1000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+      chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 75, 107, 1, 1000000000, 2, 0.7, 1.5);
     }
     else{
       if(make_log) chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
@@ -80,11 +80,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("m_mumu","m_{#mu#mu} [GeV]","Events/GeV", 20, 300, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_0j"){
-    chooseHistOptions("Z_mass_0j", "m_{#mu#mu} [GeV]",  "Events/GeV", 60, 120, 1,  1000000000, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_mass_0j", "m_{#mu#mu} [GeV]",  "Events/GeV", 75, 107, 1,  1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_MET"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+      chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 75, 107, 1, 1000000000, 2, 0.7, 1.5);
     }
     else{
       if(make_log) chooseHistOptions("Z_mass_MET","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
@@ -92,11 +92,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     }
   }
   else if(var_2_plot == "Z_mass_exactly0j"){
-    chooseHistOptions("Z_mass_exactly0j", "m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_mass_exactly0j", "m_{#mu#mu} [GeV]", "Events/GeV", 75, 107, 1, 1000000000, 2, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_mass_1j"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass_1j", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax); 
+      chooseHistOptions("Z_mass_1j", "m_{#mu#mu} [GeV]", "Events/GeV", 75, 107, 1, 1000000000, 2, ratiomin, ratiomax); 
     }
     else{
       chooseHistOptions("Z_mass_1j","m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
@@ -104,7 +104,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_mass_1j_MET"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass_1j_MET", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax);
+      chooseHistOptions("Z_mass_1j_MET", "m_{#mu#mu} [GeV]", "Events/GeV", 75, 107, 1, 1000000000, 2, ratiomin, ratiomax);
     }
     else{
       chooseHistOptions("Z_mass_1j_MET","m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
@@ -112,7 +112,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_mass_1j_tight_MET"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass_1j_tighteta_MET", "m_{#mu#mu} [GeV]", "Events/GeV", 70, 110, 1, 1000000000, 2, ratiomin, ratiomax);
+      chooseHistOptions("Z_mass_1j_tighteta_MET", "m_{#mu#mu} [GeV]", "Events/GeV", 75, 107, 1, 1000000000, 2, ratiomin, ratiomax);
     }
     else{
       chooseHistOptions("Z_mass_1j_tighteta_MET","m_{#mu#mu} [GeV]", "Events/GeV", 60, 120, 1, 1000000000, 2, ratiomin, ratiomax);
@@ -120,7 +120,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
  
   }
   else if(var_2_plot == "Z_mass_1b"){
-    chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV] (N_{b-jets} #geq 1)",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV] (N_{b-jets} #geq 1)",  "Events/GeV", 75, 107, 1, 1000000000, 2, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_2b"){
     chooseHistOptions("Z_mass_1b", "m_{#mu#mu} [GeV] (N_{b-jets} #geq 2)",  "Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
@@ -140,7 +140,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met"){
-    chooseHistOptions("met","MET","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
+    chooseHistOptions("met","MET [GeV]","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met_1tag"){
     chooseHistOptions("met_1tag","MET( >= 1 b)","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
@@ -164,7 +164,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("jet_pt_lead","leading jet pT [GeV]", "Events/GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_y"){
-    chooseHistOptions("jet_y_lead","leading jet rapidity", "Events/0.4", -4.5, 4.5, 1, 10000000, 4, ratiomin, ratiomax);
+    chooseHistOptions("jet_y_lead","leading jet rapidity", "Events/0.4", -4.5, 4.5, 1, 100000000, 4, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m"){
     chooseHistOptions("dijet_m", "m_{jj} [GeV]", "Events/20 GeV", 0., 1000., 1, 100000000, 40, ratiomin, ratiomax);
@@ -203,7 +203,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("jet_st_tighteta_MET","ST [GeV]", "Events/10 GeV", 25.,500., 1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_ht_tightmet"){
-    chooseHistOptions("jet_mu_ht_tighteta_MET","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 20, ratiomin, ratiomax);
+    chooseHistOptions("jet_mu_ht_tighteta_MET","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 40, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_pt_tightmet"){
     chooseHistOptions("jet_pt_lead_tighteta_MET","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
@@ -250,7 +250,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "bjet_pt_bb"){
     if(make_log) chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 1, 100000, 20, ratiomin, ratiomax);
-    else chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 1, 400, 20, ratiomin, ratiomax);
+    else chooseHistOptions("bjet_pt_bb", "di-bjet p_{T}", "Events/10 GeV", 0, 350, 1, 500, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "mv1cweight"){
     chooseHistOptions("mv1cweight", "mv1c weight", "Events/0.02", 0, 1, 1, 10000000, 10, ratiomin, ratiomax);
@@ -283,17 +283,17 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mv1cweight_bottom_had_match_down","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup"){
-    if(make_log) logmax = 500000000;
+    if(make_log) logmax = 50000000000;
     else logmax = 700000;
-    chooseHistOptions("pileup_Z_avg", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
+    chooseHistOptions("pileup_Z_avg", "<#mu>", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup_noweight"){
-    if(make_log) logmax = 500000000;
+    if(make_log) logmax = 50000000000;
     else logmax = 700000;
-    chooseHistOptions("pileup_Z_avg_norw", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
+    chooseHistOptions("pileup_Z_avg_norw", "<#mu>", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
   }
   else if(var_2_plot == "actual_pileup"){
-    if(make_log) logmax = 500000000;
+    if(make_log) logmax = 5000000000;
     else logmax = 700000;
     chooseHistOptions("pileup_Z", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
   }
@@ -511,8 +511,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //== Monte Carlo =====
   //====================
   string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms_new/";
-  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
-  //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/old_histograms/old_MC_histograms/MC_histograms_May29/";
+  //string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
+  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/old_histograms/old_MC_histograms/MC_histograms_Aug24/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_MC_histograms/MC_histograms_Oct13/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_debug/";
@@ -747,7 +747,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     singletop_cf_name = cutflow_h_path + singletop_name + ".root";
     singletop_name += file_suffix;
     fname_singletop[i] = singletop_name;
-    cout << singletop_cf_name << endl;
     singletop_name = mc_path + singletop_name;
     fsingletop[i] = TFile::Open(singletop_name.c_str(),"UPDATE");
     fsingletop_cf[i] = TFile::Open(singletop_cf_name.c_str(),"UPDATE");
@@ -773,7 +772,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     diboson_cf_name = cutflow_h_path + diboson_name + ".root";
     diboson_name += file_suffix;
     fname_diboson[i] = diboson_name;
-    cout << diboson_name << endl;
     diboson_name = mc_path + diboson_name;
     fdiboson[i] = TFile::Open(diboson_name.c_str(),"UPDATE");
     fdiboson_cf[i] = TFile::Open(diboson_cf_name.c_str(),"UPDATE");
@@ -785,8 +783,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //===== Data =========
   //====================
   //My data
-  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
-  //  string data_path ="/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_data_histograms/data_histograms_Oct13/";
+  //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
+  string data_path ="/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_data_histograms/data_histograms_Aug24/";
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_debug/";
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_arantxa/";
   TFile *fdata;
@@ -1033,8 +1031,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   TFile * f_root = TFile::Open(rootfile_name.c_str(),"RECREATE");
   string mc_hist_name = var_2_plot+"_mc";
   string data_hist_name = var_2_plot+"_data";
+  string mc_sherpa_hist_name = var_2_plot+"_sherpa";
   h_mc_sum->SetName(mc_hist_name.c_str());
   h_data->SetName(data_hist_name.c_str());
+  if(include_sherpa){
+    h_mc_sherpa_sum->SetName(mc_sherpa_hist_name.c_str());
+    h_mc_sherpa_sum->Write();
+  }
   h_mc_sum->Write();
   h_data->Write();
   f_root->Close();
@@ -1194,6 +1197,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string img_name = plt_dir + "/" + var_2_plot;
   if(isMJ) img_name += "_MJ";
   else if(isWide) img_name += "_wide";
+  if(!include_sherpa) img_name += "_nosherpa";
   if(make_log){
     img_name += ".pdf";
   }
@@ -1202,8 +1206,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   //  img->WriteImage(img_name.c_str());
   c1->SaveAs(img_name.c_str());
-
-  cout << img_name << endl;
 
   //Close files
   if(include_sherpa){

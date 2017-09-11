@@ -65,11 +65,15 @@ void create_dir(string & plots_path, string & plots_dir){
 }
 
 
-void mj_fit(string process){
+void mj_fit(string process, bool isSherpa=false){
   using namespace RooFit;
 
+  bool isLog = true;
+
   string f_name = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/"+process+"_ctrlregion.root";
-  string mc_name = process + "_mc";
+  string mc_name = process;
+  if(isSherpa) mc_name += "_sherpa";
+  else mc_name += "_mc";
   string data_name = process + "_data";
 
   TFile *f = TFile::Open(f_name.c_str(),"READ");
@@ -131,12 +135,9 @@ void mj_fit(string process){
   leg->Draw();
   
   string ctrl_name = plt_dir + "/" + process + "_ctrl";
-  string ctrl_png = ctrl_name + ".png";
+  if(isSherpa) ctrl_name += "_sherpa";
   string ctrl_pdf = ctrl_name + ".pdf";
 
-  TImage *img_ctrl = TImage::Create();
-  img_ctrl->FromPad(c);
-  img_ctrl->WriteImage(ctrl_png.c_str());
   c->SaveAs(ctrl_pdf.c_str());
 
   //end plot
@@ -151,24 +152,37 @@ void mj_fit(string process){
 
   string f_name_sregion = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/"+process+"_wide.root";
   TFile *f_sregion = TFile::Open(f_name_sregion.c_str(),"READ");
-  string mc_name_sregion = process+"_mc";
+  string mc_name_sregion = process;
+  if(isSherpa) mc_name_sregion += "_sherpa";
+  else mc_name_sregion += "_mc";
   string data_name_sregion = process+"_data";
   TH1D *h_mc_sregion = (TH1D*)f_sregion->Get(mc_name_sregion.c_str());
   TH1D *h_data_sregion = (TH1D*)f_sregion->Get(data_name_sregion.c_str());
+
+  double data_max_sig = h_data_sregion->GetMaximum();
 
   RooDataHist h_mc_roofit_sregion("mc","mc with x", x, h_mc_sregion);
   RooHistPdf mc_sregion("mc","mc pdf", x, h_mc_roofit_sregion);
   RooExponential mj_sregion("mj","multijet background",x,alpha);
   RooDataHist data_sregion("data","data_sregion", x, h_data_sregion);
   
-  RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",7223577,0,10E7);
-  RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",100,0,10E7);
+  double n_mj_fit;
+  double n_mc_fit;
+  if(isSherpa){
+    n_mj_fit = 5000;
+    n_mc_fit = 7223577;
+  }
+  else{
+    n_mj_fit = 100;
+    n_mc_fit = 7223577;
+  }
+  //  RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",n_mc_fit,0,10E7);
+  //  RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
+  RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",n_mc_fit,0,10E7);
+  RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
   RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
   RooFitResult *fitres = model_sregion.fitTo(data_sregion,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
 
-  //
-  // Uncomment to make signal region plot
-  // Comment out previous plot
 
   //begin plot
   TLegend *leg_sig = new TLegend(0.6,0.64,0.95,0.80);
@@ -183,14 +197,24 @@ void mj_fit(string process){
 
   string chi2_str_sig = NumToStr(chi2_sig);
   chi2_str_sig = "#chi^{2}/NDF: " + chi2_str_sig;
+  double chi2_sig;
+  if(isLog) chi2_sig = 240000;
+  else chi2_sig = data_max_sig*0.59;
+  cout << "CHI 2 PLACEMENT: " << chi2_sig << endl;
 
-  TLatex* txt_sig = new TLatex(99,240000,chi2_str_sig.c_str());
+  TLatex* txt_sig = new TLatex(99,chi2_sig,chi2_str_sig.c_str());
   txt_sig->SetTextSize(0.04);
   //  xframe_sig->addObject(txt_sig);
 
-  xframe_sig->SetMaximum(10E8);
+  if(isLog){
+    xframe_sig->SetMaximum(10E8);
+  }
+  else{
+    //xframe_sig->SetMaximum(12E5);
+    xframe_sig->SetMaximum(data_max_sig*1.15);
+  }
   xframe_sig->SetMinimum(10);
-  c2->SetLogy();
+  if(isLog) c2->SetLogy();
   xframe_sig->addObject(txt_sig);
   
   leg_sig->AddEntry(xframe_sig->findObject("model_sregion"),"Total model","l");
@@ -204,10 +228,9 @@ void mj_fit(string process){
   
   TImage *img_sig = TImage::Create();
   string sig_name = plt_dir + "/" + process + "_sig";
-  string sig_png = sig_name + ".png";
+  if(!isLog) sig_name += "_linear";
+  if(isSherpa) sig_name += "_sherpa";
   string sig_pdf = sig_name + ".pdf";
-  img_sig->FromPad(c2);
-  img_sig->WriteImage(sig_png.c_str());
   c2->SaveAs(sig_pdf.c_str());
 
   //end plot

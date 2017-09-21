@@ -140,7 +140,7 @@ void mj_fit(string process, bool isSherpa=false){
 
   c->SaveAs(ctrl_pdf.c_str());
 
-  //end plot
+  //end control region plotting
   cout << "##################" << endl;
   cout << alpha << endl;
   alpha.setConstant(kTRUE);
@@ -151,13 +151,16 @@ void mj_fit(string process, bool isSherpa=false){
   RooPlot* xframe_sig = x.frame();
 
   string f_name_sregion = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/"+process+"_wide.root";
+  string f_name_0j = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_mass_exactly0j_wide.root";
   TFile *f_sregion = TFile::Open(f_name_sregion.c_str(),"READ");
+  TFile *f_0j = TFile::Open(f_name_0j.c_str(),"READ");
   string mc_name_sregion = process;
   if(isSherpa) mc_name_sregion += "_sherpa";
   else mc_name_sregion += "_mc";
   string data_name_sregion = process+"_data";
   TH1D *h_mc_sregion = (TH1D*)f_sregion->Get(mc_name_sregion.c_str());
   TH1D *h_data_sregion = (TH1D*)f_sregion->Get(data_name_sregion.c_str());
+  TH1D *h_data_nojets = (TH1D*)f_0j->Get("Z_mass_exactly0j_data");
 
   double data_max_sig = h_data_sregion->GetMaximum();
 
@@ -165,7 +168,9 @@ void mj_fit(string process, bool isSherpa=false){
   RooHistPdf mc_sregion("mc","mc pdf", x, h_mc_roofit_sregion);
   RooExponential mj_sregion("mj","multijet background",x,alpha);
   RooDataHist data_sregion("data","data_sregion", x, h_data_sregion);
-  
+  RooDataHist data_nojets_hist("nojets","nojets",x,h_data_nojets);
+  RooHistPdf data_nojets("data_nojets","data_nojets",x,data_nojets_hist);
+
   double n_mj_fit;
   double n_mc_fit;
   if(isSherpa){
@@ -180,7 +185,8 @@ void mj_fit(string process, bool isSherpa=false){
   //  RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
   RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",n_mc_fit,0,10E7);
   RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
-  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
+  //RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
+  RooAddPdf model_sregion("model_sregion","model_sregion",RooArgList(data_nojets,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
   RooFitResult *fitres = model_sregion.fitTo(data_sregion,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
 
 

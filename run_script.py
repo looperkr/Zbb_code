@@ -5,7 +5,7 @@ from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
 isMC = False
 isMJ = False
-isWide = False
+isWide = True
 
 file_list = str(sys.argv[1])
 

@@ -198,46 +198,16 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   double norm_factor[farray_size];
  
   for(int i=0;i<farray_size;i++){
-    cout << file_name[i] << endl;
     TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ_w");
     eventn_array[i] = h_cutflow->GetBinContent(3);
-    /*    if(file_name[i] != "WWtomunuqq_hists.root" && file_name[i] != "WZtomunuqq_hists.root"){
-      TH1D *h_cutflow= (TH1D*)cfarray[i]->Get("ICUTZ_w");
-      cout << "debug0" << endl;
-      //eventn_array[i] = h_cutflow->GetBinContent(5);
-      eventn_array[i] = h_cutflow->GetBinContent(3);
-    }
-    else if(file_name[i] == "WWtomunuqq_hists.root"){
-      eventn_array[i] = 3160000;
-    }
-    else if(file_name[i] == "WZtomunuqq_hists.root"){
-      eventn_array[i] = 840000;
-      }*/
-    //if(process_str == "wmunu" && i == 1) eventn_array[i] = 13094468;
-    //else if(process_str == "wmunu" && i == 2) eventn_array[i] = 8216080;
-    //else if(process_str == "wc" && i == 0) eventn_array[i] = 5059786;
-    //  eventn_before_hfor[i] = h_cutflow->GetBinContent(1);
-    //cout.precision(8);
-    //eventn_after_hfor[i] = h_cutflow->GetBinContent(4);
   }
-  //calculate k-factor for HFOR
-  //event numbers don't include pileup reweighting
+
   double eff_xsec[farray_size];
-  double k_hfor[farray_size];
-  for(int i=0;i<farray_size;i++){
-    //eff_xsec[i] = (xsec_values[i]*eventn_after_hfor[i])/eventn_before_hfor[i];
-    //cout << file_name[i] << ", cross-section (with k-factors): " << xsec_values[i] << ", Effective cross-section (HFOR): " << eff_xsec[i] << endl;
-    //    k_hfor[i] = xsec_values[i]/eff_xsec[i];
-    // k_hfor[i] = eff_xsec[i]/xsec_values[i];
-    //cout << file_name[i] << ", hfor k-factor: " << k_hfor[i] << endl;
-  }
 
   //Normalization factor = xsec * lumi * (1/entries)
   //entries includes the pileup reweighting
   for(int i=0;i<farray_size;i++){
-    //    norm_factor[i] = (luminosity*xsec_values[i]*k_hfor[i])/eventn_array[i];
     norm_factor[i] = luminosity/(eventn_array[i]/xsec_values[i]);
-    //    cout << "Norm factor: " << norm_factor[i] << endl;
   }
   double events_before_scaling = 0;
   double events_after_scaling = 0;
@@ -260,13 +230,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   }
   h_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   cout << sum_name << " after scaling: " << events_after_scaling << endl;
-  //Write sum to file for mulitjet fits
-  /*  if(h_name == "Z_mass"){
-    TString mjfilename = "./multijet_calculation/"+process_str+".root";
-    TFile * mjfile = TFile::Open(mjfilename,"UPDATE");
-    h_sum->Write();
-    mjfile->Close();
-    }*/
+
   return h_sum;
 }
 

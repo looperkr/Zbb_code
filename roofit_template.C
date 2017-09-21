@@ -2,28 +2,67 @@
 #include "AtlasLabels.C"
 #include "AtlasUtils.h"
 
-void roofit_template(){
+
+void create_dir(string & plots_path, string & plots_dir){
+  //Get current date and save to vector<string>
+
+  time_t now = time(0);
+  string date_str(ctime(&now));
+  string buffer_str;
+  stringstream ss(date_str);
+
+  vector<string> tokens;
+  while (ss >> buffer_str) tokens.push_back(buffer_str);
+
+  plots_dir = plots_path + "plots_" + tokens[1] + tokens[2];
+
+  //check if directory for today's date exists: if not, create directory
+
+  //  struct stat statbuf;
+  bool isDir = false;
+  if(gSystem->OpenDirectory(plots_dir.c_str()) != 0){
+    isDir = true;
+  }
+  if(!isDir){
+    gSystem->mkdir(plots_dir.c_str());
+    cout << "Test" << endl;
+  }
+}
+
+
+void roofit_template(bool isPrefit = false, bool isSherpa=false){
   using namespace RooFit;
 
   bool isHadMatch = true;
-  bool isStack = false;
-  bool isPrefit = true;
+  bool isStack = true;
 
-  string hist_name = "zmumu_sum";
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + "light_jets";
   string charm_f = hist_dir + "charm_jets";
   string bottom_f = hist_dir + "bottom_jets";
+  string hist_name_l = "light_jets";
+  string hist_name_c = "charm_jets";
+  string hist_name_b = "bottom_jets";
+
+  string histlabel = "_mc";
+  if(isSherpa) histlabel = "_sherpa";
+  string hist_label_had = "_hmatch" + histlabel;
 
   if(isHadMatch){
     light_f += "_hmatch.root";
     charm_f += "_hmatch.root";
     bottom_f += "_hmatch.root";
+    hist_name_l += hist_label_had;
+    hist_name_c += hist_label_had;
+    hist_name_b += hist_label_had;
   }
   else{
     light_f += ".root";
     charm_f += ".root";
     bottom_f += ".root";
+    hist_name_l += histlabel;
+    hist_name_c += histlabel;
+    hist_name_b += histlabel;
   }
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
@@ -35,9 +74,9 @@ void roofit_template(){
 
   TFile *f_data = TFile::Open(data_f.c_str(),"READ");
 
-  TH1D *hlight = (TH1D*)flight->Get(hist_name.c_str());
-  TH1D *hcharm = (TH1D*)fcharm->Get(hist_name.c_str());
-  TH1D *hbottom = (TH1D*)fbottom->Get(hist_name.c_str());
+  TH1D *hlight = (TH1D*)flight->Get(hist_name_l.c_str());
+  TH1D *hcharm = (TH1D*)fcharm->Get(hist_name_c.c_str());
+  TH1D *hbottom = (TH1D*)fbottom->Get(hist_name_b.c_str());
   TH1D *hdata = (TH1D*)f_data->Get(data_hist_name.c_str());
 
 
@@ -78,8 +117,12 @@ void roofit_template(){
     template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
     template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
     template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
-    template_model.paramOn(xframe);
   */
+  //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
+  template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
+  xframe->getAttText()->SetTextSize(0.03);
+  xframe->getAttLine()->SetLineWidth(0);
+  xframe->getAttFill()->SetFillStyle(0);
 
   if(!isPrefit){
     hbottom->Scale(Ndata*b_result/Nbottom);
@@ -98,7 +141,11 @@ void roofit_template(){
 
   c1->SetLogy();
 
+  string x_label = "MV1c weight";
+  string y_label = "Events";
 
+  hdata->GetXaxis()->SetTitle(x_label.c_str());
+  hdata->GetYaxis()->SetTitle(y_label.c_str());
 
   if(!isStack){
     hbottom->SetLineColor(kGreen);
@@ -139,6 +186,9 @@ void roofit_template(){
     mc_stack->Draw("hist");
     hdata->Draw("p same");
 
+    mc_stack->GetYaxis()->SetTitle("Events");
+    mc_stack->GetXaxis()->SetTitle("MV1c weight");
+    c1->Modified();
 
     leg->AddEntry(hdata,"Data","lp");
     leg->AddEntry(hbottom,"bottom","f");
@@ -147,9 +197,19 @@ void roofit_template(){
 
     leg->Draw();
 
-    cout << hdata << endl;
+    if(!isPrefit) xframe->Draw("same");
+    string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
+    string plt_dir;
+    create_dir(plt_path,plt_dir);
 
+    cout << hdata << endl;
+    string img_name = plt_dir + "/" + "template_text";
+    if(isPrefit) img_name += "_prefit";
+    if(isSherpa) img_name += "_sherpa.pdf";
+    else img_name += ".pdf";
+    c1->SaveAs(img_name.c_str());
 
   }
+
 
 }

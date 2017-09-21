@@ -511,8 +511,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //== Monte Carlo =====
   //====================
   string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms_new/";
-  //string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
-  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/old_histograms/old_MC_histograms/MC_histograms_Aug24/";
+  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
+  //string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/old_histograms/old_MC_histograms/MC_histograms_Aug24/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_MC_histograms/MC_histograms_Oct13/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_debug/";
@@ -783,8 +783,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //===== Data =========
   //====================
   //My data
-  //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
-  string data_path ="/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_data_histograms/data_histograms_Aug24/";
+  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
+  //string data_path ="/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_data_histograms/data_histograms_Aug24/";
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_debug/";
   //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_arantxa/";
   TFile *fdata;

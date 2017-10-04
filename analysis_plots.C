@@ -23,6 +23,7 @@ Note: support for Evelin's code removed 5 Nov. See backup code to run on that.
 
 void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool include_sherpa, bool isMJ=false, bool isWide=false){
 
+  bool isShort = true;
   int j = 0; //debugging iterator
   //plot luminosity
   double lumi;
@@ -633,6 +634,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     wmunu_name += file_suffix;
     fname_wmunu[i] = wmunu_name;
     wmunu_name = mc_path + wmunu_name;
+    cout << wmunu_name << endl;
     fwmunu[i] = TFile::Open(wmunu_name.c_str(),"UPDATE");
     fwmunu_cf[i] = TFile::Open(wmunu_cf_name.c_str(),"UPDATE");
   }
@@ -790,7 +792,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   TFile *fdata;
   string data_name = data_path + "alldata";
   if(isMJ) data_name += "_MJ.root";
-  else if(isWide) data_name += "_wide.root";
+  else if(isWide){
+    if(isShort) data_name += "_short";
+    data_name += "_wide.root";
+  }
   else data_name += ".root";
   //string data_name = data_path + "periodH.root";
   if(var_2_plot == "bottom_jets_hmatch_up" || var_2_plot == "bottom_jets_hmatch_down"){histo_name = "mv1cweight_bottom_had_match";}
@@ -1026,7 +1031,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //Write mc_sum as root file for further manipulation (like fitting)
   string rootfile_name = "MC_histograms_root/"+var_2_plot;
   if(isMJ) rootfile_name += "_ctrlregion.root";
-  else if(isWide) rootfile_name += "_wide.root";
+  else if(isWide) {
+    if(isShort) rootfile_name += "_small";
+    rootfile_name += "_wide.root";
+  }
   else rootfile_name += ".root";
   TFile * f_root = TFile::Open(rootfile_name.c_str(),"RECREATE");
   string mc_hist_name = var_2_plot+"_mc";
@@ -1196,7 +1204,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //img->FromPad(c1);
   string img_name = plt_dir + "/" + var_2_plot;
   if(isMJ) img_name += "_MJ";
-  else if(isWide) img_name += "_wide";
+  else if(isWide){
+    if(isShort) img_name += "_small";
+    img_name += "_wide";
+  }
   if(!include_sherpa) img_name += "_nosherpa";
   if(make_log){
     img_name += ".pdf";

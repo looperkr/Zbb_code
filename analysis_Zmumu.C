@@ -47,11 +47,13 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
   isWideWindow = true;
+  isShort = false;
+  
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -72,12 +74,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    time_t now = time(0);
    char* dt = ctime(&now);
    cout << "Starting time: " << dt << endl;
-
-   //trigger matching counter 
-   m_event_counter = 0;
-   //   muon_matched = false; //set to true when trigger matching returns true
-
-   //   run_evt_set = {};
 
    bch_bad = false; //true when bch flagged as bad
 
@@ -362,6 +358,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    /*~~~~~~~~~~~Muon trigger SF~~~~~~~~*/
    my_muonTrigSFTool = new LeptonTriggerSF(2012,"packages/TrigMuonEfficiency/share","muon_trigger_sf_2012_AtoL.p1328.root", "packages/ElectronEfficiencyCorrection/data", "rel17p2.v07" );
 
+   //
+   event_counter = 0;
+
 }
 
 Bool_t analysis_Zmumu::Process(Long64_t entry)
@@ -384,10 +383,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
-  //  if(m_event_counter == 0) initTriggerMatch();
-  //m_event_counter++;
+
 
   fChain->GetTree()->GetEntry(entry);
+
+  if(isShort && event_counter > 5000){
+    return kFALSE;
+  }
 
   pair<UInt_t,UInt_t> run_event_number; 
   run_event_number.first = RunNumber;
@@ -1322,6 +1324,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       h_jet_st_tighteta_MET->Fill(st_tight/1000.,weight);
       h_jet_mu_ht_tighteta_MET->Fill(ht_tight/1000.,weight);
       h_Z_mass_1j_tighteta_MET->Fill(Zmass,weight);
+      event_counter++;
     }
     if(jet_v_tight.size() > 1){
       h_subjet_pt_tighteta_MET->Fill(jet_v_tight[1].second.Pt()/1000.,weight);

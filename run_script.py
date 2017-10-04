@@ -3,9 +3,12 @@ import PyCintex
 import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
-isMC = False
+isMC = True
 isMJ = False
 isWide = True
+
+#processes until 5k events have passed Z+1jet selection
+isShort = False
 
 file_list = str(sys.argv[1])
 
@@ -60,6 +63,8 @@ else:
     output_type = output_type_name[-1].strip()
     output_name = "./data_histograms/" + output_type + "_hists"
     print output_name
+if isShort:
+    output_name += "_short"
 if isMJ:
     output_name += "_MJ.root"
 elif isWide:
@@ -72,6 +77,7 @@ if isMC:
     print optionslist
 else:
     optionslist = output_name
+    print optionslist
 gInterpreter.GenerateDictionary("vector<vector<int> >","vector")
 gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C");
 chain.Process("analysis_Zmumu.C+",optionslist) #look at GetOption in analysis_Zmumu::SlaveBegin()

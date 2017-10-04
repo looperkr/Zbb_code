@@ -187,7 +187,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     TH1D * histo_check = (TH1D*)farray[0]->Get(h_name);
     //cout << h_name << endl;
     if(histo_check) cout << "Histogram opened." << endl;
-    else cout << "Histogram failed to open." << endl;
+    else cout << "Histogram " << *file_name << " failed to open." << endl;
   }
   else cout << "ERROR: could not open file." << endl;
 
@@ -214,6 +214,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   //Open histograms and scale
   for(int i=0;i<farray_size;i++){
     h_array[i] = (TH1D*)farray[i]->Get(h_name);
+    if(!h_array[i]) cout << "histogram " << h_name << " in " << i << "th file failed to open";
     events_before_scaling += h_array[i]->Integral();
     h_array[i]->Sumw2();
     h_array[i]->Scale(norm_factor[i]);

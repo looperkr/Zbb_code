@@ -49,9 +49,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = true;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
-  isWideWindow = true;
+  isWideWindow = false;
   isShort = false;
   
   
@@ -129,6 +129,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //   h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",51,-0.5,50.5);
    h_pileup_avg_Zsel = new TH1D("pileup_Z_avg","average pileup (event with Z candidate)",5000,0.,50.);
    h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
+
+   //truth test histograms
+   h_dressed_mu_Z_mass = new TH1D("Z_mass_truth_dressed","Dimuon mass spectrum (dressed truth muons)",20000,0,10000);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -383,8 +386,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
-
-
   fChain->GetTree()->GetEntry(entry);
 
   if(isShort && event_counter > 5000){
@@ -414,6 +415,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   jet_v_tight.clear();
   bjet_v.clear();
 
+  //truth vectors and objects
+  v_bareMuons.clear();
+  v_bornMuons.clear();
+  v_dressedMuons.clear();
+
   float mcw;
   if(isMC)  mcw = mc_event_weight;
   isTileTrip = kFALSE;
@@ -426,18 +432,25 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   double sf = 1.;
 
   bch_bad = false;
-  //MET optimization initialization
-  met30 =false;
-  met40 =false;
-  met50 =false;
-  met60 =false;
   met70 =false;
-  met80 =false;
-  met90 =false;
 
   if(isMC){
     weight *= mcw;
     weight_nopw *= mcw;
+  }
+
+  //truth variable tests
+  if(isMC){
+    for(int i = 0; i < mc_n; i++){
+      dressMuon(i,mapIndex,v_bornMuons,v_bareMuons,v_dressedMuons);
+    }
+    if(v_dressedMuons.size() == 2){
+      if(mc_charge->at(v_dressedMuons[0].first)*mc_charge->at(v_dressedMuons[1].first) == -1){
+	TLorentzVector dressed_Z = v_dressedMuons[0].second + v_dressedMuons[1].second;
+	double dressed_Z_mass = dressed_Z.M()/1000.;
+	h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
+      }
+    }
   }
 
   //cutflow variables
@@ -472,6 +485,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cutdes[icut] = "GRL"; 
     icut++;
   }
+
   float pileupweight;
   //pileup reweighting
   h_pileup_norw->Fill(actualIntPerXing,weight);
@@ -1279,12 +1293,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //apply MET cut
 
   //  if(finalMET_et/1000. > 70.0) return kFALSE;
-  //MET optimization block
-  if(finalMET_et/1000. <= 40) met40 = true;
-  if(finalMET_et/1000. <= 50) met50 = true;
-  if(finalMET_et/1000. <= 60) met60 = true;
+
   if(finalMET_et/1000. <= 70) met70 = true;
-  if(finalMET_et/1000. <= 80) met80 = true;
 
   if(met70){
     h_Z_mass_MET->Fill(Zmass,weight);
@@ -1685,6 +1695,7 @@ void analysis_Zmumu::Terminate()
   h_pileup_Zsel_norw->Write();
   h_pileup_avg_Zsel->Write();
   h_pileup_avg_Zsel_norw->Write();
+  h_dressed_mu_Z_mass->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();
@@ -2107,3 +2118,74 @@ int analysis_Zmumu::getJetFlavourLabel(double jet_eta, double jet_phi, int jet_f
   else if(jet_flav == 15) return 15;
   else return 0;
 }
+
+void analysis_Zmumu::dressMuon(int imu, int mapIndex, vector<pair<int,TLorentzVector> > & bornMuons,vector<pair<int,TLorentzVector> > & bareMuons, vector<pair<int,TLorentzVector> >& dressedMuons){
+
+  //Add photon pT to truth muon if deltaR(mu,gamma) < 0.1
+
+  TLorentzVector BareMuon, BornMuon, DressedMuon, Photon;
+
+  //muon pdgId == +- 13
+  if(abs(mc_pdgId->at(imu)) == 13 && mc_pt->at(imu) > 10000. && mc_status->at(imu) == 1 && mc_barcode->at(imu) < 200000){
+    int hasParent = 0;
+    int phParentIndex = 0;
+    int pdgId = 0;
+    
+    pair<int,TLorentzVector> bornPair;
+    pair<int,TLorentzVector> barePair;
+    pair<int,TLorentzVector> dressedPair;
+
+    hasParent = mc_parent_index->at(imu).size();
+    if(hasParent) phParentIndex = mc_parent_index->at(imu)[0];
+
+    //mapIndex == 0: pythia (alpgen+pythia)
+    //mapIndex = 2: sherpa
+    if( (mapIndex == 0 && abs(mc_pdgId->at(phParentIndex)) == 23) || (mapIndex == 2 && mc_pdgId->at(phParentIndex) == 13 && mc_status->at(phParentIndex) == 11)){
+
+	BornMuon.SetPtEtaPhiM(mc_pt->at(phParentIndex), mc_eta->at(phParentIndex), mc_phi->at(phParentIndex), mc_m->at(phParentIndex));
+	BareMuon.SetPtEtaPhiM(mc_pt->at(imu), mc_eta->at(imu), mc_phi->at(imu), mc_m->at(imu));
+	DressedMuon.SetPtEtaPhiM(mc_pt->at(imu), mc_eta->at(imu), mc_phi->at(imu),mc_m->at(imu));
+       
+
+	//photon pdgId == 22
+	for(int i=0; i < mc_n; i++){
+	  if(abs(mc_pdgId->at(i)) == 22 && mc_status->at(i) == 1 && mc_barcode->at(i) < 200000){
+	    Photon.SetPtEtaPhiM(mc_pt->at(i),mc_eta->at(i),mc_phi->at(i),mc_m->at(i));  
+
+	    if(BareMuon.DeltaR(Photon) < 0.1){
+	      int yParent = 0;
+	      int yParentIndex = 0;
+	      yParent = mc_parent_index->at(i).size();
+	      if(yParent) yParentIndex=mc_parent_index->at(i)[0];
+	      bool badPhoton = 1;
+	      
+	      //has parent, and parent isn't a hadron or a tau
+	      if(yParent && abs(mc_pdgId->at(yParentIndex)) < 26 && abs(mc_pdgId->at(yParentIndex)) != 15) badPhoton = 0;
+	      if(!badPhoton){
+		DressedMuon = DressedMuon + Photon;
+	      }
+	    }
+	  } 
+	}
+	
+	//Kinematic requirements
+	if(BornMuon.Pt() > 25000. && fabs(BornMuon.Eta()) < 2.4){
+	  bornPair.first = phParentIndex;
+	  bornPair.second = BornMuon;
+	  bornMuons.push_back(bornPair);
+	}
+	if(BareMuon.Pt() > 25000. && fabs(BareMuon.Eta()) < 2.4){
+	  barePair.first = imu;
+	  barePair.second = BareMuon;
+	  bareMuons.push_back(barePair);
+	}
+	if(DressedMuon.Pt() > 25000. && fabs(DressedMuon.Eta()) < 2.4){
+	  dressedPair.first = imu;
+	  dressedPair.second = DressedMuon;
+	  dressedMuons.push_back(dressedPair);
+	}
+    }
+  }
+}
+      
+     

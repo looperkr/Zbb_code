@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = true;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -131,7 +131,12 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
 
    //truth test histograms
-   h_dressed_mu_Z_mass = new TH1D("Z_mass_truth_dressed","Dimuon mass spectrum (dressed truth muons)",20000,0,10000);
+   h_dressed_dimu_mass = new TH1D("dimu_mass_truth_dressed","Dimuon mass spectrum (Dressed truth muons",20000,0,10000);
+   h_dressed_mu_Z_mass = new TH1D("Z_mass_truth_dressed","Dimuon mass spectrum (dressed truth muons, Z window)",20000,0,10000);
+   h_truth_n_jets = new TH1D("truth_n_jets","Truth jet multiplicity",12,0,12);
+   h_Z_mass_match = new TH1D("Z_mass_match","Dimuon mass spectrum (true Z in event)",20000,0,10000);
+   h_Z_mass_unmatch = new TH1D("Z_mass_unmatch","Dimuon mass spectrum (no true Z in events)",20000,0,10000);
+   h_Z_mass_migration = new TH2D("Z_mass_migration","Zll migration matrix",20,70,110,20,70,110);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -416,9 +421,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   bjet_v.clear();
 
   //truth vectors and objects
+  passTruthSelections = false;
+  dressed_Z_mass = 0.;
+
   v_bareMuons.clear();
   v_bornMuons.clear();
   v_dressedMuons.clear();
+  v_truthJets.clear();
 
   float mcw;
   if(isMC)  mcw = mc_event_weight;
@@ -437,20 +446,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(isMC){
     weight *= mcw;
     weight_nopw *= mcw;
-  }
-
-  //truth variable tests
-  if(isMC){
-    for(int i = 0; i < mc_n; i++){
-      dressMuon(i,mapIndex,v_bornMuons,v_bareMuons,v_dressedMuons);
-    }
-    if(v_dressedMuons.size() == 2){
-      if(mc_charge->at(v_dressedMuons[0].first)*mc_charge->at(v_dressedMuons[1].first) == -1){
-	TLorentzVector dressed_Z = v_dressedMuons[0].second + v_dressedMuons[1].second;
-	double dressed_Z_mass = dressed_Z.M()/1000.;
-	h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
-      }
-    }
   }
 
   //cutflow variables
@@ -512,6 +507,26 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     h_avg_pileup->Fill(averageIntPerXing,weight);
   }
   h_avg_pileup_noprw->Fill(averageIntPerXing,weight_nopw);
+
+  //truth variable tests
+  if(isMC){
+    for(int i = 0; i < mc_n; i++){
+      dressMuon(i,mapIndex,v_bornMuons,v_bareMuons,v_dressedMuons);
+    }
+    if(v_dressedMuons.size() == 2 && top_hfor_type != 4){
+      if(mc_charge->at(v_dressedMuons[0].first)*mc_charge->at(v_dressedMuons[1].first) == -1){
+        TLorentzVector dressed_Z = v_dressedMuons[0].second + v_dressedMuons[1].second;
+        dressed_Z_mass = dressed_Z.M()/1000.;
+        h_dressed_dimu_mass->Fill(dressed_Z_mass,weight);
+        if(dressed_Z_mass > 76. && dressed_Z_mass < 106.){
+          passTruthSelections = true;
+          getTruthJets(v_dressedMuons,v_truthJets);
+          h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
+          h_truth_n_jets->Fill(v_truthJets.size(),weight);
+        }
+      }
+    }
+  }
 
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
 
@@ -882,6 +897,17 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(isMC && weight == 0) {
     h_good_zeroweight_events->Fill(0);
     if(pileupweight == 0) h_good_zeroweight_events_pw->Fill(0);
+  }
+
+  //Fill match/unmatch histograms
+  if(isMC){
+    if(passTruthSelections){
+      h_Z_mass_match->Fill(Zmass,weight);
+      h_Z_mass_migration->Fill(Zmass,dressed_Z_mass,weight);
+    }
+    else{
+      h_Z_mass_unmatch->Fill(Zmass,weight);
+    }
   }
 
   h_Z_mumu->Fill(Zmass,weight);
@@ -1695,7 +1721,12 @@ void analysis_Zmumu::Terminate()
   h_pileup_Zsel_norw->Write();
   h_pileup_avg_Zsel->Write();
   h_pileup_avg_Zsel_norw->Write();
+  h_dressed_dimu_mass->Write();
   h_dressed_mu_Z_mass->Write();
+  h_truth_n_jets->Write();
+  h_Z_mass_match->Write();
+  h_Z_mass_unmatch->Write();
+  h_Z_mass_migration->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();
@@ -2188,4 +2219,19 @@ void analysis_Zmumu::dressMuon(int imu, int mapIndex, vector<pair<int,TLorentzVe
   }
 }
       
-     
+void analysis_Zmumu::getTruthJets(vector<pair<int,TLorentzVector> > & dressedMuons, vector<pair<int,TLorentzVector> > & truthJets){
+  TLorentzVector TrueJet;
+  pair<int,TLorentzVector> TrueJetPair;
+  bool outsideCone = true;
+  for(int i = 0; i < AntiKt4TruthWithMuNu_n; i++){
+    if(AntiKt4TruthWithMuNu_pt->at(i) < 30000.) continue;
+    if(fabs(AntiKt4TruthWithMuNu_eta->at(i)) > 2.4) continue;
+    TrueJet.SetPtEtaPhiM(AntiKt4TruthWithMuNu_pt->at(i), AntiKt4TruthWithMuNu_eta->at(i), AntiKt4TruthWithMuNu_phi->at(i), AntiKt4TruthWithMuNu_m->at(i));
+    for(unsigned int mu; mu < dressedMuons.size(); mu++){
+      if(TrueJet.DeltaR(dressedMuons[mu].second) < 0.5) outsideCone = false;
+    }
+    TrueJetPair.first = i;
+    TrueJetPair.second = TrueJet;
+    if(outsideCone) truthJets.push_back(TrueJetPair);
+  }
+}

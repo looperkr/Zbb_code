@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TImage.h"
@@ -28,6 +29,7 @@ struct HistoOpts{
   double y_min;
   double y_max;
   int rebin;
+  int rebiny;
   double ratiomin;
   double ratiomax;
 } histToPlot;
@@ -46,6 +48,127 @@ void chooseHistOptions(const TString & histo_name, const TString & x_name, const
   histToPlot.ratiomax = ratiomax;
 }
 
+void chooseHistOptions(const TString & histo_name, const TString & x_name, const TString & y_name, double x_min, double x_max, double y_min, double y_max, int rebin, int rebiny, double ratiomin, double ratiomax){
+
+  histToPlot.histo_name = histo_name;
+  histToPlot.x_name = x_name;
+  histToPlot.y_name = y_name;
+  histToPlot.x_min = x_min;
+  histToPlot.x_max = x_max;
+  histToPlot.y_min = y_min;
+  histToPlot.y_max = y_max;
+  histToPlot.rebin = rebin;
+  histToPlot.rebiny = rebiny;
+  histToPlot.ratiomin = ratiomin;
+  histToPlot.ratiomax = ratiomax;
+}
+
+class Histogram{
+ private:
+  TH1D * hist_1D;
+  TH2D * hist_2D;
+  string name;
+  bool is1D;
+
+ public:
+  
+  void SetHistogram(TH1D * histo, string & h_name){
+    hist_1D = histo;
+    is1D = true;
+    name = h_name;
+  }
+  void SetHistogram(TH2D * histo, string & h_name){
+    hist_2D = histo;
+    is1D = false;
+    name = h_name;
+  }
+  bool GetIs1D(){
+    return is1D;
+  }
+  string GetName(){
+    return name;
+  }
+  TH1 * GetHist(){
+    if(is1D) return hist_1D;
+    else return hist_2D;
+  }
+  void SetName(string n){
+    name = n;
+    if(is1D) hist_1D->SetName(name.c_str());
+    else hist_2D->SetName(name.c_str());
+  }
+  void DrawHist(){
+    if(is1D) hist_1D->Draw();
+    else hist_2D->Draw();
+  }
+  Histogram CloneHist(){
+    Histogram newHist;
+    if(is1D) newHist.SetHistogram(hist_1D, name);
+    else newHist.SetHistogram(hist_2D,name);
+    return newHist;
+  }
+  void AddHist(Histogram & h_add){
+    try{
+      if(is1D && h_add.GetIs1D()){
+	hist_1D->Add(h_add.hist_1D);
+      }
+      else if(!is1D && !(h_add.GetIs1D())){
+	hist_2D->Add(h_add.hist_2D);
+      }
+      else{
+	throw 10;
+      }
+    }
+    catch(int x){
+      cout << "Your histogram dimensions don't match!" << endl;
+    }
+  }
+  void SetFillColorHist(Color_t color){
+    if(is1D) hist_1D->SetFillColor(color);
+    else hist_2D->SetFillColor(color);
+  }
+  void SetLineStyleHist(int n){
+    if(is1D) hist_1D->SetLineStyle(n);
+    else hist_2D->SetLineStyle(n);
+  }
+  void SetLineColorHist(int n){
+    if(is1D) hist_1D->SetLineColor(n);
+    else hist_2D->SetLineColor(n);
+  }
+  void SetLineWidthHist(int n){
+    if(is1D) hist_1D->SetLineWidth(n);
+    else hist_2D->SetLineWidth(n);
+  }
+  double IntegralHist(){
+    double n_events;
+    if(is1D) n_events = hist_1D->Integral();
+    else n_events = hist_2D->Integral();
+    return n_events;
+  }
+  void RebinHist(int rebin){
+    if(is1D) hist_1D->Rebin(rebin);
+    else hist_2D->Rebin(rebin);
+  }
+  void SetXRangeHist(double min, double max){
+    if(is1D) hist_1D->GetXaxis()->SetRangeUser(min,max);
+    else hist_2D->GetXaxis()->SetRangeUser(min,max);
+  }
+  void SetYRangeHist(double min, double max){
+    hist_2D->GetYaxis()->SetRangeUser(min,max);
+  }
+  void ScaleHist(double scale_value){
+    if(is1D) hist_1D->Scale(scale_value);
+    else hist_2D->Scale(scale_value);
+  }
+  void SetMaxHist(double max){
+    if(is1D) hist_1D->SetMaximum(max);
+    else hist_2D->SetMaximum(max);
+  }
+  void SetMinHist(double min){
+    if(is1D) hist_1D->SetMinimum(min);
+    else hist_2D->SetMinimum(min);
+  }
+};
 
 string NumToStr(int number_val){
   ostringstream ss;
@@ -106,50 +229,6 @@ void create_dir(string & plots_path, string & plots_dir){
 
 }
 
-void write_event_numbers(TH1D * h_mc, TH1D * h_data, TString & variable_name, double luminosity){
-  time_t now = time(0);
-  string date_str(ctime(&now));
-  string buffer_str;
-  stringstream ss(date_str);
-
-  ofstream textfile;
-  textfile.open("/n/atlas02/user_codes/looper.6/Vbb/analysis_code/event_numbers/event_n_log.txt",ios::app);
-  double mc_n = h_mc->Integral();
-  double data_n = h_data->Integral();
-  textfile << "Date and time: " << ss.rdbuf() << endl;
-  textfile << "Histogram: " << variable_name << endl;
-  textfile << "MC events: " << mc_n << endl;
-  textfile << "Data events: " << data_n << endl;
-  textfile << "Luminosity: " << luminosity << endl;
-  textfile << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-  textfile.close();
-}
-
-void write_plots_2_file(TH1D ** h_array, const int h_array_size, TH1D * h_sum, string & variable_name, string & mc_name, string & img_path, int x_min, int x_max){
-
-  TCanvas *c_hists = new TCanvas(variable_name.c_str(),variable_name.c_str(),800,600);
-  TLegend *l = new TLegend(0.6,0.65,0.95,0.85);
-  TImage *img = TImage::Create();
-  string image_name;
-
-  for(int i=0; i<h_array_size; i++){
-    c_hists->Clear();
-    h_array[i]->GetXaxis()->SetRangeUser(x_min,x_max);
-    h_array[i]->Draw();
-    c_hists->Update();
-    img->FromPad(c_hists);
-    image_name = img_path + "/" + variable_name + "_" + mc_name + NumToStr(i)+".png";
-    img->WriteImage(image_name.c_str());
-  }
-  c_hists->Clear();
-  h_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_sum->Draw();
-  c_hists->Update();
-  img->FromPad(c_hists);
-  image_name = img_path + "/" + variable_name + "_" + mc_name + "_sum.png";
-  img->WriteImage(image_name.c_str());
-  
-}
 
 void write_table(TH1D * h_mc, TH1D * h_data, TString & process_name){
   ofstream tablefile;
@@ -179,7 +258,7 @@ void close_files(TFile ** farray, const int farray_size){
   }
 }
 
-TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TString &h_name, vector<double> &xsec_values,TFile ** cfarray, double luminosity, TH1D ** h_array, TString process_str, int x_min, int x_max){
+Histogram add_histo(TFile ** farray, const int farray_size, string *file_name, TString &h_name, vector<double> &xsec_values,TFile ** cfarray, double luminosity, TString process_str, int x_min, int x_max){
   //check to see if file and histogram opens
   cout << "Opening " << process_str << endl;
   if (farray[0]->IsOpen()){
@@ -192,8 +271,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   else cout << "ERROR: could not open file." << endl;
 
   string cutflow_location;
-  double eventn_before_hfor[farray_size];
-  double eventn_after_hfor[farray_size]; //hfor numbers do not include pileup reweighting (and shouldn't!)
+  //hfor numbers do not include pileup reweighting (and shouldn't!)
   double eventn_array[farray_size]; //total number of events in sample with pileup reweighting
   double norm_factor[farray_size];
  
@@ -212,6 +290,7 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   double events_before_scaling = 0;
   double events_after_scaling = 0;
   //Open histograms and scale
+  TH1D *h_array[farray_size];
   for(int i=0;i<farray_size;i++){
     h_array[i] = (TH1D*)farray[i]->Get(h_name);
     if(!h_array[i]) cout << "histogram " << h_name << " in " << i << "th file failed to open";
@@ -220,11 +299,13 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
     h_array[i]->Scale(norm_factor[i]);
     events_after_scaling += h_array[i]->Integral();
   }
-  TString sum_name = process_str + "_sum";
+
+  string process_str_new(process_str);
+  string sum_name = process_str_new + "_sum";
   cout.precision(8);
   cout << sum_name << " before scaling: " << events_before_scaling << endl;
   TH1D *h_sum = (TH1D*)h_array[0]->Clone();
-  h_sum->SetName(sum_name);
+  h_sum->SetName(sum_name.c_str());
   h_sum->Sumw2();
   for(int i=0;i<farray_size;i++){
     if(i>0) h_sum->Add(h_array[i]);
@@ -232,7 +313,11 @@ TH1D * add_histo(TFile ** farray, const int farray_size, string *file_name, TStr
   h_sum->GetXaxis()->SetRangeUser(x_min,x_max);
   cout << sum_name << " after scaling: " << events_after_scaling << endl;
 
-  return h_sum;
+  Histogram sumHist;
+  sumHist.SetHistogram(h_sum,sum_name);
+  
+  return sumHist;
+
 }
 
 #endif

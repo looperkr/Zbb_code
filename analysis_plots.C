@@ -24,6 +24,7 @@ Note: support for Evelin's code removed 5 Nov. See backup code to run on that.
 void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool include_sherpa, bool isMJ=false, bool isWide=false){
 
   bool isShort = true;
+  bool isTruth = false;
   int j = 0; //debugging iterator
   //plot luminosity
   double lumi;
@@ -260,27 +261,35 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0, 1, 100,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "light_jets"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "charm_jets"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_charm","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bottom_jets"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_bottom","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "light_jets_hmatch"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_light_had_match","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "charm_jets_hmatch"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_charm_had_match","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bottom_jets_hmatch"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_bottom_had_match","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "bottom_jets_hmatch_up"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_bottom_had_match_up","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot =="bottom_jets_hmatch_down"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_bottom_had_match_down","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "pileup"){
@@ -297,6 +306,34 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     if(make_log) logmax = 5000000000;
     else logmax = 700000;
     chooseHistOptions("pileup_Z", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_mass_truth_dressed"){
+    if(make_log) logmax = 10000000000000;
+    else logmax = 4000;
+    isTruth = true;
+    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+  }
+  else if(var_2_plot == "dimu_mass_truth_dressed"){
+    if(make_log) logmax = 10000000000000;
+    else logmax = 4000;
+    isTruth = true;
+    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+  }
+  else if(var_2_plot == "Z_mass_match"){
+    if(make_log) logmax = 50000000000;
+    else logmax = 4000;
+    isTruth = true;
+    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+  }
+  else if(var_2_plot =="Z_mass_unmatch"){
+    if(make_log) logmax = 50000000000;
+    else logmax = 4000;
+    isTruth = true;
+    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+  }
+  else if(var_2_plot == "Z_mass_migration"){
+    isTruth = true;
+    chooseHistOptions("Z_mass_migration","m_{#mu#mu} [GeV] (reco)", "m_{#mu#mu} [GeV] (truth)",70,110,70,110,1,1,0.7,1.5);
   }
   else{
     cout << "This variable is not supported" << endl;
@@ -449,21 +486,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     xsec = sigma_ttbar[i]*k_factor_ttbar*eff_ttbar;
     ttbar_xsec.push_back(xsec);
   }
-  /*~~~~~~~~~~~~~~~~~~single top~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-  //datasets 117361, 108346, 108344 (AcerMCPythia, MC@NLOJimmy
-  //x-section source: AMI
-  //k-factor source:  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TopMC12SingleTopSamples
-  /*
-  string singletop_process = "singletop";
-  vector<double> singletop_xsec;
-  double sigma_singletop[3] = {8.5889, 20.666,0.56430};
-  double k_factor_singletop[3] = {1.1035,1.0736,1.0737};
-  double eff_singletop = 1.0;
-  for(int i=0; i<3; i++){
-    xsec = sigma_singletop[i]*k_factor_singletop[i]*eff_singletop;
-    singletop_xsec.push_back(xsec);
-  }
-  */
+
   /*~~~~~~~~~~~~~~~new single top~~~~~~~~~~~~~~~~~~~~~~~*/
   //datasets 110090, 110091, 110119, 110140 (Powheg+Pythia)
   //x-section source: arantxa's note (double-check)
@@ -477,22 +500,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     xsec = sigma_singletop[i]*k_factor_singletop[i]*eff_singletop;
     singletop_xsec.push_back(xsec);
   }
-  
-  /*~~~~~~~~~~~~~~~~~~~~~~~~di-boson~~~~~~~~~~~~~~~~~~~~~*/
-  //datasets: 105986(ZZ), 105985(WW), 105987 (WZ)
-  //x-section source: ami (top group information looks incorrect)
-  /*
-  string diboson_process = "diboson";
-  vector<double> diboson_xsec;
-  //order of cross-sections: WW, ZZ, WZ
-  double sigma_diboson[3] = {32.501, 4.9614, 12.008};
-  double k_factor_diboson[3] = {1.6833, 1.5496, 1.9011};
-  double eff_diboson[3] ={0.38203,0.24465,0.30546};
-  for(int i=0; i<3; i++){
-    xsec = sigma_diboson[i]*k_factor_diboson[i]*eff_diboson[i];
-    diboson_xsec.push_back(xsec);
-  } 
-  */
+ 
   //datasets: WWtomunuqq(183736), WZtomunuqq(183737), ZWtomumuqq(183587), ZWtotautauqq(183589), ZZtomumuqq(183588), ZZtotautauqq(183590)
   string diboson_process = "diboson";
   vector<double> diboson_xsec;
@@ -514,10 +522,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms_new/";
   string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
   //string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/old_histograms/old_MC_histograms/MC_histograms_Aug24/";
-  //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_MC_histograms/MC_histograms_Oct13/";
   //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
-  //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_debug/";
-  //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_arantxa/";
 
   //Sherpa Zmumu
 
@@ -542,7 +547,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fzmumu_sherpa[0] = TFile::Open(zmumu_sherpa_name.c_str(),"UPDATE");
     fzmumu_sherpa_cf[0] = TFile::Open(zmumu_sherpa_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_zmumu_sherpa_array[1];
 
   //Zmumu_NpX
   string mc_type_zmumu = "Zmumu_Np";
@@ -561,7 +565,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fzmumu[i] = TFile::Open(zmumu_name.c_str(),"UPDATE");
     fzmumu_cf[i] = TFile::Open(zmumu_cf_name.c_str(),"UPDATE");
   }
-  TH1D * h_zmumu_array[6];
 
   //Zmumubb_NpX
   string mc_type_zmumubb = "Zmumubb_Np";
@@ -580,7 +583,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fzmumubb[i] = TFile::Open(zmumubb_name.c_str(),"UPDATE");
     fzmumubb_cf[i] = TFile::Open(zmumubb_cf_name.c_str(),"UPDATE");
   }
-  TH1D * h_zmumubb_array[4];
 
   //Zmumucc_NpX
   string mc_type_zmumucc = "Zmumucc_Np";
@@ -599,7 +601,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fzmumucc[i] = TFile::Open(zmumucc_name.c_str(),"UPDATE");
     fzmumucc_cf[i] = TFile::Open(zmumucc_cf_name.c_str(),"UPDATE");
   }
-  TH1D * h_zmumucc_array[4];
 
   //Ztautau_NpX
   string mc_type_ztautau = "Ztautau_Np";
@@ -618,7 +619,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fztautau[i] = TFile::Open(ztautau_name.c_str(),"UPDATE");
     fztautau_cf[i] = TFile::Open(ztautau_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_ztautau_array[6];
+
 
   //Wmunu_NpX
   string mc_type_wmunu = "Wmunu_Np";
@@ -638,7 +639,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fwmunu[i] = TFile::Open(wmunu_name.c_str(),"UPDATE");
     fwmunu_cf[i] = TFile::Open(wmunu_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_wmunu_array[6];
 
   //Wcc_NpX
   string mc_type_wcc = "Wcc_Np";
@@ -657,7 +657,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fwcc[i] = TFile::Open(wcc_name.c_str(),"UPDATE");
     fwcc_cf[i] = TFile::Open(wcc_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_wcc_array[4];
 
   //Wc_NpX
   string mc_type_wc = "Wc_Np";
@@ -676,7 +675,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fwc[i] = TFile::Open(wc_name.c_str(),"UPDATE");
     fwc_cf[i] = TFile::Open(wc_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_wc_array[5];
 
   //Wbb_NpX
   string mc_type_wbb = "Wbb_Np";
@@ -695,7 +693,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fwbb[i] = TFile::Open(wbb_name.c_str(),"UPDATE");
     fwbb_cf[i] = TFile::Open(wbb_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_wbb_array[4];
 
   //tt-bar
   string mc_type_ttbar = "ttbar";
@@ -710,29 +707,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   ttbar_name = mc_path + ttbar_name;
   fttbar[0] = TFile::Open(ttbar_name.c_str(),"UPDATE");
   fttbar_cf[0] = TFile::Open(ttbar_cf_name.c_str(),"UPDATE");
-  TH1D *h_ttbar_array[1];
-
-  //single top
-  /*
-    string mc_type_singletop = "singletop";
-    const int n_files_singletop = 3;
-    TFile *fsingletop[3];
-    TFile *fsingletop_cf[3];
-    string fname_singletop[3];
-    string singletop_name;
-    string singletop_cf_name;
-    for(int i=0; i<3; i++){
-      if(i==0) singletop_name = "singletop_tchan_mu_hists.root";
-      else if(i==1) singletop_name = "singletop_WtChanIncl_hists.root";
-      else if(i==2) singletop_name = "singletop_SChan_Wmunu_hists.root";
-      fname_singletop[i] = singletop_name;
-      singletop_cf_name = cutflow_h_path + singletop_name;
-      singletop_name = mc_path + singletop_name;
-      fsingletop[i] = TFile::Open(singletop_name.c_str(),"UPDATE");
-      fsingletop_cf[i] = TFile::Open(singletop_cf_name.c_str(),"UPDATE");
-    }
-    TH1D *h_singletop_array[3];
-  */
 
   string mc_type_singletop = "singletop";
   const int n_files_singletop = 4;
@@ -753,7 +727,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fsingletop[i] = TFile::Open(singletop_name.c_str(),"UPDATE");
     fsingletop_cf[i] = TFile::Open(singletop_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_singletop_array[4];
 
   //Diboson
   string mc_type_diboson = "diboson";
@@ -778,7 +751,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     fdiboson[i] = TFile::Open(diboson_name.c_str(),"UPDATE");
     fdiboson_cf[i] = TFile::Open(diboson_cf_name.c_str(),"UPDATE");
   }
-  TH1D *h_diboson_array[6];
 
 
   //====================
@@ -799,76 +771,70 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else data_name += ".root";
   //string data_name = data_path + "periodH.root";
   if(var_2_plot == "bottom_jets_hmatch_up" || var_2_plot == "bottom_jets_hmatch_down"){histo_name = "mv1cweight_bottom_had_match";}
-  fdata = TFile::Open(data_name.c_str(),"UPDATE");
-  TH1D *h_data = (TH1D*)fdata->Get(histo_name);
-  h_data->GetXaxis()->SetRangeUser(x_min,x_max);
-  //  h_data->SetLineWidth(5);
+  if(!isTruth) fdata = TFile::Open(data_name.c_str(),"UPDATE");
+  TH1D *h_data;
+  if(!isTruth){
+    h_data = (TH1D*)fdata->Get(histo_name);
+    h_data->GetXaxis()->SetRangeUser(x_min,x_max);
+  }
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~~~~~~~~~~~~~~~ADD HISTOGRAMS~~~~~~~~~~~~~~~~~
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   //Add MC histograms by process: function add_histo is defined in header file
+  //add_histo is overloaded to deal with TH1D and TH2D
   //Zmumu
-  TH1D *h_zmumu_sherpa_sum;
+  Histogram h_zmumu_sherpa_sum;
   if(include_sherpa){
-    h_zmumu_sherpa_sum = add_histo(fzmumu_sherpa,n_files_zmumu_sherpa,fname_zmumu_sherpa,histo_name,zmumu_sherpa_xsec,fzmumu_sherpa_cf,lumi,h_zmumu_sherpa_array,zmumu_sherpa_process,x_min,x_max);
+    h_zmumu_sherpa_sum = add_histo(fzmumu_sherpa,n_files_zmumu_sherpa,fname_zmumu_sherpa,histo_name,zmumu_sherpa_xsec,fzmumu_sherpa_cf,lumi,zmumu_sherpa_process,x_min,x_max);
   }
-  TH1D *h_zmumu_sum     = add_histo(fzmumu,n_files_zmumu,fname_zmumu,histo_name,zmumu_xsec,fzmumu_cf,lumi,h_zmumu_array,zmumu_process,x_min,x_max);
-  TH1D *h_zmumubb_sum   = add_histo(fzmumubb,n_files_zmumubb,fname_zmumubb,histo_name,zmumubb_xsec,fzmumubb_cf,lumi,h_zmumubb_array,zmumubb_process,x_min,x_max);
-  TH1D *h_zmumucc_sum   = add_histo(fzmumucc,n_files_zmumucc,fname_zmumucc,histo_name,zmumucc_xsec,fzmumucc_cf,lumi,h_zmumucc_array,zmumucc_process,x_min,x_max);
-  TH1D *h_ztautau_sum   = add_histo(fztautau,n_files_ztautau,fname_ztautau,histo_name,ztautau_xsec,fztautau_cf,lumi,h_ztautau_array,ztautau_process,x_min,x_max);
-  TH1D *h_wmunu_sum     = add_histo(fwmunu,n_files_wmunu,fname_wmunu,histo_name,wmunu_xsec,fwmunu_cf,lumi,h_wmunu_array,wmunu_process,x_min,x_max);
-  TH1D *h_wcc_sum       = add_histo(fwcc,n_files_wcc,fname_wcc,histo_name,wcc_xsec,fwcc_cf,lumi,h_wcc_array,wcc_process,x_min,x_max);
-  TH1D *h_wc_sum        = add_histo(fwc,n_files_wc,fname_wc,histo_name,wc_xsec,fwc_cf,lumi,h_wc_array,wc_process,x_min,x_max);
-  TH1D *h_wbb_sum       = add_histo(fwbb,n_files_wbb,fname_wbb,histo_name,wbb_xsec,fwbb_cf,lumi,h_wbb_array,wbb_process,x_min,x_max);
-  TH1D *h_ttbar_sum     = add_histo(fttbar,n_files_ttbar,fname_ttbar,histo_name,ttbar_xsec,fttbar_cf,lumi,h_ttbar_array,ttbar_process,x_min,x_max);
-  TH1D *h_singletop_sum = add_histo(fsingletop,n_files_singletop,fname_singletop,histo_name,singletop_xsec,fsingletop_cf,lumi,h_singletop_array,singletop_process,x_min,x_max);
-  TH1D *h_diboson_sum   = add_histo(fdiboson,n_files_diboson,fname_diboson,histo_name,diboson_xsec,fdiboson_cf,lumi,h_diboson_array,diboson_process,x_min,x_max);
+  Histogram h_zmumu_sum     = add_histo(fzmumu,n_files_zmumu,fname_zmumu,histo_name,zmumu_xsec,fzmumu_cf,lumi,zmumu_process,x_min,x_max);
+  Histogram h_zmumubb_sum   = add_histo(fzmumubb,n_files_zmumubb,fname_zmumubb,histo_name,zmumubb_xsec,fzmumubb_cf,lumi,zmumubb_process,x_min,x_max);
+  Histogram h_zmumucc_sum   = add_histo(fzmumucc,n_files_zmumucc,fname_zmumucc,histo_name,zmumucc_xsec,fzmumucc_cf,lumi,zmumucc_process,x_min,x_max);
+  Histogram h_ztautau_sum   = add_histo(fztautau,n_files_ztautau,fname_ztautau,histo_name,ztautau_xsec,fztautau_cf,lumi,ztautau_process,x_min,x_max);
+  Histogram h_wmunu_sum     = add_histo(fwmunu,n_files_wmunu,fname_wmunu,histo_name,wmunu_xsec,fwmunu_cf,lumi,wmunu_process,x_min,x_max);
+  Histogram h_wcc_sum       = add_histo(fwcc,n_files_wcc,fname_wcc,histo_name,wcc_xsec,fwcc_cf,lumi,wcc_process,x_min,x_max);
+  Histogram h_wc_sum        = add_histo(fwc,n_files_wc,fname_wc,histo_name,wc_xsec,fwc_cf,lumi,wc_process,x_min,x_max);
+  Histogram h_wbb_sum       = add_histo(fwbb,n_files_wbb,fname_wbb,histo_name,wbb_xsec,fwbb_cf,lumi,wbb_process,x_min,x_max);
+  Histogram h_ttbar_sum     = add_histo(fttbar,n_files_ttbar,fname_ttbar,histo_name,ttbar_xsec,fttbar_cf,lumi,ttbar_process,x_min,x_max);
+  Histogram h_singletop_sum = add_histo(fsingletop,n_files_singletop,fname_singletop,histo_name,singletop_xsec,fsingletop_cf,lumi,singletop_process,x_min,x_max);
+  Histogram h_diboson_sum   = add_histo(fdiboson,n_files_diboson,fname_diboson,histo_name,diboson_xsec,fdiboson_cf,lumi,diboson_process,x_min,x_max);
 
 
-  TH1D *h_wjets_sum = (TH1D*)h_wmunu_sum->Clone();
-  h_wjets_sum->Add(h_wcc_sum);
-  h_wjets_sum->Add(h_wc_sum);
-  h_wjets_sum->Add(h_wbb_sum);
+  //  TH1D *h_wjets_sum = (TH1D*)h_wmunu_sum->Clone();
+  Histogram h_wjets_sum = h_wmunu_sum.CloneHist();
+  h_wjets_sum.AddHist(h_wcc_sum);
+  h_wjets_sum.AddHist(h_wc_sum);
+  h_wjets_sum.AddHist(h_wbb_sum);
 
 
-  h_zmumu_sum->SetFillColor(kBlue);
-  h_zmumubb_sum->SetFillColor(kYellow);
-  h_zmumucc_sum->SetFillColor(kGreen);
-  h_ztautau_sum->SetFillColor(kCyan);
-  h_wjets_sum->SetFillColor(kAzure+3);
-  h_ttbar_sum->SetFillColor(kViolet);
-  h_singletop_sum->SetFillColor(kRed+1);
-  h_diboson_sum->SetFillColor(kOrange);
+  h_zmumu_sum.SetFillColorHist(kBlue);
+  h_zmumubb_sum.SetFillColorHist(kYellow);
+  h_zmumucc_sum.SetFillColorHist(kGreen);
+  h_ztautau_sum.SetFillColorHist(kCyan);
+  h_wjets_sum.SetFillColorHist(kAzure+3);
+  h_ttbar_sum.SetFillColorHist(kViolet);
+  h_singletop_sum.SetFillColorHist(kRed+1);
+  h_diboson_sum.SetFillColorHist(kOrange);
 
   gStyle->SetOptStat("");
 
-  /*  h_zmumu_sum->SetLineWidth(5);
-  h_zmumubb_sum->SetLineWidth(5);
-  h_zmumucc_sum->SetLineWidth(5);
-  h_ztautau_sum->SetLineWidth(5);
-  h_wjets_sum->SetLineWidth(5);
-  h_ttbar_sum->SetLineWidth(5);
-  h_singletop_sum->SetLineWidth(5);
-  h_diboson_sum->SetLineWidth(5);
-  */
-
-  double zplusjets_sum = h_zmumu_sum->Integral();
-  zplusjets_sum += h_zmumubb_sum->Integral();
-  zplusjets_sum += h_zmumucc_sum->Integral();
+  double zplusjets_sum = h_zmumu_sum.IntegralHist();
+  zplusjets_sum += h_zmumubb_sum.IntegralHist();
+  zplusjets_sum += h_zmumucc_sum.IntegralHist();
 
   double zplusjets_sherpa_sum;
-  if(include_sherpa) zplusjets_sherpa_sum = h_zmumu_sherpa_sum->Integral();
+  if(include_sherpa) zplusjets_sherpa_sum = h_zmumu_sherpa_sum.IntegralHist();
 
   cout.precision(9);
   cout << "Z->mumu + jets (Alpgen): " << zplusjets_sum << endl;
   if(include_sherpa)  cout << "Z->mumu + jets (Sherpa): " << zplusjets_sherpa_sum << endl;
-  cout << "Z->tautau + jets: " << h_ztautau_sum->Integral() << endl;
-  cout << "W+jets: " << h_wjets_sum->Integral() << endl;
-  cout << "ttbar: " << h_ttbar_sum->Integral() << endl;
-  cout << "single top: " << h_singletop_sum->Integral() << endl;
-  cout << "diboson: " << h_diboson_sum->Integral() << endl;
+  cout << "Z->tautau + jets: " << h_ztautau_sum.IntegralHist() << endl;
+  cout << "W+jets: " << h_wjets_sum.IntegralHist() << endl;
+  cout << "ttbar: " << h_ttbar_sum.IntegralHist() << endl;
+  cout << "single top: " << h_singletop_sum.IntegralHist() << endl;
+  cout << "diboson: " << h_diboson_sum.IntegralHist() << endl;
 
   /*****************************************
    ***********WRITE HISTS TO FILE *********
@@ -885,29 +851,40 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   THStack *sum_stack = new THStack("stack","stack");
 
   if(rebin != 1){
-    if(include_sherpa) h_zmumu_sherpa_sum->Rebin(rebin);
-    h_zmumu_sum->Rebin(rebin);
-    h_zmumubb_sum->Rebin(rebin);
-    h_zmumucc_sum->Rebin(rebin);
-    h_ztautau_sum->Rebin(rebin);
-    h_wjets_sum->Rebin(rebin);
-    h_ttbar_sum->Rebin(rebin);
-    h_singletop_sum->Rebin(rebin);
-    h_diboson_sum->Rebin(rebin);
-    h_data->Rebin(rebin);
+    if(include_sherpa) h_zmumu_sherpa_sum.RebinHist(rebin);
+    h_zmumu_sum.RebinHist(rebin);
+    h_zmumubb_sum.RebinHist(rebin);
+    h_zmumucc_sum.RebinHist(rebin);
+    h_ztautau_sum.RebinHist(rebin);
+    h_wjets_sum.RebinHist(rebin);
+    h_ttbar_sum.RebinHist(rebin);
+    h_singletop_sum.RebinHist(rebin);
+    h_diboson_sum.RebinHist(rebin);
+    if(!isTruth) h_data->Rebin(rebin);
   }
-  if(include_sherpa) h_zmumu_sherpa_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_zmumu_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_zmumubb_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_zmumucc_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_ztautau_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_wjets_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_ttbar_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_singletop_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_diboson_sum->GetXaxis()->SetRangeUser(x_min,x_max);
-  h_data->GetXaxis()->SetRangeUser(x_min,x_max);
-
-  TH1D *h_mc_sum = (TH1D*)h_zmumu_sum->Clone();
+  if(include_sherpa) h_zmumu_sherpa_sum.SetXRangeHist(x_min,x_max);
+  h_zmumu_sum.SetXRangeHist(x_min,x_max);
+  h_zmumubb_sum.SetXRangeHist(x_min,x_max);
+  h_zmumucc_sum.SetXRangeHist(x_min,x_max);
+  h_ztautau_sum.SetXRangeHist(x_min,x_max);
+  h_wjets_sum.SetXRangeHist(x_min,x_max);
+  h_ttbar_sum.SetXRangeHist(x_min,x_max);
+  h_singletop_sum.SetXRangeHist(x_min,x_max);
+  h_diboson_sum.SetXRangeHist(x_min,x_max);
+  if(!isTruth) h_data->GetXaxis()->SetRangeUser(x_min,x_max);
+  if(!(h_zmumu_sum.GetIs1D())){
+    if(include_sherpa) h_zmumu_sherpa_sum.SetYRangeHist(y_min,y_max);
+    h_zmumu_sum.SetYRangeHist(y_min,y_max);
+    h_zmumubb_sum.SetYRangeHist(y_min,y_max);
+    h_zmumucc_sum.SetYRangeHist(y_min,y_max);
+    h_ztautau_sum.SetYRangeHist(y_min,y_max);
+    h_wjets_sum.SetYRangeHist(y_min,y_max);
+    h_ttbar_sum.SetYRangeHist(y_min,y_max);
+    h_singletop_sum.SetYRangeHist(y_min,y_max);
+    h_diboson_sum.SetYRangeHist(y_min,y_max);
+  }
+  
+  /*  TH1D *h_mc_sum = (TH1D*)h_zmumu_sum->Clone();
   TH1D *h_zmumu_sum_clone = (TH1D*)h_zmumu_sum->Clone();
   TH1D *h_zmumubb_sum_clone = (TH1D*)h_zmumubb_sum->Clone();
   TH1D *h_ztautau_sum_clone = (TH1D*)h_ztautau_sum->Clone();
@@ -915,118 +892,144 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   TH1D *h_zmumucc_sum_clone = (TH1D*)h_zmumucc_sum->Clone();
   TH1D *h_ttbar_sum_clone = (TH1D*)h_ttbar_sum->Clone();
   TH1D *h_singletop_sum_clone = (TH1D*)h_singletop_sum->Clone();
-  TH1D *h_diboson_sum_clone = (TH1D*)h_diboson_sum->Clone();
+  TH1D *h_diboson_sum_clone = (TH1D*)h_diboson_sum->Clone();*/
+
+
+
+  Histogram h_mc_sum = h_zmumu_sum.CloneHist();
+  Histogram h_zmumu_sum_clone = h_zmumu_sum.CloneHist();
+  Histogram h_zmumubb_sum_clone = h_zmumubb_sum.CloneHist();
+  Histogram h_ztautau_sum_clone = h_ztautau_sum.CloneHist();
+  Histogram h_wjets_sum_clone = h_wjets_sum.CloneHist();
+  Histogram h_zmumucc_sum_clone = h_zmumucc_sum.CloneHist();
+  Histogram h_ttbar_sum_clone = h_ttbar_sum.CloneHist();
+  Histogram h_singletop_sum_clone = h_singletop_sum.CloneHist();
+  Histogram h_diboson_sum_clone = h_diboson_sum.CloneHist();
+
 
   //sherpa comparison clones: cloning two, electric boogaloo
   
-  TH1D *h_mc_sherpa_sum;
-  TH1D *h_ztautau_sherpa_sum_clone;
-  TH1D *h_wjets_sherpa_sum_clone;
-  TH1D *h_ttbar_sherpa_sum_clone;
-  TH1D *h_singletop_sherpa_sum_clone;
-  TH1D *h_diboson_sherpa_sum_clone;
+  Histogram h_mc_sherpa_sum;
+  Histogram h_ztautau_sherpa_sum_clone;
+  Histogram h_wjets_sherpa_sum_clone;
+  Histogram h_ttbar_sherpa_sum_clone;
+  Histogram h_singletop_sherpa_sum_clone;
+  Histogram h_diboson_sherpa_sum_clone;
   
   if(include_sherpa){
-    h_mc_sherpa_sum = (TH1D*)h_zmumu_sherpa_sum->Clone();
-    h_ztautau_sherpa_sum_clone = (TH1D*)h_ztautau_sum->Clone();
-    h_wjets_sherpa_sum_clone = (TH1D*)h_wjets_sum->Clone();
-    h_ttbar_sherpa_sum_clone = (TH1D*)h_ttbar_sum->Clone();
-    h_singletop_sherpa_sum_clone = (TH1D*)h_singletop_sum->Clone();
-    h_diboson_sherpa_sum_clone = (TH1D*)h_diboson_sum->Clone();
+    h_mc_sherpa_sum = h_zmumu_sherpa_sum.CloneHist();
+    h_ztautau_sherpa_sum_clone = h_ztautau_sum.CloneHist();
+    h_wjets_sherpa_sum_clone = h_wjets_sum.CloneHist();
+    h_ttbar_sherpa_sum_clone = h_ttbar_sum.CloneHist();
+    h_singletop_sherpa_sum_clone = h_singletop_sum.CloneHist();
+    h_diboson_sherpa_sum_clone = h_diboson_sum.CloneHist();
   }
 
-  h_mc_sum->Add(h_zmumubb_sum_clone);
-  h_mc_sum->Add(h_zmumucc_sum_clone);
-  h_mc_sum->Add(h_ztautau_sum_clone);
-  h_mc_sum->Add(h_wjets_sum_clone);
-  h_mc_sum->Add(h_ttbar_sum_clone);
-  h_mc_sum->Add(h_singletop_sum_clone);
-  h_mc_sum->Add(h_diboson_sum_clone);
+  h_mc_sum.AddHist(h_zmumubb_sum_clone);
+  h_mc_sum.AddHist(h_zmumucc_sum_clone);
+  h_mc_sum.AddHist(h_ztautau_sum_clone);
+  h_mc_sum.AddHist(h_wjets_sum_clone);
+  h_mc_sum.AddHist(h_ttbar_sum_clone);
+  h_mc_sum.AddHist(h_singletop_sum_clone);
+  h_mc_sum.AddHist(h_diboson_sum_clone);
 
   if(include_sherpa){
-    h_mc_sherpa_sum->Add(h_ztautau_sherpa_sum_clone);
-    h_mc_sherpa_sum->Add(h_wjets_sherpa_sum_clone);
-    h_mc_sherpa_sum->Add(h_ttbar_sherpa_sum_clone);
-    h_mc_sherpa_sum->Add(h_singletop_sherpa_sum_clone);
-    h_mc_sherpa_sum->Add(h_diboson_sherpa_sum_clone);
+    h_mc_sherpa_sum.AddHist(h_ztautau_sherpa_sum_clone);
+    h_mc_sherpa_sum.AddHist(h_wjets_sherpa_sum_clone);
+    h_mc_sherpa_sum.AddHist(h_ttbar_sherpa_sum_clone);
+    h_mc_sherpa_sum.AddHist(h_singletop_sherpa_sum_clone);
+    h_mc_sherpa_sum.AddHist(h_diboson_sherpa_sum_clone);
   }
-  //rescale attempt
   
-  TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
-  TH1D *h_mc_sherpa_sum_clone;
-  if(include_sherpa) h_mc_sherpa_sum_clone = (TH1D*)h_mc_sherpa_sum->Clone();
-  if(!scale_to_lumi){
-    h_mc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    cout << "Normalization ratio: " << h_data->Integral()/h_mc_sum->Integral() << endl;
-    h_singletop_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_ttbar_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_diboson_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_ztautau_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_wjets_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_zmumucc_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_zmumu_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
-    h_zmumubb_sum_clone->Scale(h_data->Integral()/h_mc_sum->Integral());
+  //  TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
+  // TH1D *h_mc_sherpa_sum_clone;
+  Histogram h_mc_sum_clone;
+  Histogram h_mc_sherpa_sum_clone;
+  h_mc_sum_clone = h_mc_sum.CloneHist();
+  if(include_sherpa) h_mc_sherpa_sum_clone = h_mc_sherpa_sum.CloneHist();
+  if(!scale_to_lumi && !isTruth){
+    h_mc_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    cout << "Normalization ratio: " << h_data->Integral()/h_mc_sum.IntegralHist() << endl;
+    h_singletop_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_ttbar_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_diboson_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_ztautau_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_wjets_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_zmumucc_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_zmumu_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
+    h_zmumubb_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
 
     if(include_sherpa){
-      h_mc_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-      cout << "Normalization ratio (sherpa): " << h_data->Integral()/h_mc_sherpa_sum->Integral() << endl;
-      h_ztautau_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-      h_wjets_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-      h_ttbar_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-      h_singletop_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
-      h_diboson_sherpa_sum_clone->Scale(h_data->Integral()/h_mc_sherpa_sum->Integral());
+      h_mc_sherpa_sum_clone.ScaleHist(h_data->Integral()/h_mc_sherpa_sum.IntegralHist());
+      cout << "Normalization ratio (sherpa): " << h_data->Integral()/h_mc_sherpa_sum.IntegralHist() << endl;
+      h_ztautau_sherpa_sum_clone.ScaleHist(h_data->Integral()/h_mc_sherpa_sum.IntegralHist());
+      h_wjets_sherpa_sum_clone.ScaleHist(h_data->Integral()/h_mc_sherpa_sum.IntegralHist());
+      h_ttbar_sherpa_sum_clone.ScaleHist(h_data->Integral()/h_mc_sherpa_sum.IntegralHist());
+      h_singletop_sherpa_sum_clone.ScaleHist(h_data->Integral()/h_mc_sherpa_sum.IntegralHist());
+      h_diboson_sherpa_sum_clone.ScaleHist(h_data->Integral()/h_mc_sherpa_sum.IntegralHist());
     }
   }
   //Stack for Alpgen samples (no sherpa stack)
-  sum_stack->Add(h_singletop_sum_clone);
-  sum_stack->Add(h_ttbar_sum_clone);
-  sum_stack->Add(h_diboson_sum_clone);
-  sum_stack->Add(h_ztautau_sum_clone);
-  sum_stack->Add(h_wjets_sum_clone);
-  sum_stack->Add(h_zmumucc_sum_clone);
-  sum_stack->Add(h_zmumu_sum_clone);
-  sum_stack->Add(h_zmumubb_sum_clone);
+  sum_stack->Add(h_singletop_sum_clone.GetHist());
+  sum_stack->Add(h_ttbar_sum_clone.GetHist());
+  sum_stack->Add(h_diboson_sum_clone.GetHist());
+  sum_stack->Add(h_ztautau_sum_clone.GetHist());
+  sum_stack->Add(h_wjets_sum_clone.GetHist());
+  sum_stack->Add(h_zmumucc_sum_clone.GetHist());
+  sum_stack->Add(h_zmumu_sum_clone.GetHist());
+  sum_stack->Add(h_zmumubb_sum_clone.GetHist());
 
 
-  float mc_events = h_mc_sum->Integral();
+  float mc_events = h_mc_sum.IntegralHist();
   cout << "MC sum: " << mc_events << endl;
   float mc_events_sherpa;
   if(include_sherpa){
-    mc_events_sherpa = h_mc_sherpa_sum->Integral();
+    mc_events_sherpa = h_mc_sherpa_sum.IntegralHist();
     cout << "MC sum (sherpa): " << mc_events_sherpa << endl;
   }
-  float data_events = h_data->Integral();
-  cout << "Data sum: " << data_events << endl;
+  float data_events;
+  if(!isTruth){
+    data_events = h_data->Integral();
+    cout << "Data sum: " << data_events << endl;
+  }
 
-  float data_minus_background = data_events;
-  data_minus_background -= h_ztautau_sum->Integral();
-  data_minus_background -= h_wjets_sum->Integral();
-  data_minus_background -= h_ttbar_sum->Integral();
-  data_minus_background -= h_singletop_sum->Integral();
-  data_minus_background -= h_diboson_sum->Integral();
+  float data_minus_background;
+  if(!isTruth){
+    data_minus_background = data_events;
+    data_minus_background -= h_ztautau_sum.IntegralHist();
+    data_minus_background -= h_wjets_sum.IntegralHist();
+    data_minus_background -= h_ttbar_sum.IntegralHist();
+    data_minus_background -= h_singletop_sum.IntegralHist();
+    data_minus_background -= h_diboson_sum.IntegralHist();
+  
+    cout << "Data minus background (Z+jets): " << data_minus_background << endl;
+  }
 
-  cout << "Data minus background (Z+jets): " << data_minus_background << endl;
-
-  float percent_difference = (data_events-mc_events)/data_events;
-  cout << "Percentage difference: " << percent_difference << endl;
+  float percent_difference;
   float percentage_difference_sherpa;
-  if(include_sherpa){
-    percentage_difference_sherpa = (data_events-mc_events_sherpa)/data_events;
-    cout << "Percentage difference (sherpa): " << percentage_difference_sherpa << endl;
-  }
-  float ratio = (data_events)/(mc_events);
-  cout << "Ratio (Data/MC): " << ratio << endl;
+  float ratio;
   float ratio_sherpa;
-  if(include_sherpa){
-    ratio_sherpa = (data_events)/(mc_events_sherpa);
-    cout << "Ratio (sherpa): " << ratio_sherpa << endl;
+
+  if(!isTruth){
+    percent_difference = (data_events-mc_events)/data_events;
+    cout << "Percentage difference: " << percent_difference << endl;
+    percentage_difference_sherpa;
+    if(include_sherpa){
+      percentage_difference_sherpa = (data_events-mc_events_sherpa)/data_events;
+      cout << "Percentage difference (sherpa): " << percentage_difference_sherpa << endl;
+    }
+    ratio = (data_events)/(mc_events);
+    cout << "Ratio (Data/MC): " << ratio << endl;
+    if(include_sherpa){
+      ratio_sherpa = (data_events)/(mc_events_sherpa);
+      cout << "Ratio (sherpa): " << ratio_sherpa << endl;
+    }
   }
-  write_event_numbers(h_zmumu_sum,h_data,histo_name,lumi);
 
   //make n_jets tables
-  if(var_2_plot == "n_jets" || var_2_plot == "n_jets_eta"){
+  /*  if(var_2_plot == "n_jets" || var_2_plot == "n_jets_eta"){
     write_table(h_mc_sum, h_data, histo_name);
-  }
+    }*/
 
   //Write mc_sum as root file for further manipulation (like fitting)
   string rootfile_name = "MC_histograms_root/"+var_2_plot;
@@ -1040,14 +1043,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string mc_hist_name = var_2_plot+"_mc";
   string data_hist_name = var_2_plot+"_data";
   string mc_sherpa_hist_name = var_2_plot+"_sherpa";
-  h_mc_sum->SetName(mc_hist_name.c_str());
-  h_data->SetName(data_hist_name.c_str());
+  h_mc_sum.SetName(mc_hist_name.c_str());
+  if(!isTruth)  h_data->SetName(data_hist_name.c_str());
   if(include_sherpa){
-    h_mc_sherpa_sum->SetName(mc_sherpa_hist_name.c_str());
-    h_mc_sherpa_sum->Write();
+    h_mc_sherpa_sum.SetName(mc_sherpa_hist_name.c_str());
+    h_mc_sherpa_sum.GetHist()->Write();
   }
-  h_mc_sum->Write();
-  h_data->Write();
+  h_mc_sum.GetHist()->Write();
+  if(!isTruth) h_data->Write();
   f_root->Close();
 
 
@@ -1057,24 +1060,20 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string canvas_name = var_2_plot + "canvas";
   TCanvas *c1 = new TCanvas(canvas_name.c_str(),canvas_name.c_str(),800,800);
 
-  float mc_max = h_mc_sum_clone->GetMaximum();
-  float data_max = h_data->GetMaximum();
-  //plot the histogram with the larger number of events first (makes the y-axis range correct)
   if(make_log){
     sum_stack->SetMaximum(y_max);
     sum_stack->SetMinimum(y_min);
     if(include_sherpa){
-      h_mc_sherpa_sum->SetMaximum(y_max);
-      h_mc_sherpa_sum->SetMinimum(y_min);
+      h_mc_sherpa_sum.SetMaxHist(y_max);
+      h_mc_sherpa_sum.SetMinHist(y_min);
     }
-    //h_data->GetYaxis()->SetRangeUser(y_min,y_max);
  }
   else{
     sum_stack->SetMaximum(y_max);
     sum_stack->SetMinimum(y_min);
     if(include_sherpa){
-      h_mc_sherpa_sum->SetMaximum(y_max);
-      h_mc_sherpa_sum->SetMinimum(y_min);
+      h_mc_sherpa_sum.SetMaxHist(y_max);
+      h_mc_sherpa_sum.SetMinHist(y_min);
     }
   }
 
@@ -1093,15 +1092,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   pad1->cd();
 
   if(include_sherpa){
-    h_mc_sherpa_sum->SetLineStyle(2);
-    h_mc_sherpa_sum->SetLineColor(2);
-    h_mc_sherpa_sum->SetLineWidth(2);
+    h_mc_sherpa_sum.SetLineStyleHist(2);
+    h_mc_sherpa_sum.SetLineColorHist(2);
+    h_mc_sherpa_sum.SetLineWidthHist(2);
   }
 
   sum_stack->Draw("HIST");
   sum_stack->GetXaxis()->SetNdivisions(000);
-  if(include_sherpa) h_mc_sherpa_sum->Draw("HIST SAME");
-  h_data->Draw("HIST ELP SAME");
+  if(include_sherpa) h_mc_sherpa_sum.GetHist()->Draw("HIST SAME");
+  if(!isTruth) h_data->Draw("HIST ELP SAME");
   sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
   if(var_2_plot == "n_jets" || var_2_plot == "n_bjets"){
     sum_stack->GetXaxis()->CenterTitle();
@@ -1111,79 +1110,78 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
   c1->cd();
   TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
-  pad2->SetTopMargin(0);
-  pad2->SetBottomMargin(0.48);
-  pad2->SetRightMargin(0.05);
-  pad2->SetLeftMargin(0.16);
-  pad2->SetFillStyle(4000);
-  pad2->SetGridx();
-  pad2->SetGridy();
-  pad2->Draw("9");
-  pad2->cd();
+  if(!isTruth){
+    pad2->SetTopMargin(0);
+    pad2->SetBottomMargin(0.48);
+    pad2->SetRightMargin(0.05);
+    pad2->SetLeftMargin(0.16);
+    pad2->SetFillStyle(4000);
+    pad2->SetGridx();
+    pad2->SetGridy();
+    pad2->Draw("9");
+    pad2->cd();
 
-  //double ratiomin = 0.45;
-  //double ratiomax = 1.85;
-  
-  //double ratiomin = 0.8;
-  //double ratiomax = 1.2;
+    TH1D * h_mc_sum_clone_h = (TH1D*)h_mc_sum_clone.GetHist();
+    TH1D * h_mc_sherpa_sum_clone_h;
+    h_mc_sum_clone_h->SetStats(0);
+    h_mc_sum_clone_h->SetMarkerSize(0.5);
+    h_mc_sum_clone_h->GetYaxis()->SetTickLength(0.04);
+    h_mc_sum_clone_h->GetYaxis()->SetNdivisions(505);
+    h_mc_sum_clone_h->GetXaxis()->SetLabelSize(0.04*3./1.);
+    h_mc_sum_clone_h->GetXaxis()->SetTitleSize(0.04*3./1.);
+    h_mc_sum_clone_h->GetYaxis()->SetLabelSize(0.04*3./1.);
+    h_mc_sum_clone_h->GetYaxis()->SetTitleSize(0.04*3./1.);
+    h_mc_sum_clone_h->GetXaxis()->SetTitleOffset(1.2);
+    h_mc_sum_clone_h->GetYaxis()->SetTitleOffset(1.2/2.);
+    h_mc_sum_clone_h->GetXaxis()->SetTitle("");
+    
+    h_mc_sum_clone_h->GetYaxis()->SetTitle("Data/MC");
+    //h_mc_sum_clone_h->GetYaxis()->SetTitle("MC/Data");
+    h_mc_sum_clone_h->SetLineColor(kBlack);
+    h_mc_sum_clone_h->Divide(h_data,h_mc_sum_clone_h);
 
-  h_mc_sum_clone->SetStats(0);
-  h_mc_sum_clone->SetMarkerSize(0.5);
-  h_mc_sum_clone->GetYaxis()->SetTickLength(0.04);
-  h_mc_sum_clone->GetYaxis()->SetNdivisions(505);
-  h_mc_sum_clone->GetXaxis()->SetLabelSize(0.04*3./1.);
-  h_mc_sum_clone->GetXaxis()->SetTitleSize(0.04*3./1.);
-  h_mc_sum_clone->GetYaxis()->SetLabelSize(0.04*3./1.);
-  h_mc_sum_clone->GetYaxis()->SetTitleSize(0.04*3./1.);
-  h_mc_sum_clone->GetXaxis()->SetTitleOffset(1.2);
-  h_mc_sum_clone->GetYaxis()->SetTitleOffset(1.2/2.);
-  h_mc_sum_clone->GetXaxis()->SetTitle("");
-  
-  h_mc_sum_clone->GetYaxis()->SetTitle("Data/MC");
-  //h_mc_sum_clone->GetYaxis()->SetTitle("MC/Data");
-  h_mc_sum_clone->SetLineColor(kBlack);
-  h_mc_sum_clone->Divide(h_data,h_mc_sum_clone);
-
-  h_mc_sum_clone->SetMinimum(ratiomin);
-  h_mc_sum_clone->SetMaximum(ratiomax);
+    h_mc_sum_clone_h->SetMinimum(ratiomin);
+    h_mc_sum_clone_h->SetMaximum(ratiomax);
  
-  h_mc_sum_clone->SetMarkerStyle(20);
-  h_mc_sum_clone->SetXTitle(x_name);
-  h_mc_sum_clone->Draw("ep");
+    h_mc_sum_clone_h->SetMarkerStyle(20);
+    h_mc_sum_clone_h->SetXTitle(x_name);
+    h_mc_sum_clone_h->Draw("ep");
 
-  if(include_sherpa){
-    h_mc_sherpa_sum_clone->SetMinimum(ratiomin);
-    h_mc_sherpa_sum_clone->SetMaximum(ratiomax);
-    h_mc_sherpa_sum_clone->SetMarkerSize(0.5);
-    h_mc_sherpa_sum_clone->SetMarkerColor(kRed);
-    h_mc_sherpa_sum_clone->SetLineColor(kRed);
-    h_mc_sherpa_sum_clone->Divide(h_data,h_mc_sherpa_sum_clone);
-    h_mc_sherpa_sum_clone->SetMarkerStyle(20);
-    h_mc_sherpa_sum_clone->Draw("ep same");
+    if(include_sherpa){
+      h_mc_sherpa_sum_clone_h =(TH1D*)h_mc_sherpa_sum_clone.GetHist();
+      h_mc_sherpa_sum_clone_h->SetMinimum(ratiomin);
+      h_mc_sherpa_sum_clone_h->SetMaximum(ratiomax);
+      h_mc_sherpa_sum_clone_h->SetMarkerSize(0.5);
+      h_mc_sherpa_sum_clone_h->SetMarkerColor(kRed);
+      h_mc_sherpa_sum_clone_h->SetLineColor(kRed);
+      h_mc_sherpa_sum_clone_h->Divide(h_data,h_mc_sherpa_sum_clone_h);
+      h_mc_sherpa_sum_clone_h->SetMarkerStyle(20);
+      h_mc_sherpa_sum_clone_h->Draw("ep same");
+    }
+    TLegend *ratiolegend = new TLegend(0.3,0.84,0.65,0.97);
+    ratiolegend->SetFillStyle(0);
+    ratiolegend->SetTextSize(0.07);
+    ratiolegend->SetBorderSize(0);
+    ratiolegend->SetNColumns(2);
+    ratiolegend->AddEntry(h_mc_sum_clone_h,"Alpgen","lp");
+    if(include_sherpa) ratiolegend->AddEntry(h_mc_sherpa_sum_clone_h,"Sherpa","lp");
+    ratiolegend->Draw();
+  
+    pad1->cd();
   }
-  TLegend *ratiolegend = new TLegend(0.3,0.84,0.65,0.97);
-  ratiolegend->SetFillStyle(0);
-  ratiolegend->SetTextSize(0.07);
-  ratiolegend->SetBorderSize(0);
-  ratiolegend->SetNColumns(2);
-  ratiolegend->AddEntry(h_mc_sum_clone,"Alpgen","lp");
-  if(include_sherpa) ratiolegend->AddEntry(h_mc_sherpa_sum_clone,"Sherpa","lp");
-  ratiolegend->Draw();
-
-  pad1->cd();
 
   TLegend *legend = new TLegend(0.6,0.64,0.95,0.95);
   legend->SetTextSize(0.03);
-  legend->AddEntry(h_data,"Data","lp");
-  if(include_sherpa) legend->AddEntry(h_mc_sherpa_sum,"Sherpa MC","l");
-  legend->AddEntry(h_zmumubb_sum_clone,"Z(#rightarrow#mu#mu)+bb+jets MC","f");
-  legend->AddEntry(h_zmumu_sum_clone,"Z(#rightarrow#mu#mu)+jets MC","f");
-  legend->AddEntry(h_zmumucc_sum_clone,"Z(#rightarrow#mu#mu)+cc+jets MC","f");
-  legend->AddEntry(h_ztautau_sum_clone,"Z#rightarrow#tau#tau+jets MC","f");
-  legend->AddEntry(h_wjets_sum_clone,"W+jets MC","f");
-  legend->AddEntry(h_diboson_sum_clone,"Diboson MC","f");
-  legend->AddEntry(h_ttbar_sum_clone,"tt-bar MC","f");
-  legend->AddEntry(h_singletop_sum_clone, "single-top MC","f");
+  if(!isTruth) legend->AddEntry(h_data,"Data","lp");
+  if(include_sherpa) legend->AddEntry(h_mc_sherpa_sum.GetHist(),"Sherpa MC","l");
+  legend->AddEntry(h_zmumubb_sum_clone.GetHist(),"Z(#rightarrow#mu#mu)+bb+jets MC","f");
+  legend->AddEntry(h_zmumu_sum_clone.GetHist(),"Z(#rightarrow#mu#mu)+jets MC","f");
+  legend->AddEntry(h_zmumucc_sum_clone.GetHist(),"Z(#rightarrow#mu#mu)+cc+jets MC","f");
+  legend->AddEntry(h_ztautau_sum_clone.GetHist(),"Z#rightarrow#tau#tau+jets MC","f");
+  legend->AddEntry(h_wjets_sum_clone.GetHist(),"W+jets MC","f");
+  legend->AddEntry(h_diboson_sum_clone.GetHist(),"Diboson MC","f");
+  legend->AddEntry(h_ttbar_sum_clone.GetHist(),"tt-bar MC","f");
+  legend->AddEntry(h_singletop_sum_clone.GetHist(), "single-top MC","f");
 
   legend->Draw();
 
@@ -1194,7 +1192,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
   TLatex *tex2 = new TLatex();
   tex2->SetNDC();
-  string data_evt_label = "#font[18]{Data events: " + NumToStr(data_events) + "}";
+  string data_evt_label;
+  if(!isTruth) data_evt_label = "#font[18]{Data events: " + NumToStr(data_events) + "}";
   //  tex2->DrawLatex(0.19,0.9-0.001,data_evt_label.c_str());
 
   c1->cd();
@@ -1217,6 +1216,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   //  img->WriteImage(img_name.c_str());
   c1->SaveAs(img_name.c_str());
+
+  //Test block for Histogram class
 
   //Close files
   if(include_sherpa){
@@ -1246,6 +1247,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   close_files(fdiboson, 6);
   close_files(fdiboson_cf, 6);
 
-  fdata->Close();
+  if(!isTruth) fdata->Close();
 
 }

@@ -1053,6 +1053,30 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   if(!isTruth) h_data->Write();
   f_root->Close();
 
+  //Save root files separated by MC channel to file for use in unfolding code
+  string unfolding_name = "unfolding_preprocessed/"+var_2_plot+"_Zplusjets_Alpgen";
+  TFile *f_unfolding = TFile::Open(unfolding_name.c_str(),"RECREATE");
+  //Z+jets
+  Histogram h_zplusjets_sum = h_zmumu_sum.CloneHist();
+  h_zplusjets_sum.AddHist(h_zmumubb_sum);
+  h_zplusjets_sum.AddHist(h_zmumucc_sum);
+  h_zplusjets_sum.GetHist()->Write();
+  f_unfolding->Close();
+
+  //ttbar
+
+  //WW
+
+  //ZZ
+
+  //WZ
+
+  //singletop s-channel
+
+  //singletop t-channel
+
+  //singletop Wt-channel
+
 
   /**************************************
    ********DRAW SUMMED HISTS************

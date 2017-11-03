@@ -166,10 +166,13 @@ void mj_fit(string process, bool isSherpa=false){
 
   RooDataHist h_mc_roofit_sregion("mc","mc with x", x, h_mc_sregion);
   RooHistPdf mc_sregion("mc","mc pdf", x, h_mc_roofit_sregion);
+
   RooExponential mj_sregion("mj","multijet background",x,alpha);
+  RooHistPdf data_ctrlreg("data_ctrl","data_ctrl",x,data);
+  
   RooDataHist data_sregion("data","data_sregion", x, h_data_sregion);
   RooDataHist data_nojets_hist("nojets","nojets",x,h_data_nojets);
-  RooHistPdf data_nojets("data_nojets","data_nojets",x,data_nojets_hist);
+
 
   double n_mj_fit;
   double n_mc_fit;
@@ -181,12 +184,12 @@ void mj_fit(string process, bool isSherpa=false){
     n_mj_fit = 100;
     n_mc_fit = 7223577;
   }
-  //  RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",n_mc_fit,0,10E7);
-  //  RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
+
+
   RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",n_mc_fit,0,10E7);
   RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
-  //RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
-  RooAddPdf model_sregion("model_sregion","model_sregion",RooArgList(data_nojets,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
+  //  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
+  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,data_ctrlreg),RooArgList(N_mc_sregion,N_mj_sregion));
   RooFitResult *fitres = model_sregion.fitTo(data_sregion,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
 
 
@@ -195,7 +198,8 @@ void mj_fit(string process, bool isSherpa=false){
 
   data_sregion.plotOn(xframe_sig,Name("data_sregion"));
   model_sregion.plotOn(xframe_sig,Components(mc_sregion),LineStyle(kDashed),LineColor(kRed),Name("mc_sregion"));
-  model_sregion.plotOn(xframe_sig,Components(mj_sregion),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
+  //  model_sregion.plotOn(xframe_sig,Components(mj_sregion),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
+  model_sregion.plotOn(xframe_sig,Components(data_ctrlreg),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
   model_sregion.plotOn(xframe_sig,LineColor(kBlack),Name("model_sregion"));
   model_sregion.paramOn(xframe_sig,Layout(0.55));
 
@@ -226,14 +230,14 @@ void mj_fit(string process, bool isSherpa=false){
   leg_sig->AddEntry(xframe_sig->findObject("model_sregion"),"Total model","l");
   leg_sig->AddEntry(xframe_sig->findObject("data_sregion"),"data","lp");
   leg_sig->AddEntry(xframe_sig->findObject("mc_sregion"),"non-multijet","l");
-  leg_sig->AddEntry(xframe_sig->findObject("mj_sregion"),"multijet","l");
+  leg_sig->AddEntry(xframe_sig->findObject("mj_sregion"),"multijet (ctrl-region data)","l");
   leg_sig->SetBorderSize(0);
 
   xframe_sig->Draw();
   leg_sig->Draw();
   
   TImage *img_sig = TImage::Create();
-  string sig_name = plt_dir + "/" + process + "_sig";
+  string sig_name = plt_dir + "/" + process + "_sig_dataasmj";
   if(!isLog) sig_name += "_linear";
   if(isSherpa) sig_name += "_sherpa";
   string sig_pdf = sig_name + ".pdf";

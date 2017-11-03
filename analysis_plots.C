@@ -23,7 +23,7 @@ Note: support for Evelin's code removed 5 Nov. See backup code to run on that.
 
 void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool include_sherpa, bool isMJ=false, bool isWide=false){
 
-  bool isShort = true;
+  bool isShort = false;
   bool isTruth = false;
   int j = 0; //debugging iterator
   //plot luminosity
@@ -71,7 +71,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_mass"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 75, 107, 1, 1000000000, 2, 0.7, 1.5);
+      chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/2 GeV", 75, 107, 1, 1000000000, 4, 0.7, 1.5);
     }
     else{
       if(make_log) chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
@@ -311,25 +311,25 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     if(make_log) logmax = 10000000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
   }
   else if(var_2_plot == "dimu_mass_truth_dressed"){
     if(make_log) logmax = 10000000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_match"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
   }
   else if(var_2_plot =="Z_mass_unmatch"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/GeV", 70, 110, 1, 1000000000, 2, 0.7, 1.5);
+    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_migration"){
     isTruth = true;
@@ -529,6 +529,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string file_suffix;
   if(isMJ) file_suffix = "_MJ.root";
   else if(isWide) file_suffix = "_wide.root";
+  else if(isShort) file_suffix = "_short.root";
   else file_suffix = ".root";
 
   string mc_type_zmumu_sherpa = "Zmumu_sherpa";
@@ -883,6 +884,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_singletop_sum.SetYRangeHist(y_min,y_max);
     h_diboson_sum.SetYRangeHist(y_min,y_max);
   }
+  cout << "N bins: " << h_zmumu_sum.GetHist()->GetNbinsX() << endl;
   
   /*  TH1D *h_mc_sum = (TH1D*)h_zmumu_sum->Clone();
   TH1D *h_zmumu_sum_clone = (TH1D*)h_zmumu_sum->Clone();
@@ -1026,10 +1028,17 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     }
   }
 
-  //make n_jets tables
-  /*  if(var_2_plot == "n_jets" || var_2_plot == "n_jets_eta"){
-    write_table(h_mc_sum, h_data, histo_name);
-    }*/
+  //Save root files separated by MC channel to file for use in unfolding code
+  const int n_samples = 3;
+  Histogram sample_h[] = {h_zmumu_sum,h_zmumubb_sum,h_zmumucc_sum};
+  string unfolding_name = "unfolding_preprocessed/"+var_2_plot;
+  if(isShort) unfolding_name += "_short";
+  unfolding_name += ".root";
+  TFile *f_unfolding = TFile::Open(unfolding_name.c_str(),"RECREATE");
+  for(int i = 0; i<n_samples; i++){
+    sample_h[i].GetHist()->Write();
+  }
+  f_unfolding->Close();
 
   //Write mc_sum as root file for further manipulation (like fitting)
   string rootfile_name = "MC_histograms_root/"+var_2_plot;
@@ -1052,31 +1061,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_mc_sum.GetHist()->Write();
   if(!isTruth) h_data->Write();
   f_root->Close();
-
-  //Save root files separated by MC channel to file for use in unfolding code
-  string unfolding_name = "unfolding_preprocessed/"+var_2_plot+"_Zplusjets_Alpgen";
-  TFile *f_unfolding = TFile::Open(unfolding_name.c_str(),"RECREATE");
-  //Z+jets
-  Histogram h_zplusjets_sum = h_zmumu_sum.CloneHist();
-  h_zplusjets_sum.AddHist(h_zmumubb_sum);
-  h_zplusjets_sum.AddHist(h_zmumucc_sum);
-  h_zplusjets_sum.GetHist()->Write();
-  f_unfolding->Close();
-
-  //ttbar
-
-  //WW
-
-  //ZZ
-
-  //WZ
-
-  //singletop s-channel
-
-  //singletop t-channel
-
-  //singletop Wt-channel
-
 
   /**************************************
    ********DRAW SUMMED HISTS************
@@ -1227,8 +1211,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   //img->FromPad(c1);
   string img_name = plt_dir + "/" + var_2_plot;
   if(isMJ) img_name += "_MJ";
+  if(isShort) img_name += "_small";
   else if(isWide){
-    if(isShort) img_name += "_small";
     img_name += "_wide";
   }
   if(!include_sherpa) img_name += "_nosherpa";

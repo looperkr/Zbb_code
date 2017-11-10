@@ -135,8 +135,18 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_dressed_mu_Z_mass = new TH1D("Z_mass_truth_dressed","Dimuon mass spectrum (dressed truth muons, Z window)",20000,0,10000);
    h_truth_n_jets = new TH1D("truth_n_jets","Truth jet multiplicity",12,0,12);
    h_Z_mass_match = new TH1D("Z_mass_match","Dimuon mass spectrum (true Z in event)",20000,0,10000);
-   h_Z_mass_unmatch = new TH1D("Z_mass_unmatch","Dimuon mass spectrum (no true Z in events)",20000,0,10000);
+   h_Z_mass_unmatch = new TH1D("Z_mass_unmatch","Dimuon mass spectrum (no true Z in event)",20000,0,10000);
    h_Z_mass_migration = new TH2D("Z_mass_migration","Zll migration matrix",20,70,110,20,70,110);
+
+   h_dressed_mu_Z_y = new TH1D("Z_y_truth_dressed","Z rapidity (dressed truth muons)",240,-6,6);
+   h_Z_y_match = new TH1D("Z_y_match","Z rapidity (true Z in event)",240,-6,6);
+   h_Z_y_unmatch = new TH1D("Z_y_unmatch","Z rapidity (no true Z in event)",240,-6,6);
+   h_Z_y_migration = new TH2D("Z_y_migration","Z y migration matrix",240,-6,6,240,-6,6);
+   
+   h_dressed_mu_Z_pt = new TH1D("Z_pt_truth_dressed","Z pT (dressed truth muons)",4000,0,2000);
+   h_Z_pt_match = new TH1D("Z_pt_match","Z pT (true Z in event)",4000,0,2000);
+   h_Z_pt_unmatch = new TH1D("Z_pt_unmatch","Z pT (no true Z in event)",4000,0,2000);
+   h_Z_pt_migration = new TH2D("Z_pt_migration","Z pT migration matrix",4000,0,2000,4000,0,2000);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -416,6 +426,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   Z_fourv.Clear();
 
   Zmass = 0;
+  Zy = 0.;
+  Zpt = 0.;
   jet_v.clear();
   jet_v_tight.clear();
   bjet_v.clear();
@@ -423,6 +435,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //truth vectors and objects
   passTruthSelections = false;
   dressed_Z_mass = 0.;
+  dressed_Z_y = 0.;
+  dressed_Z_pt = 0.;
 
   v_bareMuons.clear();
   v_bornMuons.clear();
@@ -517,12 +531,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       if(mc_charge->at(v_dressedMuons[0].first)*mc_charge->at(v_dressedMuons[1].first) == -1){
         TLorentzVector dressed_Z = v_dressedMuons[0].second + v_dressedMuons[1].second;
         dressed_Z_mass = dressed_Z.M()/1000.;
+	dressed_Z_y = dressed_Z.Rapidity();
+	dressed_Z_pt = dressed_Z.Pt()/1000.;
         h_dressed_dimu_mass->Fill(dressed_Z_mass,weight);
         if(dressed_Z_mass > 76. && dressed_Z_mass < 106.){
           passTruthSelections = true;
           getTruthJets(v_dressedMuons,v_truthJets);
           h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
           h_truth_n_jets->Fill(v_truthJets.size(),weight);
+	  h_dressed_mu_Z_y->Fill(dressed_Z_y,weight);
+	  h_dressed_mu_Z_pt->Fill(dressed_Z_pt,weight);
         }
       }
     }
@@ -856,6 +874,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   int mu2_ind = good_mu_v_index.at(1);
   Z_fourv = good_mu_v.at(0) + good_mu_v.at(1);
   Zmass = Z_fourv.M()/1000.;
+  Zy = Z_fourv.Rapidity();
+  Zpt = Z_fourv.Pt()/1000.;
   if((mu_charge->at(mu1_ind) * mu_charge->at(mu2_ind)) == -1){
     h_cutflow_w->Fill(Float_t(icut),weight);
     h_cutflow->Fill(Float_t(icut));
@@ -903,10 +923,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(isMC){
     if(passTruthSelections){
       h_Z_mass_match->Fill(Zmass,weight);
+      h_Z_y_match->Fill(Zy,weight);
+      h_Z_pt_match->Fill(Zpt,weight);
       h_Z_mass_migration->Fill(Zmass,dressed_Z_mass,weight);
+      h_Z_y_migration->Fill(Zy,dressed_Z_y,weight);
+      h_Z_pt_migration->Fill(Zpt,dressed_Z_pt,weight);
     }
     else{
       h_Z_mass_unmatch->Fill(Zmass,weight);
+      h_Z_y_unmatch->Fill(Zy,weight);
+      h_Z_pt_unmatch->Fill(Zpt,weight);
     }
   }
 
@@ -915,6 +941,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   h_Z_y->Fill(Z_fourv.Rapidity(),weight);
   h_Z_eta->Fill(Z_fourv.Eta(),weight);
   h_Z_phi->Fill(Z_fourv.Phi(),weight);
+
+  
   h_mu_pt->Fill(good_mu_v.at(0).Pt()/1000.,weight);
   h_mu_pt->Fill(good_mu_v.at(1).Pt()/1000.,weight);
   h_mu_eta->Fill(good_mu_v.at(0).Eta(),weight);
@@ -1727,6 +1755,14 @@ void analysis_Zmumu::Terminate()
   h_Z_mass_match->Write();
   h_Z_mass_unmatch->Write();
   h_Z_mass_migration->Write();
+  h_dressed_mu_Z_y->Write();
+  h_Z_y_match->Write();
+  h_Z_y_unmatch->Write();
+  h_Z_y_migration->Write();
+  h_dressed_mu_Z_pt->Write();
+  h_Z_pt_match->Write();
+  h_Z_pt_unmatch->Write();
+  h_Z_pt_migration->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();

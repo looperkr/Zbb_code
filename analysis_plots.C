@@ -311,29 +311,67 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     if(make_log) logmax = 10000000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
+    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
   }
   else if(var_2_plot == "dimu_mass_truth_dressed"){
     if(make_log) logmax = 10000000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
+    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_match"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
+    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
   }
   else if(var_2_plot =="Z_mass_unmatch"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/2 GeV", 70, 110, 1, 1000000000, 4, 0.7, 1.5);
+    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_migration"){
     isTruth = true;
-    chooseHistOptions("Z_mass_migration","m_{#mu#mu} [GeV] (reco)", "m_{#mu#mu} [GeV] (truth)",70,110,70,110,1,1,0.7,1.5);
+    chooseHistOptions("Z_mass_migration","m_{#mu#mu} [GeV] (migration matrix)", "m_{#mu#mu} [GeV] (truth)",70,110,70,110,1,0.7,1.5);
+  }
+  else if(var_2_plot == "Z_y_truth_dressed"){
+    if(make_log) logmax = 50000000000;
+    else logmax = 4000;
+    isTruth = true;
+    chooseHistOptions("Z_y_truth_dressed", "Z rapidity (truth dressed)", "Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_y_match"){
+    if(make_log) logmax = 50000000000;
+    else logmax= 4000;
+    isTruth = true;
+    chooseHistOptions("Z_y_match","Z rapidity (matched reco)","Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_y_unmatch"){
+    if(make_log) logmax = 50000000000;
+    else logmax= 4000;
+    isTruth = true;
+    chooseHistOptions("Z_y_unmatch","Z rapidity (unmatched reco)","Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_y_migration"){
+    isTruth = true;
+    chooseHistOptions("Z_y_migration","Z rapidity (migration matrix)","Z y",-3.5,3.5,-3.5,3.5,1,0.7,1.5);
+  }
+  else if(var_2_plot == "Z_pt_truth_dressed"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_truth_dressed","Z p_{T} (truth dressed)", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_match"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_match","Z p_{T} (matched reco)", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_unmatch"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_unmatch","Z p_{T} (unmached reco)", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_migration"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_migration","Z p_{T} (migration matrix)", "Events/50 GeV", 0., 800., 0., 800, 100, ratiomin, ratiomax);
   }
   else{
     cout << "This variable is not supported" << endl;
@@ -502,7 +540,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
  
   //datasets: WWtomunuqq(183736), WZtomunuqq(183737), ZWtomumuqq(183587), ZWtotautauqq(183589), ZZtomumuqq(183588), ZZtotautauqq(183590)
-  string diboson_process = "diboson";
+  /*  string diboson_process = "diboson";
   vector<double> diboson_xsec;
   double sigma_diboson[6] = {7.2854,1.9057,1.4637,1.4523,0.24747,0.24167};
   double k_factor_diboson[6] = {1.05,1.05,1.05,1.05,1.,1.};
@@ -510,8 +548,34 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<6; i++){
     xsec = sigma_diboson[i]*k_factor_diboson[i]*eff_diboson;
     diboson_xsec.push_back(xsec);
+    }*/
+
+  double eff_diboson = 1.0;
+
+  string WW_process = "WW";
+  vector<double> WW_xsec;
+  double sigma_WW[1] = {7.2854};
+  double k_factor_WW = 1.05;
+  xsec = sigma_WW[0]*k_factor_WW*eff_diboson;
+  WW_xsec.push_back(xsec);
+
+  string WZ_process = "WZ";
+  vector<double> WZ_xsec;
+  double sigma_WZ[3] = {1.9057,1.4637,1.4523};
+  double k_factor_WZ = 1.05;
+  for(int i=0; i<3; i++){
+    xsec = sigma_WZ[i]*k_factor_WZ*eff_diboson;
+    WZ_xsec.push_back(xsec);
   }
   
+  string ZZ_process = "ZZ";
+  vector<double> ZZ_xsec;
+  double sigma_ZZ[2] = {0.24747,0.24167};
+  double k_factor_ZZ = 1.0;
+  for(int i=0; i<2; i++){
+    xsec = sigma_ZZ[i]*k_factor_ZZ*eff_diboson;
+    ZZ_xsec.push_back(xsec);
+  }
 
   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ~~~~~~~~~~~OPEN FILES~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -730,6 +794,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
 
   //Diboson
+  /*
   string mc_type_diboson = "diboson";
   const int n_files_diboson = 6;
   TFile *fdiboson[6];
@@ -751,7 +816,59 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     diboson_name = mc_path + diboson_name;
     fdiboson[i] = TFile::Open(diboson_name.c_str(),"UPDATE");
     fdiboson_cf[i] = TFile::Open(diboson_cf_name.c_str(),"UPDATE");
+    }*/
+  string mc_type_WW = "WW";
+  const int n_files_WW = 1;
+  TFile *fWW[1];
+  TFile *fWW_cf[1];
+  string fname_WW[1];
+  string WW_name;
+  string WW_cf_name;
+  WW_name = "WWtomunuqq_hists";
+  WW_cf_name = cutflow_h_path + WW_name + ".root";
+  WW_name += file_suffix;
+  fname_WW[0] = WW_name;
+  WW_name = mc_path + WW_name;
+  fWW[0] = TFile::Open(WW_name.c_str(),"UPDATE");
+  fWW_cf[0] = TFile::Open(WW_cf_name.c_str(),"UPDATE");
+
+  string mc_type_WZ = "WZ";
+  const int n_files_WZ = 3;
+  TFile *fWZ[3];
+  TFile *fWZ_cf[3];
+  string fname_WZ[3];
+  string WZ_name;
+  string WZ_cf_name;
+  for(int i=0; i<3; i++){
+    if(i==0) WZ_name = "WZtomunuqq_hists";
+    else if(i==1) WZ_name = "ZWtomumuqq_hists";
+    else if(i==2) WZ_name = "ZWtotautauqq_hists";
+    WZ_cf_name = cutflow_h_path + WZ_name + ".root";
+    WZ_name += file_suffix;
+    fname_WZ[i] = WZ_name;
+    WZ_name = mc_path + WZ_name;
+    fWZ[i] = TFile::Open(WZ_name.c_str(),"UPDATE");
+    fWZ_cf[i] = TFile::Open(WZ_cf_name.c_str(),"UPDATE");
   }
+
+  string mc_type_ZZ = "ZZ";
+  const int n_files_ZZ = 2;
+  TFile *fZZ[2];
+  TFile *fZZ_cf[2];
+  string fname_ZZ[2];
+  string ZZ_name;
+  string ZZ_cf_name;
+  for(int i=0; i<2; i++){
+    if(i==0) ZZ_name = "ZZtomumuqq_hists";
+    else if(i==1) ZZ_name = "ZZtotautauqq_hists";
+    ZZ_cf_name = cutflow_h_path + ZZ_name + ".root";
+    ZZ_name += file_suffix;
+    fname_ZZ[i] = ZZ_name;
+    ZZ_name = mc_path + ZZ_name;
+    fZZ[i] = TFile::Open(ZZ_name.c_str(),"UPDATE");
+    fZZ_cf[i] = TFile::Open(ZZ_cf_name.c_str(),"UPDATE");
+  }
+
 
 
   //====================
@@ -800,7 +917,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_wbb_sum       = add_histo(fwbb,n_files_wbb,fname_wbb,histo_name,wbb_xsec,fwbb_cf,lumi,wbb_process,x_min,x_max);
   Histogram h_ttbar_sum     = add_histo(fttbar,n_files_ttbar,fname_ttbar,histo_name,ttbar_xsec,fttbar_cf,lumi,ttbar_process,x_min,x_max);
   Histogram h_singletop_sum = add_histo(fsingletop,n_files_singletop,fname_singletop,histo_name,singletop_xsec,fsingletop_cf,lumi,singletop_process,x_min,x_max);
-  Histogram h_diboson_sum   = add_histo(fdiboson,n_files_diboson,fname_diboson,histo_name,diboson_xsec,fdiboson_cf,lumi,diboson_process,x_min,x_max);
+  Histogram h_WW_sum        = add_histo(fWW,n_files_WW,fname_WW,histo_name,WW_xsec,fWW_cf,lumi,WW_process,x_min,x_max);
+  Histogram h_WZ_sum        = add_histo(fWZ,n_files_WZ,fname_WZ,histo_name,WZ_xsec,fWZ_cf,lumi,WZ_process,x_min,x_max);
+  Histogram h_ZZ_sum        = add_histo(fZZ,n_files_ZZ,fname_ZZ,histo_name,ZZ_xsec,fZZ_cf,lumi,ZZ_process,x_min,x_max); 
 
 
   //  TH1D *h_wjets_sum = (TH1D*)h_wmunu_sum->Clone();
@@ -809,6 +928,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_wjets_sum.AddHist(h_wc_sum);
   h_wjets_sum.AddHist(h_wbb_sum);
 
+  Histogram h_diboson_sum = h_WW_sum.CloneHist();
+  h_diboson_sum.AddHist(h_WZ_sum);
+  h_diboson_sum.AddHist(h_ZZ_sum);
 
   h_zmumu_sum.SetFillColorHist(kBlue);
   h_zmumubb_sum.SetFillColorHist(kYellow);
@@ -860,6 +982,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_wjets_sum.RebinHist(rebin);
     h_ttbar_sum.RebinHist(rebin);
     h_singletop_sum.RebinHist(rebin);
+    h_WW_sum.RebinHist(rebin);
+    h_WZ_sum.RebinHist(rebin);
+    h_ZZ_sum.RebinHist(rebin);
     h_diboson_sum.RebinHist(rebin);
     if(!isTruth) h_data->Rebin(rebin);
   }
@@ -872,6 +997,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_ttbar_sum.SetXRangeHist(x_min,x_max);
   h_singletop_sum.SetXRangeHist(x_min,x_max);
   h_diboson_sum.SetXRangeHist(x_min,x_max);
+  h_WW_sum.SetXRangeHist(x_min,x_max);
+  h_WZ_sum.SetXRangeHist(x_min,x_max);
+  h_ZZ_sum.SetXRangeHist(x_min,x_max);
   if(!isTruth) h_data->GetXaxis()->SetRangeUser(x_min,x_max);
   if(!(h_zmumu_sum.GetIs1D())){
     if(include_sherpa) h_zmumu_sherpa_sum.SetYRangeHist(y_min,y_max);
@@ -883,6 +1011,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_ttbar_sum.SetYRangeHist(y_min,y_max);
     h_singletop_sum.SetYRangeHist(y_min,y_max);
     h_diboson_sum.SetYRangeHist(y_min,y_max);
+    h_WW_sum.SetYRangeHist(y_min,y_max);
+    h_WZ_sum.SetYRangeHist(y_min,y_max);
+    h_ZZ_sum.SetYRangeHist(y_min,y_max);
   }
   cout << "N bins: " << h_zmumu_sum.GetHist()->GetNbinsX() << endl;
   
@@ -907,7 +1038,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_ttbar_sum_clone = h_ttbar_sum.CloneHist();
   Histogram h_singletop_sum_clone = h_singletop_sum.CloneHist();
   Histogram h_diboson_sum_clone = h_diboson_sum.CloneHist();
-
+  
 
   //sherpa comparison clones: cloning two, electric boogaloo
   
@@ -1252,8 +1383,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   close_files(fttbar_cf, 1);
   close_files(fsingletop, 4);
   close_files(fsingletop_cf, 4);
-  close_files(fdiboson, 6);
-  close_files(fdiboson_cf, 6);
+  close_files(fWW,1);
+  close_files(fWW_cf,1);
+  close_files(fWZ,3);
+  close_files(fWZ_cf,3);
+  close_files(fZZ,2);
+  close_files(fZZ_cf,2);
 
   if(!isTruth) fdata->Close();
 

@@ -29,7 +29,6 @@ struct HistoOpts{
   double y_min;
   double y_max;
   int rebin;
-  int rebiny;
   double ratiomin;
   double ratiomax;
 } histToPlot;
@@ -44,21 +43,6 @@ void chooseHistOptions(const TString & histo_name, const TString & x_name, const
   histToPlot.y_min = y_min;
   histToPlot.y_max = y_max;
   histToPlot.rebin = rebin;
-  histToPlot.ratiomin = ratiomin;
-  histToPlot.ratiomax = ratiomax;
-}
-
-void chooseHistOptions(const TString & histo_name, const TString & x_name, const TString & y_name, double x_min, double x_max, double y_min, double y_max, int rebin, int rebiny, double ratiomin, double ratiomax){
-
-  histToPlot.histo_name = histo_name;
-  histToPlot.x_name = x_name;
-  histToPlot.y_name = y_name;
-  histToPlot.x_min = x_min;
-  histToPlot.x_max = x_max;
-  histToPlot.y_min = y_min;
-  histToPlot.y_max = y_max;
-  histToPlot.rebin = rebin;
-  histToPlot.rebiny = rebiny;
   histToPlot.ratiomin = ratiomin;
   histToPlot.ratiomax = ratiomax;
 }
@@ -147,7 +131,7 @@ class Histogram{
   }
   void RebinHist(int rebin){
     if(is1D) hist_1D->Rebin(rebin);
-    else hist_2D->Rebin(rebin);
+    else hist_2D->Rebin2D(rebin);
   }
   void SetXRangeHist(double min, double max){
     if(is1D) hist_1D->GetXaxis()->SetRangeUser(min,max);

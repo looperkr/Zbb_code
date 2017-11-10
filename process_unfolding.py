@@ -1,10 +1,13 @@
 from ROOT import TFile, TH1D, TH2D, gROOT, TH1
 import os,sys
 
+process = sys.argv[1]
+print process
+
 isShort = False
 
 TH1.AddDirectory(0)
-process = "Z_mass"
+
 samples = ["zmumu","zmumubb","zmumucc"]
 
 uf_process = "Mll"
@@ -13,7 +16,7 @@ uf_channel = "_Mu_Z"
 
 uf_hist_list = ["","_truth_dressed","_match","_unmatch","_migration"]
 
-gROOT.ProcessLine(".L analysis_plots.C+")
+'''gROOT.ProcessLine(".L analysis_plots.C+")
 
 for hist in uf_hist_list:
     var_2_plot = process + hist
@@ -23,7 +26,7 @@ for hist in uf_hist_list:
         cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,true)"
     print cmd
     gROOT.ProcessLine(cmd)
-
+'''
 
 hist_arr = []
 for hist in uf_hist_list:

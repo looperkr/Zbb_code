@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = true;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -82,6 +82,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    n_zevents = 0;
    n_true_bjets = 0;
    eventcheckcut = -1;
+   float VarBinPt_vec[22]={0, 5, 10, 15, 20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000};
+   const int VarBinPt_size = 21;
    h_good_zeroweight_events = new TH1D("good_zeroweight_events","good_zeroweight_events",1,0,1);
    h_good_zeroweight_events_pw = new TH1D("good_zeroweight_events_pw","good_zeroweight_events_pw",1,0,1);
    h_triggerSF_size = new TH1D("triggerSF","triggerSF",20000,0,5);
@@ -99,8 +101,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_exactly1j = new TH1D("Z_mass_exactly1j","Dimuon mass spectrum (Z window), njets == 1",20000,0,10000);
    h_Z_mass_1b = new TH1D("Z_mass_1b","Dimuon mass spectrum (Z window), nbjets >= 1",20000,0,10000);
    h_Z_mass_2b = new TH1D("Z_mass_2b","Dimuon mass spectrum (Z window), nbjets >= 2",20000,0,10000);
-   h_Z_pt = new TH1D("Z_pT", "Z boson pT", 4000, 0, 2000);
-   h_Z_pt_nopw = new TH1D("Z_pT_nopw","Z boson pT (no pileup)", 4000,0,2000);
+   h_Z_pt = new TH1D("Z_pT", "Z boson pT", VarBinPt_size, VarBinPt_vec);
+   h_Z_pt_nopw = new TH1D("Z_pT_nopw","Z boson pT (no pileup)", VarBinPt_size, VarBinPt_vec);
    h_Z_y = new TH1D("Z_y", "Z boson rapidity", 240,-6,6);
    h_Z_y_nopw = new TH1D("Z_y_nopw","Z boson rapidity (no pileup)",240,-6,6);
    h_Z_eta = new TH1D("Z_eta","Z boson #eta", 240,-6,6);
@@ -143,10 +145,12 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_y_unmatch = new TH1D("Z_y_unmatch","Z rapidity (no true Z in event)",240,-6,6);
    h_Z_y_migration = new TH2D("Z_y_migration","Z y migration matrix",240,-6,6,240,-6,6);
    
-   h_dressed_mu_Z_pt = new TH1D("Z_pt_truth_dressed","Z pT (dressed truth muons)",4000,0,2000);
-   h_Z_pt_match = new TH1D("Z_pt_match","Z pT (true Z in event)",4000,0,2000);
-   h_Z_pt_unmatch = new TH1D("Z_pt_unmatch","Z pT (no true Z in event)",4000,0,2000);
-   h_Z_pt_migration = new TH2D("Z_pt_migration","Z pT migration matrix",4000,0,2000,4000,0,2000);
+   //   float VarBinPt_vec[22]={0, 5, 10, 15, 20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000};
+   //const int VarBinPt_size = 21;
+   h_dressed_mu_Z_pt = new TH1D("Z_pt_truth_dressed","Z pT (dressed truth muons)",VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_match = new TH1D("Z_pt_match","Z pT (true Z in event)",VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_unmatch = new TH1D("Z_pt_unmatch","Z pT (no true Z in event)",VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_migration = new TH2D("Z_pt_migration","Z pT migration matrix",VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);

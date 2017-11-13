@@ -527,9 +527,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
   /*~~~~~~~~~~~~~~~new single top~~~~~~~~~~~~~~~~~~~~~~~*/
   //datasets 110090, 110091, 110119, 110140 (Powheg+Pythia)
+  // t-chan, anti t-chan, s-chan, Wtchan
   //x-section source: arantxa's note (double-check)
   //k-factor source: arantxa's note (double-check)
-  string singletop_process = "singletop";
+  /*  string singletop_process = "singletop";
   vector<double> singletop_xsec;
   double sigma_singletop[4] = {17.520,9.3932,1.642400,20.46100};
   double k_factor_singletop[4] = {1.0500,1.0616,1.106700,1.093300};
@@ -537,7 +538,31 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   for(int i=0; i<4; i++){
     xsec = sigma_singletop[i]*k_factor_singletop[i]*eff_singletop;
     singletop_xsec.push_back(xsec);
+    }*/
+  
+  double eff_singletop = 1.0;
+
+  string tchan_process = "tchan";
+  vector<double> tchan_xsec;
+  double sigma_tchan[2] = {17.520,9.3932};
+  double k_factor_tchan[2] = {1.0500,1.0616};
+  for(int i=0; i<2; i++){
+    xsec = sigma_tchan[i]*k_factor_tchan[i]*eff_singletop;
+    tchan_xsec.push_back(xsec);
   }
+  string schan_process = "schan";
+  vector<double> schan_xsec;
+  double sigma_schan[1] = {1.642400};
+  double k_factor_schan[1] = {1.106700};
+  xsec = sigma_schan[0]*k_factor_schan[0]*eff_singletop;
+  schan_xsec.push_back(xsec);
+
+  string Wtchan_process = "Wtchan";
+  vector<double> Wtchan_xsec;
+  double sigma_Wtchan[1] = {20.46100};
+  double k_factor_Wtchan[1] = {1.093300};
+  xsec = sigma_Wtchan[0]*k_factor_Wtchan[0]*eff_singletop;
+  Wtchan_xsec.push_back(xsec);
  
   //datasets: WWtomunuqq(183736), WZtomunuqq(183737), ZWtomumuqq(183587), ZWtotautauqq(183589), ZZtomumuqq(183588), ZZtotautauqq(183590)
   /*  string diboson_process = "diboson";
@@ -773,7 +798,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   fttbar[0] = TFile::Open(ttbar_name.c_str(),"UPDATE");
   fttbar_cf[0] = TFile::Open(ttbar_cf_name.c_str(),"UPDATE");
 
-  string mc_type_singletop = "singletop";
+  /*  string mc_type_singletop = "singletop";
   const int n_files_singletop = 4;
   TFile *fsingletop[4];
   TFile *fsingletop_cf[4];
@@ -791,7 +816,55 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     singletop_name = mc_path + singletop_name;
     fsingletop[i] = TFile::Open(singletop_name.c_str(),"UPDATE");
     fsingletop_cf[i] = TFile::Open(singletop_cf_name.c_str(),"UPDATE");
+    }*/
+
+  string mc_type_tchan = "tchan";
+  const int n_files_tchan = 2;
+  TFile *ftchan[2];
+  TFile *ftchan_cf[2];
+  string fname_tchan[2];
+  string tchan_name;
+  string tchan_cf_name;
+  for(int i=0; i<4; i++){
+    if(i==0) tchan_name = "tchanTopPythia_hists";
+    else if(i==1) tchan_name = "tchanAntitopPythia_hists";
+    tchan_cf_name = cutflow_h_path + tchan_name + ".root";
+    tchan_name += file_suffix;
+    fname_tchan[i] = tchan_name;
+    tchan_name = mc_path + tchan_name;
+    ftchan[i] = TFile::Open(tchan_name.c_str(),"UPDATE");
+    ftchan_cf[i] = TFile::Open(tchan_cf_name.c_str(),"UPDATE");
   }
+
+  string mc_type_schan = "schan";
+  const int n_files_schan = 1;
+  TFile *fschan[1];
+  TFile *fschan_cf[1];
+  string fname_schan[1];
+  string schan_name;
+  string schan_cf_name;
+  schan_name = "schanLepPythia_hists";
+  schan_cf_name = cutflow_h_path + schan_name + ".root";
+  schan_name += file_suffix;
+  fname_schan[0] = schan_name;
+  schan_name = mc_path + schan_name;
+  fschan[0] = TFile::Open(schan_name.c_str(),"UPDATE");
+  fschan_cf[0] = TFile::Open(schan_cf_name.c_str(),"UPDATE");
+
+  string mc_type_Wtchan = "Wtchan";
+  const int n_files_Wtchan = 1;
+  TFile *fWtchan[1];
+  TFile *fWtchan_cf[1];
+  string fname_Wtchan[1];
+  string Wtchan_name;
+  string Wtchan_cf_name;
+  Wtchan_name = "WtchanPythia_hists";
+  Wtchan_cf_name = cutflow_h_path + Wtchan_name + ".root";
+  Wtchan_name += file_suffix;
+  fname_Wtchan[0] = Wtchan_name;
+  Wtchan_name = mc_path + Wtchan_name;
+  fWtchan[0] = TFile::Open(Wtchan_name.c_str(),"UPDATE");
+  fWtchan_cf[0] = TFile::Open(Wtchan_cf_name.c_str(),"UPDATE");
 
   //Diboson
   /*
@@ -916,7 +989,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_wc_sum        = add_histo(fwc,n_files_wc,fname_wc,histo_name,wc_xsec,fwc_cf,lumi,wc_process,x_min,x_max);
   Histogram h_wbb_sum       = add_histo(fwbb,n_files_wbb,fname_wbb,histo_name,wbb_xsec,fwbb_cf,lumi,wbb_process,x_min,x_max);
   Histogram h_ttbar_sum     = add_histo(fttbar,n_files_ttbar,fname_ttbar,histo_name,ttbar_xsec,fttbar_cf,lumi,ttbar_process,x_min,x_max);
-  Histogram h_singletop_sum = add_histo(fsingletop,n_files_singletop,fname_singletop,histo_name,singletop_xsec,fsingletop_cf,lumi,singletop_process,x_min,x_max);
+  Histogram h_tchan_sum     = add_histo(ftchan,n_files_tchan,fname_tchan,histo_name,tchan_xsec,ftchan_cf,lumi,tchan_process,x_min,x_max);
+  Histogram h_schan_sum     = add_histo(fschan,n_files_schan,fname_schan,histo_name,schan_xsec,fschan_cf,lumi,schan_process,x_min,x_max);
+  Histogram h_Wtchan_sum    = add_histo(fWtchan,n_files_Wtchan,fname_Wtchan,histo_name,Wtchan_xsec,fWtchan_cf,lumi,Wtchan_process,x_min,x_max);
   Histogram h_WW_sum        = add_histo(fWW,n_files_WW,fname_WW,histo_name,WW_xsec,fWW_cf,lumi,WW_process,x_min,x_max);
   Histogram h_WZ_sum        = add_histo(fWZ,n_files_WZ,fname_WZ,histo_name,WZ_xsec,fWZ_cf,lumi,WZ_process,x_min,x_max);
   Histogram h_ZZ_sum        = add_histo(fZZ,n_files_ZZ,fname_ZZ,histo_name,ZZ_xsec,fZZ_cf,lumi,ZZ_process,x_min,x_max); 
@@ -931,6 +1006,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_diboson_sum = h_WW_sum.CloneHist();
   h_diboson_sum.AddHist(h_WZ_sum);
   h_diboson_sum.AddHist(h_ZZ_sum);
+
+  Histogram h_singletop_sum = h_tchan_sum.CloneHist();
+  h_singletop_sum.AddHist(h_schan_sum);
+  h_singletop_sum.AddHist(h_Wtchan_sum);
 
   h_zmumu_sum.SetFillColorHist(kBlue);
   h_zmumubb_sum.SetFillColorHist(kYellow);
@@ -981,7 +1060,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_ztautau_sum.RebinHist(rebin);
     h_wjets_sum.RebinHist(rebin);
     h_ttbar_sum.RebinHist(rebin);
-    h_singletop_sum.RebinHist(rebin);
+    h_tchan_sum.RebinHist(rebin);
+    h_schan_sum.RebinHist(rebin);
+    h_Wtchan_sum.RebinHist(rebin);
     h_WW_sum.RebinHist(rebin);
     h_WZ_sum.RebinHist(rebin);
     h_ZZ_sum.RebinHist(rebin);
@@ -995,6 +1076,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_wjets_sum.SetXRangeHist(x_min,x_max);
   h_ttbar_sum.SetXRangeHist(x_min,x_max);
   h_singletop_sum.SetXRangeHist(x_min,x_max);
+  h_tchan_sum.SetXRangeHist(x_min,x_max);
+  h_schan_sum.SetXRangeHist(x_min,x_max);
+  h_Wtchan_sum.SetXRangeHist(x_min,x_max);
   h_diboson_sum.SetXRangeHist(x_min,x_max);
   h_WW_sum.SetXRangeHist(x_min,x_max);
   h_WZ_sum.SetXRangeHist(x_min,x_max);
@@ -1009,6 +1093,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_wjets_sum.SetYRangeHist(y_min,y_max);
     h_ttbar_sum.SetYRangeHist(y_min,y_max);
     h_singletop_sum.SetYRangeHist(y_min,y_max);
+    h_tchan_sum.SetYRangeHist(y_min,y_max);
+    h_schan_sum.SetYRangeHist(y_min,y_max);
+    h_Wtchan_sum.SetYRangeHist(y_min,y_max);
     h_diboson_sum.SetYRangeHist(y_min,y_max);
     h_WW_sum.SetYRangeHist(y_min,y_max);
     h_WZ_sum.SetYRangeHist(y_min,y_max);
@@ -1024,7 +1111,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   TH1D *h_ttbar_sum_clone = (TH1D*)h_ttbar_sum->Clone();
   TH1D *h_singletop_sum_clone = (TH1D*)h_singletop_sum->Clone();
   TH1D *h_diboson_sum_clone = (TH1D*)h_diboson_sum->Clone();*/
-
 
 
   Histogram h_mc_sum = h_zmumu_sum.CloneHist();
@@ -1157,9 +1243,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     }
   }
 
-  //Save root files separated by MC channel to file for use in unfolding code
-  const int n_samples = 3;
-  Histogram sample_h[] = {h_zmumu_sum,h_zmumubb_sum,h_zmumucc_sum};
+  //Save histograms separated by channel for unfolding code
+  const int n_samples = 13;
+  Histogram sample_h[] = {h_zmumu_sherpa_sum,h_zmumu_sum,h_zmumubb_sum,h_zmumucc_sum,h_ztautau_sum,h_wjets_sum,h_ttbar_sum,h_tchan_sum,h_schan_sum,h_Wtchan_sum,h_WW_sum,h_WZ_sum,h_ZZ_sum};
   string unfolding_name = "unfolding_preprocessed/"+var_2_plot;
   if(isShort) unfolding_name += "_short";
   unfolding_name += ".root";
@@ -1379,8 +1465,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   close_files(fwbb_cf, 4);
   close_files(fttbar, 1);
   close_files(fttbar_cf, 1);
-  close_files(fsingletop, 4);
-  close_files(fsingletop_cf, 4);
+  close_files(ftchan,2);
+  close_files(ftchan_cf,2);
+  close_files(fschan,1);
+  close_files(fschan_cf,1);
+  close_files(fWtchan,1);
+  close_files(fWtchan_cf,1);
   close_files(fWW,1);
   close_files(fWW_cf,1);
   close_files(fWZ,3);

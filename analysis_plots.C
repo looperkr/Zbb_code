@@ -1,7 +1,7 @@
 ///////////////macro for plotting Z+bb results //////////////
 /*
 Created by: K. Looper (2 Oct 2015)
-Last edited: 10 Dec 2015
+Last edited: 13 Nov 2017
 Last edited by: K. Looper
 Note: support for Evelin's code removed 5 Nov. See backup code to run on that.
 */
@@ -985,7 +985,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_WW_sum.RebinHist(rebin);
     h_WZ_sum.RebinHist(rebin);
     h_ZZ_sum.RebinHist(rebin);
-    h_diboson_sum.RebinHist(rebin);
     if(!isTruth) h_data->Rebin(rebin);
   }
   if(include_sherpa) h_zmumu_sherpa_sum.SetXRangeHist(x_min,x_max);
@@ -1015,8 +1014,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_WZ_sum.SetYRangeHist(y_min,y_max);
     h_ZZ_sum.SetYRangeHist(y_min,y_max);
   }
-  cout << "N bins: " << h_zmumu_sum.GetHist()->GetNbinsX() << endl;
-  
+
   /*  TH1D *h_mc_sum = (TH1D*)h_zmumu_sum->Clone();
   TH1D *h_zmumu_sum_clone = (TH1D*)h_zmumu_sum->Clone();
   TH1D *h_zmumubb_sum_clone = (TH1D*)h_zmumubb_sum->Clone();

@@ -2,8 +2,13 @@ analysis_Zmumu.C: applies selections to data and MC, creates output histograms. 
 analysis_plots.C: uses histograms from analysis_Zmumu.C to create kinematic plots. Combines MC based on x-section. Plots with data.
 run_script.py: run script for analysis_Zmumu.C
 
+(use root version root 5.34.25-x86_64-slc6-gcc48-opt)
+
 Make sure to install ROOTCORE packages in packages.txt
 To setup RootCore (instructions taken from RootCore twiki: https://twiki.cern.ch/twiki/bin/view/AtlasComputing/RootCore)
+
+(Install version RootCore-00-03-59)
+
 >mkdir packages
 >cd packages
 >svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/D3PDTools/RootCore/tags/`svn ls svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/D3PDTools/RootCore/tags | tail -n 1` RootCore

@@ -3,6 +3,14 @@ analysis_plots.C: uses histograms from analysis_Zmumu.C to create kinematic plot
 run_script.py: run script for analysis_Zmumu.C
 
 Make sure to install ROOTCORE packages in packages.txt
+To setup RootCore (instructions taken from RootCore twiki: https://twiki.cern.ch/twiki/bin/view/AtlasComputing/RootCore)
+>mkdir packages
+>cd packages
+>svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/D3PDTools/RootCore/tags/`svn ls svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/D3PDTools/RootCore/tags | tail -n 1` RootCore
+>source RootCore/scripts/setup.sh
+>rc checkout packages.txt
+>rc find_packages
+>rc compile
 
 To run analysis_Zmumu:
    Make sure to change isMC to the correct boolean value in both the run script and in analysis_Zmumu.C

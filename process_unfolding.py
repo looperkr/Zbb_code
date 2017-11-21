@@ -6,8 +6,6 @@ import os,sys
 distribution_dict = {"Z_mass":["Mll",70,110,20],"Z_pt":["Pt",0,1000,20],"Z_y":["Y",-3.5,3.5,20]}
 
 distribution = sys.argv[1]
-print distribution
-
 
 TH1.AddDirectory(0)
 
@@ -27,14 +25,14 @@ uf_binning = uf_distribution[3]
 uf_hist_list = ["","_truth_dressed","_match","_unmatch","_migration"]
 
 
-'''gROOT.ProcessLine(".L analysis_plots.C+")
+gROOT.ProcessLine(".L analysis_plots.C+")
 
 for hist in uf_hist_list:
     var_2_plot = distribution + hist
     cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,false)"
     print cmd
     gROOT.ProcessLine(cmd)
-'''
+
 
 hist_arr = []
 for hist in uf_hist_list:
@@ -67,7 +65,7 @@ for j in range(0,len(sig_samples)):
 bkg_var_f_name = "unfolding_preprocessed/"+ distribution+".root"
 f_reco = TFile(bkg_var_f_name,"READ")
 for k in range(0,len(bkg_samples)):
-    sample_hist = sample + "_sum"
+    sample_hist = bkg_samples[k] + "_sum"
     print sample_hist
     h = f_reco.Get(sample_hist)
     if not h:
@@ -83,7 +81,6 @@ for k in range(0,len(bkg_samples)):
 
 h_data = f_reco.Get("data")
 uf_h_name_data = "data"+uf_channel+"_"+ uf_distribution[0]
-print uf_h_name_data
 h_data.SetName(uf_h_name_data)
 uf_fname_data = "unfolding_inputs/hist-data.root"
 uf_f_data = TFile(uf_fname_data,"UPDATE")

@@ -47,7 +47,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
@@ -140,6 +140,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_unmatch = new TH1D("Z_mass_unmatch","Dimuon mass spectrum (no true Z in event)",20,70,110);
    h_Z_mass_migration = new TH2D("Z_mass_migration","Zll migration matrix",20,70,110,20,70,110);
 
+   h_Z_mass_MET_match = new TH1D("Z_mass_MET_match","Dimuon mass spectrum (true Z in event)",20,70,110);
+   h_Z_mass_MET_unmatch = new TH1D("Z_mass_MET_unmatch","Dimuon mass spectrum (no true Z in event)",20,70,110);
+   h_Z_mass_MET_migration = new TH2D("Z_mass_MET_migration","Zll migration matrix",20,70,110,20,70,110);
+
+
    h_dressed_mu_Z_y = new TH1D("Z_y_truth_dressed","Z rapidity (dressed truth muons)",20,-3.5,3.5);
    h_Z_y_match = new TH1D("Z_y_match","Z rapidity (true Z in event)",20,-3.5,3.5);
    h_Z_y_unmatch = new TH1D("Z_y_unmatch","Z rapidity (no true Z in event)",20,-3.5,3.5);
@@ -192,7 +197,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    //All histograms after this point have MET cut applied
 
-   h_Z_mass_MET = new TH1D("Z_mass_MET","Z mass after MET cut",4000,0,2000);
+   h_Z_mass_MET = new TH1D("Z_mass_MET","Z mass after MET cut",20,70,110);
    h_Z_pt_MET = new TH1D("Z_pt_MET","Z pT after MET cut",4000,0,2000);
    h_Z_mass_0j_MET = new TH1D("Z_mass_0j_MET","Dimuon mass, >= 0j, after MET cut",4000,0,2000);
    h_Z_mass_1j_MET = new TH1D("Z_mass_1j_MET","Dimuon mass, >= 1j, after MET cut",4000,0,2000);
@@ -1356,6 +1361,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   if(met70){
     h_Z_mass_MET->Fill(Zmass,weight);
+    if(isMC && passTruthSelections){
+      h_Z_mass_MET_match->Fill(Zmass,weight);
+      h_Z_mass_MET_migration->Fill(Zmass,dressed_Z_mass,weight);
+    }
+    else if(isMC){
+      h_Z_mass_MET_unmatch->Fill(Zmass,weight);
+    }
     h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
     h_jet_n_MET->Fill(jet_v.size(),weight);
     h_Z_mass_0j_MET->Fill(Zmass,weight);
@@ -1759,6 +1771,9 @@ void analysis_Zmumu::Terminate()
   h_Z_mass_match->Write();
   h_Z_mass_unmatch->Write();
   h_Z_mass_migration->Write();
+  h_Z_mass_MET_match->Write();
+  h_Z_mass_MET_unmatch->Write();
+  h_Z_mass_MET_migration->Write();
   h_dressed_mu_Z_y->Write();
   h_Z_y_match->Write();
   h_Z_y_unmatch->Write();

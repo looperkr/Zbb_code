@@ -133,11 +133,12 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
 
    //truth test histograms
-   h_truth_n_jets = new TH1D("truth_n_jets","Truth jet multiplicity",12,0,12);
+   h_n_jets_truth = new TH1D("n_jets_truth_dressed","Truth jet multiplicity",12,0,12);
    h_n_jets_match = new TH1D("n_jets_match", "N jets(truth matched)",12,0,12);
    h_n_jets_unmatch = new TH1D("n_jets_unmatch", "N jets (unmatched)",12,0,12);
    h_n_jets_migration = new TH2D("n_jets_migration","N jets (migration matrix)",12,0,12,12,0,12);
 
+   h_leadjet_pt_truth = new TH1D("leadjet_pt_truth_dressed","Leading jet pT (truth)",VarBinPt_size, VarBinPt_vec);
    h_leadjet_pt_match = new TH1D("leadjet_pt_match","Leading jet pT (matched)",VarBinPt_size, VarBinPt_vec);
    h_leadjet_pt_unmatch = new TH1D("leadjet_pt_unmatch","Leading jet pT (unmatched)",VarBinPt_size, VarBinPt_vec);
    h_leadjet_pt_migration = new TH2D("leadjet_pt_migration","Leading jet pT (migration)",VarBinPt_size, VarBinPt_vec,VarBinPt_size, VarBinPt_vec);
@@ -231,7 +232,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_subjet_y_MET = new TH1D("jet_y_sublead_MET","subleading jet y after MET",240,-6,6);
    h_dijet_m_MET = new TH1D("dijet_m_MET","Dijet mass after MET cut",4000,0,2000);
 
-   h_jet_n_tighteta_MET = new TH1D("jet_n_tighteta_MET","number of jets per event (|#eta| < 2.4) after MET cut",15,0,15);
+   h_jet_n_tighteta_MET = new TH1D("jet_n_tighteta_MET","number of jets per event (|#eta| < 2.4) after MET cut",12,0,12);
    h_jet_pt_tighteta_MET = new TH1D("jet_pt_tighteta_MET","jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
    h_jet_y_tighteta_MET = new TH1D("jet_y_tighteta_MET","jet rapidity (|#eta| < 2.4) after MET cut",120,-6,6);
    h_jet_st_tighteta_MET = new TH1D("jet_st_tighteta_MET","ST (|#eta| < 2.4) after MET cut",4000,0,2000);
@@ -557,7 +558,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
           passTruthSelections = true;
           getTruthJets(v_dressedMuons,v_truthJets);
           h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
-          h_truth_n_jets->Fill(v_truthJets.size(),weight);
+          h_n_jets_truth->Fill(v_truthJets.size(),weight);
+	  if(v_truthJets.size() > 0)  h_leadjet_pt_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
 	  h_dressed_mu_Z_y->Fill(dressed_Z_y,weight);
 	  h_dressed_mu_Z_pt->Fill(dressed_Z_pt,weight);
         }
@@ -1792,10 +1794,11 @@ void analysis_Zmumu::Terminate()
   h_pileup_avg_Zsel_norw->Write();
   h_dressed_dimu_mass->Write();
   h_dressed_mu_Z_mass->Write();
-  h_truth_n_jets->Write();
+  h_n_jets_truth->Write();
   h_n_jets_match->Write();
   h_n_jets_unmatch->Write();
   h_n_jets_migration->Write();
+  h_leadjet_pt_truth->Write();
   h_leadjet_pt_match->Write();
   h_leadjet_pt_unmatch->Write();
   h_leadjet_pt_migration->Write();

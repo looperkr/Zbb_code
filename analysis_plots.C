@@ -3,7 +3,6 @@
 Created by: K. Looper (2 Oct 2015)
 Last edited: 13 Nov 2017
 Last edited by: K. Looper
-Note: support for Evelin's code removed 5 Nov. See backup code to run on that.
 */
 
 
@@ -71,7 +70,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_mass"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/2 GeV", 75, 107, 1, 1000000000, 4, 0.7, 1.5);
+      chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/2 GeV", 70, 110, 1, 1000000000, 1, 0.7, 1.5);
     }
     else{
       if(make_log) chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
@@ -86,7 +85,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_mass_MET"){
     if(!isMJ && !isWide){
-      chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 75, 107, 1, 1000000000, 2, 0.7, 1.5);
+      chooseHistOptions("Z_mass_MET", "m_{#mu#mu} [GeV]","Events/GeV", 75, 107, 1, 1000000000, 1, 0.7, 1.5);
     }
     else{
       if(make_log) chooseHistOptions("Z_mass_MET","m_{#mu#mu} [GeV]","Events/GeV", 70, 120, 1, 10000000, 2, ratiomin, ratiomax);
@@ -129,7 +128,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_y"){
     if(make_log) logmax = 1000000000;
-    chooseHistOptions("Z_y", "Z rapidity", "Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_y", "Z rapidity", "Events/0.1", -3.5, 3.5, 1, logmax, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_eta"){
     if(make_log) logmax = 1000000000;
@@ -139,7 +138,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("Z_phi", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt"){
-    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met"){
     chooseHistOptions("met","MET [GeV]","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
@@ -207,8 +206,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "jet_ht_tightmet"){
     chooseHistOptions("jet_mu_ht_tighteta_MET","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 40, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "lead_jet_pt_tightmet"){
-    chooseHistOptions("jet_pt_lead_tighteta_MET","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
+  else if(var_2_plot == "leadjet_pt_tightmet"){
+    chooseHistOptions("jet_pt_lead_tighteta_MET","leading jet pT [GeV]", "Events", 0., 500., 1, 10000000,1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m_tightmet"){
     chooseHistOptions("dijet_m_tighteta_MET", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 1, 100000000, 40,ratiomin, ratiomax);
@@ -307,51 +306,67 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     else logmax = 700000;
     chooseHistOptions("pileup_Z", "pileup", "Events", 0, 45, 1, logmax, 200, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "Z_mass_truth_dressed"){
+  else if(var_2_plot == "Z_mass_truth"){
     if(make_log) logmax = 10000000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
+    chooseHistOptions("Z_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, logmax, 1, 0.7, 1.5);
   }
   else if(var_2_plot == "dimu_mass_truth_dressed"){
     if(make_log) logmax = 10000000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
+    chooseHistOptions("dimu_mass_truth_dressed", "m_{#mu#mu} [GeV] (truth dressed)","Events/2 GeV", 70, 110, 1, logmax, 1, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_match"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
+    chooseHistOptions("Z_mass_match", "m_{#mu#mu} [GeV] (matched reco)","Events/2 GeV", 70, 110, 1, logmax, 1, 0.7, 1.5);
   }
   else if(var_2_plot =="Z_mass_unmatch"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/2 GeV", 70, 110, 1, logmax, 4, 0.7, 1.5);
+    chooseHistOptions("Z_mass_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/2 GeV", 70, 110, 1, logmax, 1, 0.7, 1.5);
   }
   else if(var_2_plot == "Z_mass_migration"){
     isTruth = true;
     chooseHistOptions("Z_mass_migration","m_{#mu#mu} [GeV] (migration matrix)", "m_{#mu#mu} [GeV] (truth)",70,110,70,110,1,0.7,1.5);
   }
+  else if(var_2_plot == "Z_mass_MET_match"){
+    if(make_log) logmax = 50000000000;
+    else logmax = 4000;
+    isTruth = true;
+    chooseHistOptions("Z_mass_MET_match", "m_{#mu#mu} [GeV] (matched reco)","Events/2 GeV", 70, 110, 1, logmax, 1, 0.7, 1.5);
+  }
+  else if(var_2_plot =="Z_mass_MET_unmatch"){
+    if(make_log) logmax = 50000000000;
+    else logmax = 4000;
+    isTruth = true; 
+    chooseHistOptions("Z_mass_MET_unmatch", "m_{#mu#mu} [GeV] (unmatched reco)","Events/2 GeV", 70, 110, 1, logmax, 1, 0.7, 1.5);
+  }
+  else if(var_2_plot == "Z_mass_MET_migration"){
+    isTruth = true;
+    chooseHistOptions("Z_mass_MET_migration","m_{#mu#mu} [GeV] (migration matrix)", "m_{#mu#mu} [GeV] (truth)",70,110,70,110,1,0.7,1.5);
+  }
   else if(var_2_plot == "Z_y_truth_dressed"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
-    chooseHistOptions("Z_y_truth_dressed", "Z rapidity (truth dressed)", "Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_y_truth_dressed", "Z rapidity (truth dressed)", "Events/0.1", -3.5, 3.5, 1, logmax, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_y_match"){
     if(make_log) logmax = 50000000000;
     else logmax= 4000;
     isTruth = true;
-    chooseHistOptions("Z_y_match","Z rapidity (matched reco)","Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_y_match","Z rapidity (matched reco)","Events/0.1", -3.5, 3.5, 1, logmax, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_y_unmatch"){
     if(make_log) logmax = 50000000000;
     else logmax= 4000;
     isTruth = true;
-    chooseHistOptions("Z_y_unmatch","Z rapidity (unmatched reco)","Events/0.1", -3.5, 3.5, 1, logmax, 2, ratiomin, ratiomax);
+    chooseHistOptions("Z_y_unmatch","Z rapidity (unmatched reco)","Events/0.1", -3.5, 3.5, 1, logmax, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_y_migration"){
     isTruth = true;
@@ -359,19 +374,51 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_pt_truth_dressed"){
     isTruth = true;
-    chooseHistOptions("Z_pt_truth_dressed","Z p_{T} (truth dressed)", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_truth_dressed","Z p_{T} (truth dressed)", "Events/50 GeV", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_match"){
     isTruth = true;
-    chooseHistOptions("Z_pt_match","Z p_{T} (matched reco)", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_match","Z p_{T} (matched reco)", "Events/50 GeV", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_unmatch"){
     isTruth = true;
-    chooseHistOptions("Z_pt_unmatch","Z p_{T} (unmached reco)", "Events/50 GeV", 0., 800., 1, 100000000, 100, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_unmatch","Z p_{T} (unmached reco)", "Events/50 GeV", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_migration"){
     isTruth = true;
-    chooseHistOptions("Z_pt_migration","Z p_{T} (migration matrix)", "Events/50 GeV", 0., 800., 0., 800, 100, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_migration","Z p_{T} (migration matrix)", "Events/50 GeV", 0., 1000., 0., 1000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "n_jets_truth_dressed"){
+    isTruth = true;
+    chooseHistOptions("n_jets_truth_dressed","N jets truth","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "n_jets_tightmet_match"){
+    isTruth = true;
+    chooseHistOptions("n_jets_match","N jets match","Events", 0., 12., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "n_jets_tightmet_unmatch"){
+    isTruth = true;
+    chooseHistOptions("n_jets_unmatch","N jets unmatch","Events", 0., 12., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "n_jets_tightmet_migration"){
+    isTruth = true;
+    chooseHistOptions("n_jets_migration","N jets migration","Events", 0., 12., 0, 12., 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "leadjet_pt_truth_dressed"){
+    isTruth = true;
+    chooseHistOptions("leadjet_pt_truth_dressed","Truth leadjet pt","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "leadjet_pt_tightmet_match"){
+    isTruth = true;
+    chooseHistOptions("leadjet_pt_match","leadjet pt match", "Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "leadjet_pt_tightmet_unmatch"){
+    isTruth = true;
+    chooseHistOptions("leadjet_pt_unmatch","leadjet pt unmatch", "Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "leadjet_pt_tightmet_migration"){
+    isTruth = true;
+    chooseHistOptions("leadjet_pt_migration","leadjet pt migration","Events", 0., 1000., 1, 1000., 1, ratiomin, ratiomax);
   }
   else{
     cout << "This variable is not supported" << endl;
@@ -825,7 +872,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   string fname_tchan[2];
   string tchan_name;
   string tchan_cf_name;
-  for(int i=0; i<4; i++){
+  for(int i=0; i<2; i++){
     if(i==0) tchan_name = "tchanTopPythia_hists";
     else if(i==1) tchan_name = "tchanAntitopPythia_hists";
     tchan_cf_name = cutflow_h_path + tchan_name + ".root";
@@ -835,7 +882,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     ftchan[i] = TFile::Open(tchan_name.c_str(),"UPDATE");
     ftchan_cf[i] = TFile::Open(tchan_cf_name.c_str(),"UPDATE");
   }
-
+ 
   string mc_type_schan = "schan";
   const int n_files_schan = 1;
   TFile *fschan[1];
@@ -997,11 +1044,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_ZZ_sum        = add_histo(fZZ,n_files_ZZ,fname_ZZ,histo_name,ZZ_xsec,fZZ_cf,lumi,ZZ_process,x_min,x_max); 
 
 
+  Histogram h_zjets_sum = h_zmumu_sum.CloneHist();
+  h_zjets_sum.AddHist(h_zmumubb_sum);
+  h_zjets_sum.AddHist(h_zmumucc_sum);
+
   //  TH1D *h_wjets_sum = (TH1D*)h_wmunu_sum->Clone();
   Histogram h_wjets_sum = h_wmunu_sum.CloneHist();
   h_wjets_sum.AddHist(h_wcc_sum);
   h_wjets_sum.AddHist(h_wc_sum);
   h_wjets_sum.AddHist(h_wbb_sum);
+  h_wjets_sum.SetName("wjets_sum");
 
   Histogram h_diboson_sum = h_WW_sum.CloneHist();
   h_diboson_sum.AddHist(h_WZ_sum);
@@ -1058,7 +1110,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_zmumubb_sum.RebinHist(rebin);
     h_zmumucc_sum.RebinHist(rebin);
     h_ztautau_sum.RebinHist(rebin);
-    h_wjets_sum.RebinHist(rebin);
+    //    h_wjets_sum.RebinHist(rebin);
+    h_wmunu_sum.RebinHist(rebin);
+    h_wcc_sum.RebinHist(rebin);
+    h_wc_sum.RebinHist(rebin);
+    h_wbb_sum.RebinHist(rebin);
     h_ttbar_sum.RebinHist(rebin);
     h_tchan_sum.RebinHist(rebin);
     h_schan_sum.RebinHist(rebin);
@@ -1072,8 +1128,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_zmumu_sum.SetXRangeHist(x_min,x_max);
   h_zmumubb_sum.SetXRangeHist(x_min,x_max);
   h_zmumucc_sum.SetXRangeHist(x_min,x_max);
+  h_zjets_sum.SetXRangeHist(x_min,x_max);
   h_ztautau_sum.SetXRangeHist(x_min,x_max);
   h_wjets_sum.SetXRangeHist(x_min,x_max);
+  h_wmunu_sum.SetXRangeHist(x_min,x_max);
+  h_wcc_sum.SetXRangeHist(x_min,x_max);
+  h_wc_sum.SetXRangeHist(x_min,x_max);
+  h_wbb_sum.SetXRangeHist(x_min,x_max);
   h_ttbar_sum.SetXRangeHist(x_min,x_max);
   h_singletop_sum.SetXRangeHist(x_min,x_max);
   h_tchan_sum.SetXRangeHist(x_min,x_max);
@@ -1089,8 +1150,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_zmumu_sum.SetYRangeHist(y_min,y_max);
     h_zmumubb_sum.SetYRangeHist(y_min,y_max);
     h_zmumucc_sum.SetYRangeHist(y_min,y_max);
+    h_zjets_sum.SetYRangeHist(y_min,y_max);
     h_ztautau_sum.SetYRangeHist(y_min,y_max);
     h_wjets_sum.SetYRangeHist(y_min,y_max);
+    h_wmunu_sum.SetYRangeHist(y_min,y_max);
+    h_wcc_sum.SetYRangeHist(y_min,y_max);
+    h_wc_sum.SetYRangeHist(y_min,y_max);
+    h_wbb_sum.SetYRangeHist(y_min,y_max);
     h_ttbar_sum.SetYRangeHist(y_min,y_max);
     h_singletop_sum.SetYRangeHist(y_min,y_max);
     h_tchan_sum.SetYRangeHist(y_min,y_max);
@@ -1243,15 +1309,25 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     }
   }
 
+  //
+  h_wmunu_sum.SetName("wmunu_sum");
+  h_wcc_sum.SetName("wcc_sum");
+  h_wbb_sum.SetName("wbb_sum");
+  h_wc_sum.SetName("wc_sum");
+  h_zjets_sum.SetName("zjets_sum");
   //Save histograms separated by channel for unfolding code
   const int n_samples = 13;
-  Histogram sample_h[] = {h_zmumu_sherpa_sum,h_zmumu_sum,h_zmumubb_sum,h_zmumucc_sum,h_ztautau_sum,h_wjets_sum,h_ttbar_sum,h_tchan_sum,h_schan_sum,h_Wtchan_sum,h_WW_sum,h_WZ_sum,h_ZZ_sum};
+  Histogram sample_h[] = {h_zjets_sum,h_ztautau_sum,h_wmunu_sum,h_wbb_sum,h_wc_sum,h_wcc_sum,h_ttbar_sum,h_tchan_sum,h_schan_sum,h_Wtchan_sum,h_WW_sum,h_WZ_sum,h_ZZ_sum};
   string unfolding_name = "unfolding_preprocessed/"+var_2_plot;
   if(isShort) unfolding_name += "_short";
   unfolding_name += ".root";
   TFile *f_unfolding = TFile::Open(unfolding_name.c_str(),"RECREATE");
   for(int i = 0; i<n_samples; i++){
     sample_h[i].GetHist()->Write();
+  }
+  if(!isTruth){
+    h_data->SetName("data");
+    h_data->Write();
   }
   f_unfolding->Close();
 

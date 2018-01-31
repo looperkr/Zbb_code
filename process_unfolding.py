@@ -13,13 +13,13 @@ truth_distribution = truth_name[distribution]
 TH1.AddDirectory(0)
 
 sig_samples = ["zjets"]
-bkg_samples = ["ztautau","wmunu","wcc","wc","wbb","ttbar","tchan","schan","Wtchan","WW","WZ","ZZ"]
+bkg_samples = ["ztautau","wjets","ttbar","tchan","schan","Wtchan","WW","WZ","ZZ"]
 
 uf_distribution = distribution_dict[distribution]
 uf_sig_samples = ["Zmumujet_Alpgen"]
-uf_bkg_samples = ["Ztautau","WmunuL_Alpgen","WmunuCC_Alpgen","WmunuC_Alpgen","WmunuBB_Alpgen","ttbar","singletop_t","singletop_s","singletop_Wt","WW","WZ","ZZ"]
+uf_bkg_samples = ["Ztautaujet_Alpgen","Wmunujet_Alpgen","ttbar","singletop_t","singletop_s","singletop_Wt","diboson","diboson","diboson"] #file name
 uf_h_name_sig = "Z_Alpgen"
-uf_h_name_bkg = ["Ztautau","W_Alpgen","W_Alpgen","W_Alpgen","W_Alpgen","ttbar","stopt","stops","stopWt","WW","WZ","ZZ"]
+uf_h_name_bkg = ["Z_Alpgen","W_Alpgen","ttbar","stopt","stops","stopWt","WW","WZ","ZZ"] #histogram name (Ztautau is also Z_Alpgen)
 
 channel = "Mu"
 truth_channel = "dressedMu"
@@ -28,7 +28,6 @@ truth_region = "dressed"
 
 
 uf_hist_list = ["","_truth","_match","_unmatch","_migration"]
-
 
 
 gROOT.ProcessLine(".L analysis_plots.C+")
@@ -89,17 +88,18 @@ for k in range(0,len(bkg_samples)):
     h = f_reco.Get(sample_hist)
     if not h:
         print "Could not find histogram " + sample_hist + "in file " + bkg_var_f_name
-    uf_h_name = uf_h_name_bkg[k] + "_" +  channel + "_"
-    uf_h_name += uf_distribution
+    uf_h_name = uf_h_name_bkg[k] + "_" + channel + "_" + reco_region + "_" + uf_distribution
     h.SetName(uf_h_name)
     print uf_h_name
     uf_fname = "unfolding_inputs/hist-"+uf_bkg_samples[k]+".root"
+    print uf_fname
     uf_f = TFile(uf_fname,"UPDATE")
     h.Write()
     uf_f.Close()
 
 h_data = f_reco.Get("data")
-uf_h_name_data = "data"+channel+"_"+ uf_distribution
+uf_h_name_data = "data_"+channel+"_"+ reco_region + "_" + uf_distribution
+print uf_h_name_data
 h_data.SetName(uf_h_name_data)
 uf_fname_data = "unfolding_inputs/hist-data.root"
 uf_f_data = TFile(uf_fname_data,"UPDATE")

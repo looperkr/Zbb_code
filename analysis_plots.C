@@ -1058,6 +1058,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_diboson_sum = h_WW_sum.CloneHist();
   h_diboson_sum.AddHist(h_WZ_sum);
   h_diboson_sum.AddHist(h_ZZ_sum);
+  h_diboson_sum.SetName("diboson_sum");
 
   Histogram h_singletop_sum = h_tchan_sum.CloneHist();
   h_singletop_sum.AddHist(h_schan_sum);
@@ -1315,9 +1316,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_wbb_sum.SetName("wbb_sum");
   h_wc_sum.SetName("wc_sum");
   h_zjets_sum.SetName("zjets_sum");
+  h_wjets_sum.SetName("wjets_sum");
+  h_WW_sum.SetName("WW_sum");
+  h_WZ_sum.SetName("WZ_sum");
+  h_ZZ_sum.SetName("ZZ_sum");
   //Save histograms separated by channel for unfolding code
-  const int n_samples = 13;
-  Histogram sample_h[] = {h_zjets_sum,h_ztautau_sum,h_wmunu_sum,h_wbb_sum,h_wc_sum,h_wcc_sum,h_ttbar_sum,h_tchan_sum,h_schan_sum,h_Wtchan_sum,h_WW_sum,h_WZ_sum,h_ZZ_sum};
+  const int n_samples = 10;
+  Histogram sample_h[] = {h_zjets_sum,h_ztautau_sum,h_wjets_sum,h_ttbar_sum,h_tchan_sum,h_schan_sum,h_Wtchan_sum,h_WW_sum, h_WZ_sum, h_ZZ_sum};
   string unfolding_name = "unfolding_preprocessed/"+var_2_plot;
   if(isShort) unfolding_name += "_short";
   unfolding_name += ".root";

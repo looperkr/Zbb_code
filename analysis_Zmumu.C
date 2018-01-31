@@ -153,18 +153,25 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_MET_unmatch = new TH1D("Z_mass_MET_unmatch","Dimuon mass spectrum (no true Z in event)",20,70,110);
    h_Z_mass_MET_migration = new TH2D("Z_mass_MET_migration","Zll migration matrix",20,70,110,20,70,110);
 
-
    h_dressed_mu_Z_y = new TH1D("Z_y_truth_dressed","Z rapidity (dressed truth muons)",20,-3.5,3.5);
    h_Z_y_match = new TH1D("Z_y_match","Z rapidity (true Z in event)",20,-3.5,3.5);
    h_Z_y_unmatch = new TH1D("Z_y_unmatch","Z rapidity (no true Z in event)",20,-3.5,3.5);
    h_Z_y_migration = new TH2D("Z_y_migration","Z y migration matrix",20,-3.5,3.5,20,-3.5,3.5);
-   
+
+   h_Z_y_MET_match = new TH1D("Z_y_MET_match","Z rapidity (true Z in event)",20,-3.5,3.5);
+   h_Z_y_MET_unmatch = new TH1D("Z_y_MET_unmatch","Z rapidity (no true Z in event)",20,-3.5,3.5);
+   h_Z_y_MET_migration = new TH2D("Z_y_MET_migration","Z y migration matrix",20,-3.5,3.5,20,-3.5,3.5);   
+
    //   float VarBinPt_vec[22]={0, 5, 10, 15, 20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000};
    //const int VarBinPt_size = 21;
    h_dressed_mu_Z_pt = new TH1D("Z_pt_truth_dressed","Z pT (dressed truth muons)",VarBinPt_size,VarBinPt_vec);
    h_Z_pt_match = new TH1D("Z_pt_match","Z pT (true Z in event)",VarBinPt_size,VarBinPt_vec);
    h_Z_pt_unmatch = new TH1D("Z_pt_unmatch","Z pT (no true Z in event)",VarBinPt_size,VarBinPt_vec);
    h_Z_pt_migration = new TH2D("Z_pt_migration","Z pT migration matrix",VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
+
+   h_Z_pt_MET_match = new TH1D("Z_pt_MET_match","Z pT (true Z in event)",VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_MET_unmatch = new TH1D("Z_pt_MET_unmatch","Z pT (no true Z in event)",VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_MET_migration = new TH2D("Z_pt_MET_migration","Z pT migration matrix",VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -1377,9 +1384,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(isMC && passTruthSelections){
       h_Z_mass_MET_match->Fill(Zmass,weight);
       h_Z_mass_MET_migration->Fill(Zmass,dressed_Z_mass,weight);
+      h_Z_y_MET_match->Fill(Z_fourv.Rapidity(),weight);
+      h_Z_y_MET_migration->Fill(Z_fourv.Rapidity(),dressed_Z_y,weight);
+      h_Z_pt_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
+      h_Z_pt_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
     }
     else if(isMC){
       h_Z_mass_MET_unmatch->Fill(Zmass,weight);
+      h_Z_y_MET_unmatch->Fill(Z_fourv.Rapidity(),weight);
+      h_Z_pt_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
     }
     h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
     h_jet_n_MET->Fill(jet_v.size(),weight);
@@ -1446,6 +1459,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   }
 
+  
+  if(!met70) return kFALSE;
   //btag optimization   
 
   float mv1c_80_wp = 0.4051;
@@ -1463,6 +1478,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   upweight = weight;
   downweight = weight;
 
+  //Temporary placement, think harder about this 
+  if(!met70) return kFALSE;
   //testing data weights
   for(unsigned int i = 0; i < jet_v.size(); i++){
     
@@ -1635,7 +1652,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       h_Z_mass_2b->Fill(Zmass,weight);
     }
   }
-  if(!met70) return kFALSE;
+  //  if(!met70) return kFALSE;
   //re-sort b-jets by mv1c weight
   int s;
   pair<int,TLorentzVector> tmp_s;
@@ -1812,10 +1829,16 @@ void analysis_Zmumu::Terminate()
   h_Z_y_match->Write();
   h_Z_y_unmatch->Write();
   h_Z_y_migration->Write();
+  h_Z_y_MET_match->Write();
+  h_Z_y_MET_unmatch->Write();
+  h_Z_y_MET_migration->Write();
   h_dressed_mu_Z_pt->Write();
   h_Z_pt_match->Write();
   h_Z_pt_unmatch->Write();
   h_Z_pt_migration->Write();
+  h_Z_pt_MET_match->Write();
+  h_Z_pt_MET_unmatch->Write();
+  h_Z_pt_MET_migration->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();

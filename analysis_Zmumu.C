@@ -133,10 +133,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_pileup_avg_Zsel_norw = new TH1D("pileup_Z_avg_norw","average pileup (event with Z candidate)",5000,0.,50.);
 
    //truth test histograms
-   h_n_jets_truth = new TH1D("n_jets_truth_dressed","Truth jet multiplicity",12,0,12);
-   h_n_jets_match = new TH1D("n_jets_match", "N jets(truth matched)",12,0,12);
-   h_n_jets_unmatch = new TH1D("n_jets_unmatch", "N jets (unmatched)",12,0,12);
-   h_n_jets_migration = new TH2D("n_jets_migration","N jets (migration matrix)",12,0,12,12,0,12);
+   h_n_jets_truth = new TH1D("n_jets_truth_dressed","Truth jet multiplicity",8,-0.5,7.5);
+   h_n_jets_match = new TH1D("n_jets_match", "N jets(truth matched)",8,-0.5,7.5);
+   h_n_jets_unmatch = new TH1D("n_jets_unmatch", "N jets (unmatched)",8,-0.5,7.5);
+   h_n_jets_migration = new TH2D("n_jets_migration","N jets (migration matrix)",8,-0.5,7.5,8,-0.5,7.5);
 
    h_leadjet_pt_truth = new TH1D("leadjet_pt_truth_dressed","Leading jet pT (truth)",VarBinPt_size, VarBinPt_vec);
    h_leadjet_pt_match = new TH1D("leadjet_pt_match","Leading jet pT (matched)",VarBinPt_size, VarBinPt_vec);
@@ -228,7 +228,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_4j_tighteta_MET = new TH1D("Z_mass_4j_tighteta_MET","Dimuon mass, >= 4j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
    h_Z_mass_5j_tighteta_MET = new TH1D("Z_mass_5j_tighteta_MET","Dimuon mass, >= 5j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
 
-   h_jet_n_MET = new TH1D("jet_n_MET","N_jets after MET cut",12,0,12);
+   h_jet_n_MET = new TH1D("jet_n_MET","N_jets after MET cut",8,-0.5,7.5);
    h_jet_pt_MET = new TH1D("jet_pt_MET","jet pT after MET cut",4000,0,2000);
    h_jet_y_MET = new TH1D("jet_y_MET","jet rapidity after MET cut",120,-6,6);
    h_jet_st_MET = new TH1D("jet_st_MET","ST after MET cut",4000,0,2000);
@@ -239,7 +239,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_subjet_y_MET = new TH1D("jet_y_sublead_MET","subleading jet y after MET",240,-6,6);
    h_dijet_m_MET = new TH1D("dijet_m_MET","Dijet mass after MET cut",4000,0,2000);
 
-   h_jet_n_tighteta_MET = new TH1D("jet_n_tighteta_MET","number of jets per event (|#eta| < 2.4) after MET cut",12,0,12);
+   h_jet_n_tighteta_MET = new TH1D("jet_n_tighteta_MET","number of jets per event (|#eta| < 2.4) after MET cut",8,-0.5,7.5);
    h_jet_pt_tighteta_MET = new TH1D("jet_pt_tighteta_MET","jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
    h_jet_y_tighteta_MET = new TH1D("jet_y_tighteta_MET","jet rapidity (|#eta| < 2.4) after MET cut",120,-6,6);
    h_jet_st_tighteta_MET = new TH1D("jet_st_tighteta_MET","ST (|#eta| < 2.4) after MET cut",4000,0,2000);

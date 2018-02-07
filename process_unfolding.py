@@ -2,10 +2,11 @@ from ROOT import TFile, TH1D, TH2D, gROOT, TH1
 import os,sys
 
 #Dictionary stores list with ["distributionname",min,max,binning]
+fill_empty = True #Creates empty background histograms for testing
 
-distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Y","Z_pt":"Pt_nomet","Z_y":"Y_nomet","n_jets_tightmet":"nJetsInBTagAccept_ex", "leadjet_pt_tightmet":"bTagAcceptance_leadJet_Pt"}
+distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Z_Y","Z_pt":"Pt_nomet","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx"} #map my_names -> unfolding_names
 truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":"Z_pt", "Z_y":"Z_y", "Z_y_MET":"Z_y",
-              "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt"}
+              "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt"} #map reco distribution -> truth distribution
 
 distribution = sys.argv[1]
 truth_distribution = truth_name[distribution]
@@ -94,7 +95,12 @@ for k in range(0,len(bkg_samples)):
     uf_fname = "unfolding_inputs/hist-"+uf_bkg_samples[k]+".root"
     print uf_fname
     uf_f = TFile(uf_fname,"UPDATE")
-    h.Write()
+    if fill_empty:
+        h_empty = h.Clone(uf_h_name)
+        h_empty.Reset("M")
+        h_empty.Write()
+    else:
+        h.Write()
     uf_f.Close()
 
 h_data = f_reco.Get("data")

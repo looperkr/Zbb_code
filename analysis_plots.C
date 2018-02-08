@@ -350,7 +350,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     isTruth = true;
     chooseHistOptions("Z_mass_MET_migration","m_{#mu#mu} [GeV] (migration matrix)", "m_{#mu#mu} [GeV] (truth)",70,110,70,110,1,0.7,1.5);
   }
-  else if(var_2_plot == "Z_y_truth_dressed"){
+  else if(var_2_plot == "Z_y_truth"){
     if(make_log) logmax = 50000000000;
     else logmax = 4000;
     isTruth = true;
@@ -388,9 +388,28 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     isTruth = true;
     chooseHistOptions("Z_pt_migration","Z p_{T} (migration matrix)", "Events/50 GeV", 0., 1000., 0., 1000, 1, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "n_jets_truth_dressed"){
+  else if(var_2_plot == "Z_pt_1j"){
+    chooseHistOptions("Z_pt_1j","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_truth"){
     isTruth = true;
-    chooseHistOptions("n_jets_truth_dressed","N jets truth","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_truth","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_match"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_match","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_unmatch"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_unmatch","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_migration"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_migration","Z p_{T}, >= 1j","Events", 0., 1000., 0., 1000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "n_jets_truth"){
+    isTruth = true;
+    chooseHistOptions("n_jets_truth_dressed","N jets truth","Events", 0., 12., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_tightmet_match"){
     isTruth = true;

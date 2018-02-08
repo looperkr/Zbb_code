@@ -4,9 +4,9 @@ import os,sys
 #Dictionary stores list with ["distributionname",min,max,binning]
 fill_empty = True #Creates empty background histograms for testing
 
-distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Z_Y","Z_pt":"Pt_nomet","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx"} #map my_names -> unfolding_names
+distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Z_Y","Z_pt":"Pt_nomet","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt"} #map my_names -> unfolding_names
 truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":"Z_pt", "Z_y":"Z_y", "Z_y_MET":"Z_y",
-              "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt"} #map reco distribution -> truth distribution
+              "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt","Z_pt_1j":"Z_pt_1j"} #map reco distribution -> truth distribution
 
 distribution = sys.argv[1]
 truth_distribution = truth_name[distribution]

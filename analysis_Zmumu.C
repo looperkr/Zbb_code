@@ -47,7 +47,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
@@ -173,6 +173,12 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_MET_unmatch = new TH1D("Z_pt_MET_unmatch","Z pT (no true Z in event)",VarBinPt_size,VarBinPt_vec);
    h_Z_pt_MET_migration = new TH2D("Z_pt_MET_migration","Z pT migration matrix",VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
 
+   h_Z_pt_1j_tighteta_truth = new TH1D("Z_pt_1j_truth","Z pT (truth level), >= 1j", VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_1j_tighteta_MET_match = new TH1D("Z_pt_1j_match","Z pT (true Z in event), >= 1j",VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_1j_tighteta_MET_unmatch = new TH1D("Z_pt_1j_unmatch","Z pT (no true Z in event or no jet), >= 1j", VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_1j_tighteta_MET_migration = new TH2D("Z_pt_1j_migration","Z pT >= 1j migration matrix", VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
+   h_Z_pt_1j_tighteta_MET = new TH1D("Z_pt_1j","Z pT >= 1j", VarBinPt_size, VarBinPt_vec);
+
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
    h_jet_n = new TH1D("jet_n","number of jets per event",15,0,15);  
@@ -227,6 +233,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_mass_3j_tighteta_MET = new TH1D("Z_mass_3j_tighteta_MET","Dimuon mass, >= 3j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
    h_Z_mass_4j_tighteta_MET = new TH1D("Z_mass_4j_tighteta_MET","Dimuon mass, >= 4j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
    h_Z_mass_5j_tighteta_MET = new TH1D("Z_mass_5j_tighteta_MET","Dimuon mass, >= 5j, after MET cut (jet |#eta| < 2.4)",4000,0,2000);
+
 
    h_jet_n_MET = new TH1D("jet_n_MET","N_jets after MET cut",8,-0.5,7.5);
    h_jet_pt_MET = new TH1D("jet_pt_MET","jet pT after MET cut",4000,0,2000);
@@ -460,6 +467,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   //truth vectors and objects
   passTruthSelections = false;
+  passJetTruthSelections = false; //truth jet in tracking volume in event
   dressed_Z_mass = 0.;
   dressed_Z_y = 0.;
   dressed_Z_pt = 0.;
@@ -564,9 +572,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
         if(dressed_Z_mass > 76. && dressed_Z_mass < 106.){
           passTruthSelections = true;
           getTruthJets(v_dressedMuons,v_truthJets);
+	  if(v_truthJets.size() > 0) passJetTruthSelections = true;
           h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
           h_n_jets_truth->Fill(v_truthJets.size(),weight);
-	  if(v_truthJets.size() > 0)  h_leadjet_pt_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
+	  if(passJetTruthSelections){
+	    h_leadjet_pt_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
+	    h_Z_pt_1j_tighteta_truth->Fill(dressed_Z_pt,weight);
+	  }
 	  h_dressed_mu_Z_y->Fill(dressed_Z_y,weight);
 	  h_dressed_mu_Z_pt->Fill(dressed_Z_pt,weight);
         }
@@ -1427,11 +1439,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	if(jet_v_tight.size() > 0 && v_truthJets.size() > 0){
 	  h_leadjet_pt_match->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
 	  h_leadjet_pt_migration->Fill(jet_v_tight[0].second.Pt()/1000.,v_truthJets[0].second.Pt()/1000.,weight);
+	  h_Z_pt_1j_tighteta_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
+	  h_Z_pt_1j_tighteta_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
 	}
       }
       else{
 	h_n_jets_unmatch->Fill(jet_v_tight.size(),weight);
-	if(jet_v_tight.size() > 0) h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+	if(jet_v_tight.size() > 0){
+	  h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+	  h_Z_pt_1j_tighteta_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+	}
       }
     }
     for(unsigned int i = 0; i < jet_v_tight.size(); i++){
@@ -1839,6 +1856,11 @@ void analysis_Zmumu::Terminate()
   h_Z_pt_MET_match->Write();
   h_Z_pt_MET_unmatch->Write();
   h_Z_pt_MET_migration->Write();
+  h_Z_pt_1j_tighteta_truth->Write();
+  h_Z_pt_1j_tighteta_MET_match->Write();
+  h_Z_pt_1j_tighteta_MET_unmatch->Write();
+  h_Z_pt_1j_tighteta_MET_migration->Write();
+  h_Z_pt_1j_tighteta_MET->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();

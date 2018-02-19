@@ -291,6 +291,21 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     isTruth = true;
     chooseHistOptions("mv1cweight_bottom_had_match_down","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "Z_ptmv1c_light_jets_hmatch"){
+    isTruth = true;
+    chooseHistOptions("Zpt_mv1c_light_had_match","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Z_ptmv1c_charm_jets_hmatch"){
+    isTruth = true;
+    chooseHistOptions("Zpt_mv1c_charm_had_match","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+}
+  else if(var_2_plot == "Z_ptmv1c_bottom_jets_hmatch"){
+    isTruth = true;
+    chooseHistOptions("Zpt_mv1c_bottom_had_match","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+}
+  else if(var_2_plot == "Z_ptmv1c"){
+    chooseHistOptions("Zpt_mv1c","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+  }
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 50000000000;
     else logmax = 700000;

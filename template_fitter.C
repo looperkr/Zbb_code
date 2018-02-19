@@ -33,7 +33,7 @@ void create_dir(string & plots_path, string & plots_dir){
 }
 
 
-void template_fitter(string kin_variable = "Zpt", bool isPrefit = false, bool isSherpa=false){
+void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
   using namespace RooFit;
 
   bool isStack = true;
@@ -236,8 +236,8 @@ void template_fitter(string kin_variable = "Zpt", bool isPrefit = false, bool is
     }
   } //end bin loop
 
-  string f_frac_fname = "flavor_fractions/" kin_variable + "_ffrac.root";
-  TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"RECREATE");
+  string f_frac_fname = "flavor_fractions/ffrac.root";
+  TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"UPDATE");
   h_bfrac->Write();
   h_cfrac->Write();
   h_lfrac->Write();

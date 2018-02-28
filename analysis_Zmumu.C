@@ -47,9 +47,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -179,6 +179,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_1j_tighteta_MET_migration = new TH2D("Z_pt_1j_migration","Z pT >= 1j migration matrix", VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
    h_Z_pt_1j_tighteta_MET = new TH1D("Z_pt_1j","Z pT >= 1j", VarBinPt_size, VarBinPt_vec);
 
+
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
    h_jet_n = new TH1D("jet_n","number of jets per event",15,0,15);  
@@ -295,6 +296,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_bottom_had_match_up = new TH1D("mv1cweight_bottom_had_match_up","mv1c weight (bottom)", 5, tagging_bins);
    h_mv1cweight_bottom_had_match_down = new TH1D("mv1cweight_bottom_had_match_down","mv1c weight (bottom)", 5, tagging_bins);
 
+   h_mv1cweight_light_had_match_ptbinned = new TH2D("mv1cweight_light_had_match_ptbinned","mv1c weight (light)",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
+   h_mv1cweight_charm_had_match_ptbinned = new TH2D("mv1cweight_charm_had_match_ptbinned","mv1c weight (charm)",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
+   h_mv1cweight_bottom_had_match_ptbinned = new TH2D("mv1cweight_bottom_had_match_ptbinned","mv1c weight (bottom)",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
+   h_mv1cweight_ptbinned = new TH2D("mv1cweight_ptbinned","mv1cweight",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
    h_bjet_pt = new TH1D("bjet_pt","b-tagged jet pT",4000,0,2000);
@@ -1461,6 +1466,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       h_jet_st_tighteta_MET->Fill(st_tight/1000.,weight);
       h_jet_mu_ht_tighteta_MET->Fill(ht_tight/1000.,weight);
       h_Z_mass_1j_tighteta_MET->Fill(Zmass,weight);
+      h_Z_pt_1j_tighteta_MET->Fill(Z_fourv.Pt()/1000.,weight);
       event_counter++;
     }
     if(jet_v_tight.size() > 1){
@@ -1568,6 +1574,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     mv1cweight = jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v_tight[i].first);
     h_mv1weight->Fill(mv1weight,weight);
     h_mv1cweight->Fill(mv1cweight,weight);
+    if(jet_v_tight.size()>0){
+      h_mv1cweight_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+    }
     h_mv1cweight_binned->Fill(mv1cweight,weight);
     if(isMC){
       switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
@@ -1598,11 +1607,17 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  h_mv1cweight_bottom_had_match->Fill(mv1cweight,weight);
 	  h_mv1cweight_bottom_had_match_up->Fill(mv1cweight,upweight);
 	  h_mv1cweight_bottom_had_match_down->Fill(mv1cweight,downweight);
+	  if(jet_v_tight.size()>0){
+	    h_mv1cweight_bottom_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+          }
 	  break;
 	case 4:
 	  h_mv1cweight_charm_had_match->Fill(mv1cweight,weight);
 	  h_mv1cweight_charm_had_match_up->Fill(mv1cweight,upweight);
 	  h_mv1cweight_charm_had_match_down->Fill(mv1cweight,downweight);
+          if(jet_v_tight.size()>0&&met70){
+	    h_mv1cweight_charm_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+          }
 	  break;
 	case 15:
 	  break;
@@ -1610,6 +1625,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  h_mv1cweight_light_had_match->Fill(mv1cweight,weight);
 	  h_mv1cweight_light_had_match_up->Fill(mv1weight,upweight);
 	  h_mv1cweight_light_had_match_down->Fill(mv1cweight,downweight);
+	  if(jet_v_tight.size()>0){
+	    h_mv1cweight_light_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+          }
 	}
       }
     }
@@ -1897,6 +1915,7 @@ void analysis_Zmumu::Terminate()
   h_dijet_deta_tighteta->Write();
   h_mv1weight->Write();
   h_mv1cweight->Write();
+  h_mv1cweight_ptbinned->Write();
   h_mv1cweight_binned->Write();
   h_mv1cweight_bottom->Write();
   h_mv1cweight_bottom_up->Write();
@@ -1916,6 +1935,9 @@ void analysis_Zmumu::Terminate()
   h_mv1cweight_light_had_match->Write();
   h_mv1cweight_light_had_match_up->Write();
   h_mv1cweight_light_had_match_down->Write();
+  h_mv1cweight_light_had_match_ptbinned->Write();
+  h_mv1cweight_charm_had_match_ptbinned->Write();
+  h_mv1cweight_bottom_had_match_ptbinned->Write();
 
   h_Z_mass_0j->Write();
   h_Z_mass_1j->Write();

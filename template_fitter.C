@@ -32,6 +32,11 @@ void create_dir(string & plots_path, string & plots_dir){
   }
 }
 
+string NumToStr(int number_val){
+  ostringstream ss;
+  ss << number_val;
+  return ss.str();
+}
 
 void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
   using namespace RooFit;
@@ -42,9 +47,10 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
   string charm_f = hist_dir + kin_variable + "mv1c_charm_jets_hmatch.root";
   string bottom_f = hist_dir + kin_variable + "mv1c_bottom_jets_hmatch.root";
-  string hist_name_l = "light_jets_hmatch";
-  string hist_name_c = "charm_jets_hmatch";
-  string hist_name_b = "bottom_jets_hmatch";
+  string hist_name_l = kin_variable + "mv1c_light_jets_hmatch";
+  string hist_name_c = kin_variable + "mv1c_charm_jets_hmatch";
+  string hist_name_b = kin_variable + "mv1c_bottom_jets_hmatch";
+
 
   string histlabel = "_mc";
   if(isSherpa) histlabel = "_sherpa";
@@ -55,7 +61,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
   
-  string data_hist_name = kin_variable + "mv1c";
+  // temp change, until I have MC versions of mv1cpt
+  //  string data_hist_name = kin_variable + "mv1c";
+  string data_hist_name = "mv1cweight_ptbinned";
 
   TFile *flight = TFile::Open(light_f.c_str(),"READ");
   TFile *fcharm = TFile::Open(charm_f.c_str(),"READ");
@@ -63,9 +71,12 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
   TFile *f_data = TFile::Open(data_f.c_str(),"READ");
 
+  cout << "file name: " << light_f << endl;
+  cout << "hist name: " << hist_name_l << endl;
   TH2D *hlight_2D = (TH2D*)flight->Get(hist_name_l.c_str());
   TH2D *hcharm_2D = (TH2D*)fcharm->Get(hist_name_c.c_str());
   TH2D *hbottom_2D = (TH2D*)fbottom->Get(hist_name_b.c_str());
+
   TH2D *hdata_2D = (TH2D*)f_data->Get(data_hist_name.c_str());
 
   
@@ -76,7 +87,14 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   TH2D *h_cfrac;
   TH2D *h_lfrac;
 
+  int nXbins = hdata_2D->GetNbinsX();
+  const Double_t *varbin_array = y_axis_kinvar->GetXbins()->GetArray();
+
+  bool isVarBinned = true;
+
   if(y_axis_kinvar->GetXbins()->GetSize() == 0){
+    isVarBinned = false;
+
     double y_min_kinvar = y_axis_kinvar->GetXmin();
     double y_max_kinvar = y_axis_kinvar->GetXmax();
     double n_bins_kinvar = y_axis_kinvar->GetNbins();
@@ -86,15 +104,25 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);
   }
   else{
-    h_bfrac = new TH2D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),1,0,1,y_axis_kinvar->GetNbinsX(),y_axis_kinvar->GetXbins());
-    h_cfrac = new TH2D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),1,0,1,y_axis_kinvar->GetNbinsX(),y_axis_kinvar->GetXbins());
-    h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);
+    h_testb = new TH2D("test","test",1,0,1,nXbins,varbin_array);
+    h_bfrac = new TH2D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),1,0,1,nXbins,varbin_array);
+    h_cfrac = new TH2D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),1,0,1,nXbins,varbin_array);
+    h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,nXbins,varbin_array);
   }
 
+  //For plot range, may readjust dynamically later
+  double y_min = 10.;
+  double y_max = 1500000;
+
+  //fit status log
+  std::ofstream fit_log("fitstatuslog.txt");
 
   //begin loop over kinematic variable
-  n_kinbins = hdata_2D->GetNbinsY();
+  int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
+    cout << "BEGIN LOOP " << bin_i << "OF " << n_kinbins << endl;
+    cout << "###############################################" << endl;
+
     TH1D *hlight = hlight_2D->ProjectionX("light_px", bin_i, bin_i);
     TH1D *hcharm = hcharm_2D->ProjectionX("charm_px", bin_i, bin_i);
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);
@@ -104,6 +132,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     Int_t Ncharm = hcharm->Integral();
     Int_t Nbottom = hbottom->Integral();
     Int_t Ndata = hdata->Integral();
+
+    if(Ndata == 0){
+      cout << "EMPTY DATA HISTOGRAM, SKIP!" << endl;
+      continue;
+    }
 
     RooRealVar x("x","MV1c weight",0.,1.);
   
@@ -124,6 +157,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     RooPlot* xframe = x.frame();
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 
+    RooFit::Minimizer("Minuit2");
     RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
     double b_result = frbottom.getVal();
     double c_result = frcharm.getVal();
@@ -148,6 +182,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     xframe->getAttLine()->SetLineWidth(0);
     xframe->getAttFill()->SetFillStyle(0);
 
+    Int_t fit_status = fitres.status();
+    fit_log << "Bin " << NumToStr(bin_i) << ": " << NumToStr(fit_status) << endl;
+
     if(!isPrefit){
       hbottom->Scale(Ndata*b_result/Nbottom);
       hcharm->Scale(Ndata*c_result/Ncharm);
@@ -167,9 +204,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
     string x_label = "MV1c weight";
     string y_label = "Events";
+    string data_label = "Data (#events = " + NumToStr(Ndata) + ")";
 
     hdata->GetXaxis()->SetTitle(x_label.c_str());
     hdata->GetYaxis()->SetTitle(y_label.c_str());
+
 
     if(!isStack){
       hbottom->SetLineColor(kGreen);
@@ -186,7 +225,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       hcharm->Draw("hist same");
       hlight->Draw("hist same");
       
-      leg->AddEntry(hdata,"Data","lp");
+      leg->AddEntry(hdata,data_label.c_str(),"lp");
       leg->AddEntry(final_sum,"fit result","l");
       leg->AddEntry(hbottom,"bottom","l");
       leg->AddEntry(hcharm,"charm","l");
@@ -205,8 +244,10 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       mc_stack->Add(hcharm);
       mc_stack->Add(hlight);
       
-      mc_stack->SetMinimum(5000);
-      
+      //      mc_stack->SetMinimum(5000);
+      mc_stack->SetMinimum(y_min);
+      mc_stack->SetMaximum(y_max);
+
       mc_stack->Draw("hist");
       hdata->Draw("p same");
       
@@ -214,7 +255,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       mc_stack->GetXaxis()->SetTitle("MV1c weight");
       c1->Modified();
       
-      leg->AddEntry(hdata,"Data","lp");
+      leg->AddEntry(hdata,data_label.c_str(),"lp");
       leg->AddEntry(hbottom,"bottom","f");
       leg->AddEntry(hcharm,"charm","f");
       leg->AddEntry(hlight,"light","f");
@@ -227,7 +268,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       create_dir(plt_path,plt_dir);
 
       cout << hdata << endl;
-      string img_name = plt_dir + "/" + "template_text";
+      double low_edge = varbin_array[bin_i-1];
+      double high_edge = varbin_array[bin_i];
+      cout << "low edge: " << low_edge << endl;
+      cout << "high edge: " << high_edge << endl;
+      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
       else img_name += ".pdf";
@@ -236,10 +281,13 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     }
   } //end bin loop
 
+  fit_log.close();
+  cout << "Write flavor fractions" << endl;
   string f_frac_fname = "flavor_fractions/ffrac.root";
   TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"UPDATE");
   h_bfrac->Write();
   h_cfrac->Write();
   h_lfrac->Write();
+
 
 }

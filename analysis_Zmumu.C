@@ -47,9 +47,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -84,6 +84,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    eventcheckcut = -1;
    float VarBinPt_vec[22]={0, 5, 10, 15, 20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000};
    const int VarBinPt_size = 21;
+   //   float VarBinPt_new_vec[19] = {0,10,15,20,25,32,40,50,64,80,100,125,160,200,250,320,400,800,1000};
+   //   const int VarBinPt_new_size = 18;
+   float VarBinPt_new_vec[22] = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,160,180,210,250,310,400,800};
+   const int VarBinPt_new_size = 21;
    h_good_zeroweight_events = new TH1D("good_zeroweight_events","good_zeroweight_events",1,0,1);
    h_good_zeroweight_events_pw = new TH1D("good_zeroweight_events_pw","good_zeroweight_events_pw",1,0,1);
    h_triggerSF_size = new TH1D("triggerSF","triggerSF",20000,0,5);
@@ -162,22 +166,21 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_y_MET_unmatch = new TH1D("Z_y_MET_unmatch","Z rapidity (no true Z in event)",20,-3.5,3.5);
    h_Z_y_MET_migration = new TH2D("Z_y_MET_migration","Z y migration matrix",20,-3.5,3.5,20,-3.5,3.5);   
 
-   //   float VarBinPt_vec[22]={0, 5, 10, 15, 20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000};
-   //const int VarBinPt_size = 21;
-   h_dressed_mu_Z_pt = new TH1D("Z_pt_truth_dressed","Z pT (dressed truth muons)",VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_match = new TH1D("Z_pt_match","Z pT (true Z in event)",VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_unmatch = new TH1D("Z_pt_unmatch","Z pT (no true Z in event)",VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_migration = new TH2D("Z_pt_migration","Z pT migration matrix",VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
+   h_dressed_mu_Z_pt = new TH1D("Z_pt_truth_dressed","Z pT (dressed truth muons)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_match = new TH1D("Z_pt_match","Z pT (true Z in event)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_unmatch = new TH1D("Z_pt_unmatch","Z pT (no true Z in event)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_migration = new TH2D("Z_pt_migration","Z pT migration matrix",VarBinPt_new_size,VarBinPt_new_vec,VarBinPt_new_size,VarBinPt_new_vec);
 
-   h_Z_pt_MET_match = new TH1D("Z_pt_MET_match","Z pT (true Z in event)",VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_MET_unmatch = new TH1D("Z_pt_MET_unmatch","Z pT (no true Z in event)",VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_MET_migration = new TH2D("Z_pt_MET_migration","Z pT migration matrix",VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
 
-   h_Z_pt_1j_tighteta_truth = new TH1D("Z_pt_1j_truth","Z pT (truth level), >= 1j", VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_1j_tighteta_MET_match = new TH1D("Z_pt_1j_match","Z pT (true Z in event), >= 1j",VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_1j_tighteta_MET_unmatch = new TH1D("Z_pt_1j_unmatch","Z pT (no true Z in event or no jet), >= 1j", VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_1j_tighteta_MET_migration = new TH2D("Z_pt_1j_migration","Z pT >= 1j migration matrix", VarBinPt_size,VarBinPt_vec,VarBinPt_size,VarBinPt_vec);
-   h_Z_pt_1j_tighteta_MET = new TH1D("Z_pt_1j","Z pT >= 1j", VarBinPt_size, VarBinPt_vec);
+   h_Z_pt_MET_match = new TH1D("Z_pt_MET_match","Z pT (true Z in event)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_MET_unmatch = new TH1D("Z_pt_MET_unmatch","Z pT (no true Z in event)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_MET_migration = new TH2D("Z_pt_MET_migration","Z pT migration matrix",VarBinPt_new_size,VarBinPt_new_vec,VarBinPt_new_size,VarBinPt_new_vec);
+
+   h_Z_pt_1j_tighteta_truth = new TH1D("Z_pt_1j_truth","Z pT (truth level), >= 1j", VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_MET_match = new TH1D("Z_pt_1j_match","Z pT (true Z in event), >= 1j",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_MET_unmatch = new TH1D("Z_pt_1j_unmatch","Z pT (no true Z in event or no jet), >= 1j", VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_MET_migration = new TH2D("Z_pt_1j_migration","Z pT >= 1j migration matrix", VarBinPt_new_size,VarBinPt_new_vec,VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_MET = new TH1D("Z_pt_1j","Z pT >= 1j", VarBinPt_new_size, VarBinPt_new_vec);
 
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
@@ -253,7 +256,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_jet_st_tighteta_MET = new TH1D("jet_st_tighteta_MET","ST (|#eta| < 2.4) after MET cut",4000,0,2000);
    h_jet_mu_ht_tighteta_MET = new TH1D("jet_mu_ht_tighteta_MET","HT (|#eta| < 2.4) after MET cut",4000,0,2000);
    //   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
-   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",VarBinPt_size, VarBinPt_vec);
+   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",VarBinPt_new_size, VarBinPt_new_vec);
    h_leadjet_y_tighteta_MET = new TH1D("jet_y_lead_tighteta_MET","leading jet y (|#eta| < 2.4) after MET cut",240,-6,6);
    h_subjet_pt_tighteta_MET = new TH1D("jet_pt_sublead_tighteta_MET","subleading jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
    h_subjet_y_tighteta_MET = new TH1D("jet_y_sublead_tighteta_MET","subleading jet y (|#eta| < 2.4) after MET cut",240,-6,6);
@@ -296,10 +299,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_bottom_had_match_up = new TH1D("mv1cweight_bottom_had_match_up","mv1c weight (bottom)", 5, tagging_bins);
    h_mv1cweight_bottom_had_match_down = new TH1D("mv1cweight_bottom_had_match_down","mv1c weight (bottom)", 5, tagging_bins);
 
-   h_mv1cweight_light_had_match_ptbinned = new TH2D("mv1cweight_light_had_match_ptbinned","mv1c weight (light)",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
-   h_mv1cweight_charm_had_match_ptbinned = new TH2D("mv1cweight_charm_had_match_ptbinned","mv1c weight (charm)",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
-   h_mv1cweight_bottom_had_match_ptbinned = new TH2D("mv1cweight_bottom_had_match_ptbinned","mv1c weight (bottom)",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
-   h_mv1cweight_ptbinned = new TH2D("mv1cweight_ptbinned","mv1cweight",5,tagging_bins,VarBinPt_size,VarBinPt_vec);
+   h_mv1cweight_light_had_match_ptbinned = new TH2D("mv1cweight_light_had_match_ptbinned","mv1c weight (light)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
+   h_mv1cweight_charm_had_match_ptbinned = new TH2D("mv1cweight_charm_had_match_ptbinned","mv1c weight (charm)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
+   h_mv1cweight_bottom_had_match_ptbinned = new TH2D("mv1cweight_bottom_had_match_ptbinned","mv1c weight (bottom)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
+   h_mv1cweight_ptbinned = new TH2D("mv1cweight_ptbinned","mv1cweight",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
 
    h_bjet_n = new TH1D("bjet_n","Number of b-tagged jets",12,0,12);
    h_bjet_pt = new TH1D("bjet_pt","b-tagged jet pT",4000,0,2000);

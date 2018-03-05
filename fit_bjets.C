@@ -7,9 +7,12 @@ void fit_bjets(){
   gROOT->LoadMacro("AtlasUtils.C");
   gROOT->LoadMacro("AtlasLabels.C");
 
-  bool isHadMatched = false;
+  bool isHadMatched = true;
 
-  string hist_name = "zmumu_sum";
+  string hist_name_l = "light_jets_hmatch_mc";
+  string hist_name_c = "charm_jets_hmatch_mc";
+  string hist_name_b = "bottom_jets_hmatch_mc";
+
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
 
   string light_f = hist_dir + "light_jets";
@@ -37,9 +40,9 @@ void fit_bjets(){
 
   TFile *f_data = TFile::Open(data_f.c_str(),"READ");
 
-  TH1D *h0 = (TH1D*)f0->Get(hist_name.c_str());
-  TH1D *h1 = (TH1D*)f1->Get(hist_name.c_str());
-  TH1D *h2 = (TH1D*)f2->Get(hist_name.c_str());
+  TH1D *h0 = (TH1D*)f0->Get(hist_name_l.c_str());
+  TH1D *h1 = (TH1D*)f1->Get(hist_name_c.c_str());
+  TH1D *h2 = (TH1D*)f2->Get(hist_name_b.c_str());
   TH1D *data = (TH1D*)f_data->Get(data_hist_name.c_str());  
 
 
@@ -79,6 +82,11 @@ void fit_bjets(){
   Double_t p0, p1, p2, errP0, errP1, errP2;
   if (status == 0){
     TH1F* result = (TH1F*) fit->GetPlot();
+
+    double chi2 = fit->GetChisquare();
+    double ndf = fit->GetNDF();
+    double chi2_ndf = chi2/ndf;
+    cout << "CHI 2 = " <<  chi2_ndf << endl;
 
     mcp0 = (TH1F*)fit->GetMCPrediction(0);
     mcp1 = (TH1F*)fit->GetMCPrediction(1);

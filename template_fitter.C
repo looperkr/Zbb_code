@@ -128,6 +128,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);
     TH1D *hdata = hdata_2D->ProjectionX("data_px", bin_i, bin_i);
 
+    hlight->Sumw2();
+    hcharm->Sumw2();
+    hbottom->Sumw2();
+    hdata->Sumw2();
+
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();
     Int_t Nbottom = hbottom->Integral();
@@ -157,6 +162,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     RooPlot* xframe = x.frame();
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 
+
     RooFit::Minimizer("Minuit2");
     RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
     double b_result = frbottom.getVal();
@@ -167,7 +173,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     h_cfrac->SetBinContent(1,bin_i,c_result);
     h_lfrac->SetBinContent(1,bin_i,l_result);
 
-    /*
+    //begin old comment
       xframe->SetMaximum(2000);
       xframe->SetMinimum(0);
       data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
@@ -175,14 +181,19 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
       template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
       template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
-    */
+      //end old comment
     //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
     template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
     xframe->getAttText()->SetTextSize(0.03);
     xframe->getAttLine()->SetLineWidth(0);
     xframe->getAttFill()->SetFillStyle(0);
 
-    Int_t fit_status = fitres.status();
+    xframe->Print();
+
+    //    Double_t chi2 = xframe->chiSquare("model","data",2);
+    Double_t chi2 = xframe->chiSquare(2);
+
+    Int_t fit_status = fitres->status();
     fit_log << "Bin " << NumToStr(bin_i) << ": " << NumToStr(fit_status) << endl;
 
     if(!isPrefit){
@@ -199,6 +210,10 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
     TLegend *leg = new TLegend(0.6,0.64,0.95,0.80);
     leg->SetTextSize(0.03);
+
+    TLatex chi2_label;
+    chi2_label.SetNDC();
+    chi2_label.SetTextSize(0.03);
 
     c1->SetLogy();
 
@@ -233,6 +248,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
       leg->Draw();
 
+      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2);
+      chi2_label.DrawLatex(0.8,0.85,chi2_label_text.c_str());
+
     }
     else{
       hbottom->SetFillColor(kGreen);
@@ -262,7 +280,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       
       leg->Draw();
 
-      if(!isPrefit) xframe->Draw("same");
+      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2);
+      chi2_label.DrawLatex(0.8,0.85,chi2_label_text.c_str());
+      //      if(!isPrefit) xframe->Draw("same");
       string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
       string plt_dir;
       create_dir(plt_path,plt_dir);

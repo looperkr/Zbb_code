@@ -109,15 +109,18 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
   double c_result = frcharm.getVal();
   double l_result = 1-b_result-c_result;
 
-  /*
-    xframe->SetMaximum(2000);
-    xframe->SetMinimum(0);
-    data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
-    template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
-    template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
-    template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
-    template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
-  */
+  
+  xframe->SetMaximum(2000);
+  xframe->SetMinimum(0);
+  data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
+  template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
+  template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
+  template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
+  template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
+
+  Double_t chi2 = xframe->chiSquare(2);
+  cout << "Chi2: " << chi2 << endl;  
+
   //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
   template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
   xframe->getAttText()->SetTextSize(0.03);

@@ -38,6 +38,13 @@ string NumToStr(int number_val){
   return ss.str();
 }
 
+string NumToStr(double number_val){
+  ostringstream ss;
+  ss.precision(3);
+  ss << number_val;
+  return ss.str();
+}
+
 void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
   using namespace RooFit;
 
@@ -116,6 +123,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
   //fit status log
   std::ofstream fit_log("fitstatuslog.txt");
+  std::ofstream f_chi2("chi2_log.txt");
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
@@ -164,7 +172,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
 
     RooFit::Minimizer("Minuit2");
-    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
+    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));//,SumW2Error(kTRUE),PrintEvalErrors(-1));
     double b_result = frbottom.getVal();
     double c_result = frcharm.getVal();
     double l_result = 1-b_result-c_result;
@@ -176,7 +184,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     //begin old comment
       xframe->SetMaximum(2000);
       xframe->SetMinimum(0);
-      data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
+      data.plotOn(xframe,Name("data"));//,DataError(RooAbsData::SumW2));
       template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
       template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
       template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
@@ -190,8 +198,18 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
     xframe->Print();
 
-    //    Double_t chi2 = xframe->chiSquare("model","data",2);
-    Double_t chi2 = xframe->chiSquare(2);
+    Double_t chi2 = xframe->chiSquare("model","data",2);
+
+    RooChi2Var roochi2("chi2","chi2",template_model,data);
+    double chi2red = roochi2.getVal()/2.;
+
+    double testdouble = 1.34574E6;
+
+    f_chi2 << "DEBUG test: " << NumToStr(testdouble) << endl;
+    f_chi2 << "Bin " << NumToStr(bin_i) << ":" << endl;
+    f_chi2 << "chi2 (Double_t chi2 = xframe->chiSquare(\"model\",\"data\",2);): " << NumToStr(chi2) << endl;
+    f_chi2 << "chi2 (RooChi2Var roochi2(\"chi2\",\"chi2\",template_model,data);  double chi2red = roochi2.getVal()/2.; : " << NumToStr(chi2red) << endl;
+    f_chi2 << "-------------------------------------" << endl;
 
     Int_t fit_status = fitres->status();
     fit_log << "Bin " << NumToStr(bin_i) << ": " << NumToStr(fit_status) << endl;
@@ -248,7 +266,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
       leg->Draw();
 
-      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2);
+      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + "(compare to: " + NumToStr(chi2) + ")";
       chi2_label.DrawLatex(0.8,0.85,chi2_label_text.c_str());
 
     }
@@ -280,19 +298,20 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       
       leg->Draw();
 
-      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2);
-      chi2_label.DrawLatex(0.8,0.85,chi2_label_text.c_str());
+      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + " (Compare to: " + NumToStr(chi2) + ")" ;
+      chi2_label.DrawLatex(0.6,0.85,chi2_label_text.c_str());
       //      if(!isPrefit) xframe->Draw("same");
       string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
       string plt_dir;
       create_dir(plt_path,plt_dir);
 
       cout << hdata << endl;
-      double low_edge = varbin_array[bin_i-1];
-      double high_edge = varbin_array[bin_i];
+      int low_edge = varbin_array[bin_i-1];
+      int high_edge = varbin_array[bin_i];
       cout << "low edge: " << low_edge << endl;
       cout << "high edge: " << high_edge << endl;
-      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
+      //      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
+      string img_name = plt_dir + "/" + "noSumw2" + NumToStr(low_edge) + "to" + NumToStr(high_edge);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
       else img_name += ".pdf";
@@ -302,6 +321,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   } //end bin loop
 
   fit_log.close();
+  f_chi2.close();
   cout << "Write flavor fractions" << endl;
   string f_frac_fname = "flavor_fractions/ffrac.root";
   TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"UPDATE");

@@ -104,7 +104,7 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
   RooPlot* xframe = x.frame();
   TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 
-  RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
+  RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));//,SumW2Error(kTRUE),PrintEvalErrors(-1));
   double b_result = frbottom.getVal();
   double c_result = frcharm.getVal();
   double l_result = 1-b_result-c_result;
@@ -112,7 +112,7 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
   
   xframe->SetMaximum(2000);
   xframe->SetMinimum(0);
-  data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
+  data.plotOn(xframe,Name("data"));//, DataError(RooAbsData::SumW2));
   template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
   template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
   template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
@@ -120,6 +120,11 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
 
   Double_t chi2 = xframe->chiSquare(2);
   cout << "Chi2: " << chi2 << endl;  
+
+  RooChi2Var roochi2("chi2","chi2",template_model,data);
+  double chi2red = roochi2.getVal()/2.;
+  
+  cout << "Chi2 2, electric boogaloo: " << chi2red << endl;
 
   //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
   template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));

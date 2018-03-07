@@ -404,7 +404,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("Z_pt_migration","Z p_{T} (migration matrix)", "Events/50 GeV", 0., 1000., 0., 1000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j"){
-    chooseHistOptions("Z_pt_1j","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j","Z p_{T}, >= 1j","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j_truth"){
     isTruth = true;

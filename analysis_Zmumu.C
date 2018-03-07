@@ -256,7 +256,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_jet_st_tighteta_MET = new TH1D("jet_st_tighteta_MET","ST (|#eta| < 2.4) after MET cut",4000,0,2000);
    h_jet_mu_ht_tighteta_MET = new TH1D("jet_mu_ht_tighteta_MET","HT (|#eta| < 2.4) after MET cut",4000,0,2000);
    //   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
-   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",VarBinPt_new_size, VarBinPt_new_vec);
+   h_leadjet_pt_tighteta_MET = new TH1D("jet_pt_lead_tighteta_MET","leading jet pT (|#eta| < 2.4) after MET cut",VarBinPt_size, VarBinPt_vec);
    h_leadjet_y_tighteta_MET = new TH1D("jet_y_lead_tighteta_MET","leading jet y (|#eta| < 2.4) after MET cut",240,-6,6);
    h_subjet_pt_tighteta_MET = new TH1D("jet_pt_sublead_tighteta_MET","subleading jet pT (|#eta| < 2.4) after MET cut",4000,0,2000);
    h_subjet_y_tighteta_MET = new TH1D("jet_y_sublead_tighteta_MET","subleading jet y (|#eta| < 2.4) after MET cut",240,-6,6);

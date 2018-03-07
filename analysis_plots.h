@@ -87,8 +87,18 @@ class Histogram{
   }
   Histogram CloneHist(){
     Histogram newHist;
-    if(is1D) newHist.SetHistogram(hist_1D, name);
-    else newHist.SetHistogram(hist_2D,name);
+    if(is1D) {
+      TH1D *new_h = (TH1D*)hist_1D->Clone();
+      string name_copy(hist_1D->GetName());
+      newHist.SetHistogram(new_h,name_copy);
+    }
+    else{
+      TH2D *new_h = (TH2D*)hist_2D->Clone();
+      string name_copy(hist_2D->GetName());
+      newHist.SetHistogram(new_h,name_copy);
+    }
+    //    if(is1D) newHist = SetHistogram(hist_1D, name);
+    //    else newHist.SetHistogram(hist_2D,name);
     return newHist;
   }
   void AddHist(Histogram & h_add){

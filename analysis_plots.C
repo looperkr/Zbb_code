@@ -207,7 +207,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("jet_mu_ht_tighteta_MET","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 40, ratiomin, ratiomax);
   }
   else if(var_2_plot == "leadjet_pt_tightmet"){
-    chooseHistOptions("jet_pt_lead_tighteta_MET","leading jet pT [GeV]", "Events", 0., 500., 1, 10000000,1, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt_lead_tighteta_MET","leading jet pT [GeV]", "Events", 0., 800., 1, 10000000,1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m_tightmet"){
     chooseHistOptions("dijet_m_tighteta_MET", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 1, 100000000, 40,ratiomin, ratiomax);
@@ -1062,8 +1062,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_zmumu_sherpa_sum = add_histo(fzmumu_sherpa,n_files_zmumu_sherpa,fname_zmumu_sherpa,histo_name,zmumu_sherpa_xsec,fzmumu_sherpa_cf,lumi,zmumu_sherpa_process,x_min,x_max);
   }
   Histogram h_zmumu_sum     = add_histo(fzmumu,n_files_zmumu,fname_zmumu,histo_name,zmumu_xsec,fzmumu_cf,lumi,zmumu_process,x_min,x_max);
+  cout << h_zmumu_sum.IntegralHist() << endl;
   Histogram h_zmumubb_sum   = add_histo(fzmumubb,n_files_zmumubb,fname_zmumubb,histo_name,zmumubb_xsec,fzmumubb_cf,lumi,zmumubb_process,x_min,x_max);
+  cout << h_zmumubb_sum.IntegralHist() << endl;
   Histogram h_zmumucc_sum   = add_histo(fzmumucc,n_files_zmumucc,fname_zmumucc,histo_name,zmumucc_xsec,fzmumucc_cf,lumi,zmumucc_process,x_min,x_max);
+  cout << h_zmumucc_sum.IntegralHist() << endl;
   Histogram h_ztautau_sum   = add_histo(fztautau,n_files_ztautau,fname_ztautau,histo_name,ztautau_xsec,fztautau_cf,lumi,ztautau_process,x_min,x_max);
   Histogram h_wmunu_sum     = add_histo(fwmunu,n_files_wmunu,fname_wmunu,histo_name,wmunu_xsec,fwmunu_cf,lumi,wmunu_process,x_min,x_max);
   Histogram h_wcc_sum       = add_histo(fwcc,n_files_wcc,fname_wcc,histo_name,wcc_xsec,fwcc_cf,lumi,wcc_process,x_min,x_max);
@@ -1081,6 +1084,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   Histogram h_zjets_sum = h_zmumu_sum.CloneHist();
   h_zjets_sum.AddHist(h_zmumubb_sum);
   h_zjets_sum.AddHist(h_zmumucc_sum);
+  cout << "h_zjets: " << h_zjets_sum.IntegralHist() << endl;
+  cout << "h_zmumu: " << h_zmumu_sum.IntegralHist() << endl;
 
   //  TH1D *h_wjets_sum = (TH1D*)h_wmunu_sum->Clone();
   Histogram h_wjets_sum = h_wmunu_sum.CloneHist();
@@ -1110,8 +1115,16 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   gStyle->SetOptStat("");
 
   double zplusjets_sum = h_zmumu_sum.IntegralHist();
+  cout << "zplusjets sum: " << zplusjets_sum << endl;
   zplusjets_sum += h_zmumubb_sum.IntegralHist();
+  cout << "zplusjets sum: " << zplusjets_sum << endl;
   zplusjets_sum += h_zmumucc_sum.IntegralHist();
+  cout << "zplusjets sum: " << zplusjets_sum << endl;
+
+  double zplusjets_debug_sum = h_zjets_sum.IntegralHist();
+  if(zplusjets_sum != zplusjets_debug_sum) cout << "SOMETHING IS WRONG" << endl;
+  cout << "Z plus jets: " << zplusjets_sum << endl;
+  cout << "Z plus jets combined: " << zplusjets_debug_sum << endl;
 
   double zplusjets_sherpa_sum;
   if(include_sherpa) zplusjets_sherpa_sum = h_zmumu_sherpa_sum.IntegralHist();

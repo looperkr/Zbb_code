@@ -172,7 +172,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
 
     RooFit::Minimizer("Minuit2");
-    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));//,SumW2Error(kTRUE),PrintEvalErrors(-1));
+    //   RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
+    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));
     double b_result = frbottom.getVal();
     double c_result = frcharm.getVal();
     double l_result = 1-b_result-c_result;
@@ -184,7 +185,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     //begin old comment
       xframe->SetMaximum(2000);
       xframe->SetMinimum(0);
-      data.plotOn(xframe,Name("data"));//,DataError(RooAbsData::SumW2));
+      //data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
+      data.plotOn(xframe,Name("data"));
       template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
       template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
       template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
@@ -203,12 +205,14 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     RooChi2Var roochi2("chi2","chi2",template_model,data);
     double chi2red = roochi2.getVal()/2.;
 
-    double testdouble = 1.34574E6;
-
-    f_chi2 << "DEBUG test: " << NumToStr(testdouble) << endl;
     f_chi2 << "Bin " << NumToStr(bin_i) << ":" << endl;
     f_chi2 << "chi2 (Double_t chi2 = xframe->chiSquare(\"model\",\"data\",2);): " << NumToStr(chi2) << endl;
     f_chi2 << "chi2 (RooChi2Var roochi2(\"chi2\",\"chi2\",template_model,data);  double chi2red = roochi2.getVal()/2.; : " << NumToStr(chi2red) << endl;
+    /*    for(int j = 0; j < data.numEntries(); j++){
+      f_chi2 << "Weight: " << NumToStr(data.weight()) << endl;
+      f_chi2 << "Weight error: " << NumToStr(data.weightError()) << endl;
+      f_chi2 << "Weight error (sumw2): " << NumToStr(data.weightError(RooAbsData::SumW2)) << endl;
+      }*/
     f_chi2 << "-------------------------------------" << endl;
 
     Int_t fit_status = fitres->status();
@@ -232,6 +236,12 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     TLatex chi2_label;
     chi2_label.SetNDC();
     chi2_label.SetTextSize(0.03);
+    TLatex bresult_label;
+    TLatex cresult_label;
+    bresult_label.SetNDC();
+    bresult_label.SetTextSize(0.03);
+    cresult_label.SetNDC();
+    cresult_label.SetTextSize(0.03);
 
     c1->SetLogy();
 
@@ -299,7 +309,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       leg->Draw();
 
       string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + " (Compare to: " + NumToStr(chi2) + ")" ;
-      chi2_label.DrawLatex(0.6,0.85,chi2_label_text.c_str());
+      chi2_label.DrawLatex(0.6,0.9,chi2_label_text.c_str());
+      string bfrac_text = "b fraction = " + NumToStr(b_result);
+      string cfrac_text = "c fraction = " + NumToStr(c_result);
+      bresult_label.DrawLatex(0.6,0.86,bfrac_text.c_str());
+      cresult_label.DrawLatex(0.6,0.82,cfrac_text.c_str());
       //      if(!isPrefit) xframe->Draw("same");
       string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
       string plt_dir;
@@ -310,7 +324,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       int high_edge = varbin_array[bin_i];
       cout << "low edge: " << low_edge << endl;
       cout << "high edge: " << high_edge << endl;
-      //      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
+      //string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
       string img_name = plt_dir + "/" + "noSumw2" + NumToStr(low_edge) + "to" + NumToStr(high_edge);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";

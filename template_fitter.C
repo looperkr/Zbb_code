@@ -139,7 +139,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     hlight->Sumw2();
     hcharm->Sumw2();
     hbottom->Sumw2();
-    hdata->Sumw2();
+    hdata->SetBinErrorOption(TH1::kPoisson);
 
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();
@@ -165,15 +165,24 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     RooHistPdf bjetTemplate("bjetTemplate","bjetTemplate",x,bjetMC);
     RooHistPdf cjetTemplate("cjetTemplate","cjetTemplate",x,cjetMC);
     RooHistPdf ljetTemplate("ljetTemplate","ljetTemplate",x,ljetMC);
-    RooAddPdf template_model("model","model",RooArgList(bjetTemplate,cjetTemplate,ljetTemplate),RooArgList(frbottom,frcharm));
-    
+    //    RooAddPdf template_model("model","model",RooArgList(bjetTemplate,cjetTemplate,ljetTemplate),RooArgList(frbottom,frcharm));
+    RooArgList shapes;
+    shapes.add(bjetTemplate);
+    shapes.add(cjetTemplate);
+    shapes.add(ljetTemplate);
+    RooArgList norms;
+    norms.add(frbottom);
+    norms.add(frcharm);
+    RooAddPdf template_model("model","model",shapes,norms);
+
     RooPlot* xframe = x.frame();
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 
 
     RooFit::Minimizer("Minuit2");
-    //   RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
-    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));
+    //    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
+    //    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));
+    RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save());
     double b_result = frbottom.getVal();
     double c_result = frcharm.getVal();
     double l_result = 1-b_result-c_result;
@@ -185,25 +194,32 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     //begin old comment
       xframe->SetMaximum(2000);
       xframe->SetMinimum(0);
-      //data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
+      //      data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
       data.plotOn(xframe,Name("data"));
       template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
-      template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
-      template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
-      template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
+      //template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
+      // template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
+      //template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
       //end old comment
     //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
-    template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
-    xframe->getAttText()->SetTextSize(0.03);
-    xframe->getAttLine()->SetLineWidth(0);
-    xframe->getAttFill()->SetFillStyle(0);
+      //    template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
+      RooArgSet obs(x,"obs set");
+      RooArgSet* flparams = template_model.getParameters(obs);
+      RooChi2Var roochi2("chi2","chi2",template_model,data);
+      double chi2red = roochi2.getVal()/(5.-2.);
+
+      double chi2 = xframe->chiSquare(flparams->getSize());
+
+      //    xframe->getAttText()->SetTextSize(0.03);
+      //xframe->getAttLine()->SetLineWidth(0);
+      // xframe->getAttFill()->SetFillStyle(0);
 
     xframe->Print();
 
-    Double_t chi2 = xframe->chiSquare("model","data",2);
+    //    Double_t chi2 = xframe->chiSquare("model","data",3);
 
-    RooChi2Var roochi2("chi2","chi2",template_model,data);
-    double chi2red = roochi2.getVal()/2.;
+    //RooChi2Var roochi2("chi2","chi2",template_model,data);
+    //double chi2red = roochi2.getVal()/3.;
 
     f_chi2 << "Bin " << NumToStr(bin_i) << ":" << endl;
     f_chi2 << "chi2 (Double_t chi2 = xframe->chiSquare(\"model\",\"data\",2);): " << NumToStr(chi2) << endl;
@@ -215,7 +231,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       }*/
     f_chi2 << "-------------------------------------" << endl;
 
-    Int_t fit_status = fitres->status();
+    Int_t fit_status = r->status();
     fit_log << "Bin " << NumToStr(bin_i) << ": " << NumToStr(fit_status) << endl;
 
     if(!isPrefit){
@@ -286,9 +302,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       hlight->SetFillColor(kYellow);
       
       THStack *mc_stack =  new THStack("stack","stack");
-      mc_stack->Add(hbottom);
-      mc_stack->Add(hcharm);
       mc_stack->Add(hlight);
+      mc_stack->Add(hcharm);
+      mc_stack->Add(hbottom);
       
       //      mc_stack->SetMinimum(5000);
       mc_stack->SetMinimum(y_min);
@@ -324,8 +340,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       int high_edge = varbin_array[bin_i];
       cout << "low edge: " << low_edge << endl;
       cout << "high edge: " << high_edge << endl;
-      //string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
-      string img_name = plt_dir + "/" + "noSumw2" + NumToStr(low_edge) + "to" + NumToStr(high_edge);
+      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "new";
+      //      string img_name = plt_dir + "/" + "noSumw2_" + NumToStr(low_edge) + "to" + NumToStr(high_edge);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
       else img_name += ".pdf";

@@ -28,7 +28,6 @@ void create_dir(string & plots_path, string & plots_dir){
   }
   if(!isDir){
     gSystem->mkdir(plots_dir.c_str());
-    cout << "Test" << endl;
   }
 }
 
@@ -68,8 +67,6 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
   
-  // temp change, until I have MC versions of mv1cpt
-  //  string data_hist_name = kin_variable + "mv1c";
   string data_hist_name = "mv1cweight_ptbinned";
 
   TFile *flight = TFile::Open(light_f.c_str(),"READ");
@@ -78,8 +75,6 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
   TFile *f_data = TFile::Open(data_f.c_str(),"READ");
 
-  cout << "file name: " << light_f << endl;
-  cout << "hist name: " << hist_name_l << endl;
   TH2D *hlight_2D = (TH2D*)flight->Get(hist_name_l.c_str());
   TH2D *hcharm_2D = (TH2D*)fcharm->Get(hist_name_c.c_str());
   TH2D *hbottom_2D = (TH2D*)fbottom->Get(hist_name_b.c_str());
@@ -117,13 +112,10 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,nXbins,varbin_array);
   }
 
-  //For plot range, may readjust dynamically later
+  //Default values -- dynamically changed in fitting loop
   double y_min = 10.;
   double y_max = 1500000;
 
-  //fit status log
-  std::ofstream fit_log("fitstatuslog.txt");
-  std::ofstream f_chi2("chi2_log.txt");
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
@@ -142,10 +134,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     hdata->SetBinErrorOption(TH1::kPoisson);
     //    hdata->Sumw2();
 
-    //Temporary loop to add uncertainty to data histogram
+    //Dynamic y-axis adjustment
     y_min = (hdata->GetMinimum()) * 0.1;
     y_max = (hdata->GetMaximum()) * 15.;
 
+    //Temporary loop to add uncertainty to data histogram
     for(int k = 1; k < hdata->GetNbinsX()+1; k++){
       double d_bin_value = hdata->GetBinContent(k);
       double d_bin_error = hdata->GetBinError(k);
@@ -179,7 +172,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     RooHistPdf bjetTemplate("bjetTemplate","bjetTemplate",x,bjetMC);
     RooHistPdf cjetTemplate("cjetTemplate","cjetTemplate",x,cjetMC);
     RooHistPdf ljetTemplate("ljetTemplate","ljetTemplate",x,ljetMC);
-    //    RooAddPdf template_model("model","model",RooArgList(bjetTemplate,cjetTemplate,ljetTemplate),RooArgList(frbottom,frcharm));
+ 
     RooArgList shapes;
     shapes.add(bjetTemplate);
     shapes.add(cjetTemplate);
@@ -194,9 +187,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
 
     RooFit::Minimizer("Minuit2");
-    //    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
-    //    RooFitResult *fitres = template_model.fitTo(data,Save(kTRUE));
-    RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save());
+     RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save());
     double b_result = frbottom.getVal();
     double c_result = frcharm.getVal();
     double l_result = 1-b_result-c_result;
@@ -211,14 +202,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     //begin old comment
       xframe->SetMaximum(2000);
       xframe->SetMinimum(0);
-      //      data.plotOn(xframe,Name("data"),DataError(RooAbsData::SumW2));
+ 
       data.plotOn(xframe,Name("data"));
       template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
-      //template_model.plotOn(xframe,Components(bjetTemplate),LineColor(kGreen),LineStyle(kDashed),Name("bjets"));
-      // template_model.plotOn(xframe,Components(cjetTemplate),LineColor(kRed),LineStyle(kDashed),Name("cjets"));
-      //template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
+ 
       //end old comment
-    //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
       template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
       RooArgSet obs(x,"obs set");
       RooArgSet* flparams = template_model.getParameters(obs);
@@ -227,119 +215,93 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
       double chi2 = xframe->chiSquare(flparams->getSize());
 
-      //    xframe->getAttText()->SetTextSize(0.03);
-      //xframe->getAttLine()->SetLineWidth(0);
-      // xframe->getAttFill()->SetFillStyle(0);
+      if(!isPrefit){
+	hbottom->Scale(Ndata*b_result/Nbottom);
+	hcharm->Scale(Ndata*c_result/Ncharm);
+	hlight->Scale(Ndata*l_result/Nlight);
+      }
+      TH1F *final_sum = (TH1F*)hbottom->Clone();
+      final_sum->Add(hcharm);
+      final_sum->Add(hlight);
 
-    xframe->Print();
+      hdata->SetLineColor(kBlack);
+      final_sum->SetLineColor(kBlue);
 
-    //    Double_t chi2 = xframe->chiSquare("model","data",3);
+      TLegend *leg = new TLegend(0.6,0.64,0.95,0.80);
+      leg->SetTextSize(0.03);
 
-    //RooChi2Var roochi2("chi2","chi2",template_model,data);
-    //double chi2red = roochi2.getVal()/3.;
+      TLatex chi2_label;
+      chi2_label.SetNDC();
+      chi2_label.SetTextSize(0.03);
+      TLatex bresult_label;
+      TLatex cresult_label;
+      bresult_label.SetNDC();
+      bresult_label.SetTextSize(0.03);
+      cresult_label.SetNDC();
+      cresult_label.SetTextSize(0.03);
 
-    f_chi2 << "Bin " << NumToStr(bin_i) << ":" << endl;
-    f_chi2 << "chi2 (Double_t chi2 = xframe->chiSquare(\"model\",\"data\",2);): " << NumToStr(chi2) << endl;
-    f_chi2 << "chi2 (RooChi2Var roochi2(\"chi2\",\"chi2\",template_model,data);  double chi2red = roochi2.getVal()/2.; : " << NumToStr(chi2red) << endl;
-    /*    for(int j = 0; j < data.numEntries(); j++){
-      f_chi2 << "Weight: " << NumToStr(data.weight()) << endl;
-      f_chi2 << "Weight error: " << NumToStr(data.weightError()) << endl;
-      f_chi2 << "Weight error (sumw2): " << NumToStr(data.weightError(RooAbsData::SumW2)) << endl;
-      }*/
-    f_chi2 << "-------------------------------------" << endl;
+      c1->SetLogy();
 
-    Int_t fit_status = r->status();
-    fit_log << "Bin " << NumToStr(bin_i) << ": " << NumToStr(fit_status) << endl;
+      string x_label = "MV1c weight";
+      string y_label = "Events";
+      string data_label = "Data (#events = " + NumToStr(Ndata) + ")";
 
-    if(!isPrefit){
-      hbottom->Scale(Ndata*b_result/Nbottom);
-      hcharm->Scale(Ndata*c_result/Ncharm);
-      hlight->Scale(Ndata*l_result/Nlight);
-    }
-    TH1F *final_sum = (TH1F*)hbottom->Clone();
-    final_sum->Add(hcharm);
-    final_sum->Add(hlight);
-
-    hdata->SetLineColor(kBlack);
-    final_sum->SetLineColor(kBlue);
-
-    TLegend *leg = new TLegend(0.6,0.64,0.95,0.80);
-    leg->SetTextSize(0.03);
-
-    TLatex chi2_label;
-    chi2_label.SetNDC();
-    chi2_label.SetTextSize(0.03);
-    TLatex bresult_label;
-    TLatex cresult_label;
-    bresult_label.SetNDC();
-    bresult_label.SetTextSize(0.03);
-    cresult_label.SetNDC();
-    cresult_label.SetTextSize(0.03);
-
-    c1->SetLogy();
-
-    string x_label = "MV1c weight";
-    string y_label = "Events";
-    string data_label = "Data (#events = " + NumToStr(Ndata) + ")";
-
-    hdata->GetXaxis()->SetTitle(x_label.c_str());
-    hdata->GetYaxis()->SetTitle(y_label.c_str());
+      hdata->GetXaxis()->SetTitle(x_label.c_str());
+      hdata->GetYaxis()->SetTitle(y_label.c_str());
 
 
-    if(!isStack){
-      hbottom->SetLineColor(kGreen);
-      hcharm->SetLineColor(kRed);
-      hlight->SetLineColor(kYellow);
+      if(!isStack){
+	hbottom->SetLineColor(kGreen);
+	hcharm->SetLineColor(kRed);
+	hlight->SetLineColor(kYellow);
+	
+	hbottom->SetLineStyle(kDashed);
+	hcharm->SetLineStyle(kDashed);
+	hlight->SetLineStyle(kDashed);
       
-      hbottom->SetLineStyle(kDashed);
-      hcharm->SetLineStyle(kDashed);
-      hlight->SetLineStyle(kDashed);
-      
-      hdata->Draw("p");
-      final_sum->Draw("hist same");
-      hbottom->Draw("hist same");
-      hcharm->Draw("hist same");
-      hlight->Draw("hist same");
-      
-      leg->AddEntry(hdata,data_label.c_str(),"lp");
-      leg->AddEntry(final_sum,"fit result","l");
-      leg->AddEntry(hbottom,"bottom","l");
-      leg->AddEntry(hcharm,"charm","l");
-      leg->AddEntry(hlight,"light","l");
+	hdata->Draw("p");
+	final_sum->Draw("hist same");
+	hbottom->Draw("hist same");
+	hcharm->Draw("hist same");
+	hlight->Draw("hist same");
+	
+	leg->AddEntry(hdata,data_label.c_str(),"lp");
+	leg->AddEntry(final_sum,"fit result","l");
+	leg->AddEntry(hbottom,"bottom","l");
+	leg->AddEntry(hcharm,"charm","l");
+	leg->AddEntry(hlight,"light","l");
 
-      leg->Draw();
+	leg->Draw();
+		
+      }
+      else{
+	hbottom->SetFillColor(kGreen);
+	hcharm->SetFillColor(kRed);
+	hlight->SetFillColor(kYellow);
+      
+	THStack *mc_stack =  new THStack("stack","stack");
+	mc_stack->Add(hlight);
+	mc_stack->Add(hcharm);
+	mc_stack->Add(hbottom);
+	
+	mc_stack->SetMinimum(y_min);
+	mc_stack->SetMaximum(y_max);
+	
+	mc_stack->Draw("hist");
+	hdata->Draw("p same");
+      
+	mc_stack->GetYaxis()->SetTitle("Events");
+	mc_stack->GetXaxis()->SetTitle("MV1c weight");
+	c1->Modified();
+      
+	leg->AddEntry(hdata,data_label.c_str(),"lp");
+	leg->AddEntry(hbottom,"bottom","f");
+	leg->AddEntry(hcharm,"charm","f");
+	leg->AddEntry(hlight,"light","f");
+      
+	leg->Draw();
 
-      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + "(compare to: " + NumToStr(chi2) + ")";
-      chi2_label.DrawLatex(0.8,0.85,chi2_label_text.c_str());
-
-    }
-    else{
-      hbottom->SetFillColor(kGreen);
-      hcharm->SetFillColor(kRed);
-      hlight->SetFillColor(kYellow);
-      
-      THStack *mc_stack =  new THStack("stack","stack");
-      mc_stack->Add(hlight);
-      mc_stack->Add(hcharm);
-      mc_stack->Add(hbottom);
-      
-      //      mc_stack->SetMinimum(5000);
-      mc_stack->SetMinimum(y_min);
-      mc_stack->SetMaximum(y_max);
-
-      mc_stack->Draw("hist");
-      hdata->Draw("p same");
-      
-      mc_stack->GetYaxis()->SetTitle("Events");
-      mc_stack->GetXaxis()->SetTitle("MV1c weight");
-      c1->Modified();
-      
-      leg->AddEntry(hdata,data_label.c_str(),"lp");
-      leg->AddEntry(hbottom,"bottom","f");
-      leg->AddEntry(hcharm,"charm","f");
-      leg->AddEntry(hlight,"light","f");
-      
-      leg->Draw();
+      }	
 
       string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + " (Compare to: " + NumToStr(chi2) + ")" ;
       chi2_label.DrawLatex(0.6,0.9,chi2_label_text.c_str());
@@ -347,37 +309,26 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       string cfrac_text = "c fraction = " + NumToStr(c_result) + " #pm " + NumToStr(c_result_err);
       bresult_label.DrawLatex(0.6,0.86,bfrac_text.c_str());
       cresult_label.DrawLatex(0.6,0.82,cfrac_text.c_str());
-      TCanvas *c2 = new TCanvas("c2","c2",1200,800);
-      if(!isPrefit) xframe->Draw();
-      c1->cd();
+
       string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
       string plt_dir;
       create_dir(plt_path,plt_dir);
-
-      cout << hdata << endl;
+      
       int low_edge = varbin_array[bin_i-1];
       int high_edge = varbin_array[bin_i];
-      cout << "low edge: " << low_edge << endl;
-      cout << "high edge: " << high_edge << endl;
       string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "newaxis";
-      string img_name_2 = img_name + "_xframe.pdf";
-      //      string img_name = plt_dir + "/" + "noSumw2_" + NumToStr(low_edge) + "to" + NumToStr(high_edge);
+
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
       else img_name += ".pdf";
       c1->SaveAs(img_name.c_str());
-      c2->SaveAs(img_name_2.c_str());
-      cout << "y_min: " << y_min << endl;
-      cout << "y_max: " << y_max << endl;
 
-    }
-  } //end bin loop
+  }
+   //end bin loop
 
-  fit_log.close();
-  f_chi2.close();
-  cout << "Write flavor fractions" << endl;
+
   string f_frac_fname = "flavor_fractions/ffrac.root";
-  TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"UPDATE");
+  TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"RECREATE");
   h_bfrac->Write();
   h_cfrac->Write();
   h_lfrac->Write();

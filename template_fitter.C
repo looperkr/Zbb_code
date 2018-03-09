@@ -140,6 +140,20 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     hcharm->Sumw2();
     hbottom->Sumw2();
     hdata->SetBinErrorOption(TH1::kPoisson);
+    //    hdata->Sumw2();
+
+    //Temporary loop to add uncertainty to data histogram
+    y_min = (hdata->GetMinimum()) * 0.1;
+    y_max = (hdata->GetMaximum()) * 15.;
+
+    for(int k = 1; k < hdata->GetNbinsX()+1; k++){
+      double d_bin_value = hdata->GetBinContent(k);
+      double d_bin_error = hdata->GetBinError(k);
+      cout << "Old error: " << NumToStr(d_bin_error) << endl;
+      double quad_error = sqrt(d_bin_error*d_bin_error + (d_bin_value*0.05)*(d_bin_value*0.05));
+      //      hdata->SetBinError(k,quad_error);
+      cout << "New error: " << NumToStr(quad_error) << endl;
+    }
 
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();
@@ -187,6 +201,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     double c_result = frcharm.getVal();
     double l_result = 1-b_result-c_result;
 
+    double b_result_err = frbottom.getError();
+    double c_result_err = frcharm.getError();
+
     h_bfrac->SetBinContent(1,bin_i,b_result);
     h_cfrac->SetBinContent(1,bin_i,c_result);
     h_lfrac->SetBinContent(1,bin_i,l_result);
@@ -202,7 +219,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       //template_model.plotOn(xframe,Components(ljetTemplate),LineColor(kYellow),LineStyle(kDashed),Name("ljets"));
       //end old comment
     //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
-      //    template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
+      template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
       RooArgSet obs(x,"obs set");
       RooArgSet* flparams = template_model.getParameters(obs);
       RooChi2Var roochi2("chi2","chi2",template_model,data);
@@ -326,11 +343,13 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
       string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + " (Compare to: " + NumToStr(chi2) + ")" ;
       chi2_label.DrawLatex(0.6,0.9,chi2_label_text.c_str());
-      string bfrac_text = "b fraction = " + NumToStr(b_result);
-      string cfrac_text = "c fraction = " + NumToStr(c_result);
+      string bfrac_text = "b fraction = " + NumToStr(b_result) + " #pm " + NumToStr(b_result_err);
+      string cfrac_text = "c fraction = " + NumToStr(c_result) + " #pm " + NumToStr(c_result_err);
       bresult_label.DrawLatex(0.6,0.86,bfrac_text.c_str());
       cresult_label.DrawLatex(0.6,0.82,cfrac_text.c_str());
-      //      if(!isPrefit) xframe->Draw("same");
+      TCanvas *c2 = new TCanvas("c2","c2",1200,800);
+      if(!isPrefit) xframe->Draw();
+      c1->cd();
       string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
       string plt_dir;
       create_dir(plt_path,plt_dir);
@@ -340,12 +359,16 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       int high_edge = varbin_array[bin_i];
       cout << "low edge: " << low_edge << endl;
       cout << "high edge: " << high_edge << endl;
-      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "new";
+      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "newaxis";
+      string img_name_2 = img_name + "_xframe.pdf";
       //      string img_name = plt_dir + "/" + "noSumw2_" + NumToStr(low_edge) + "to" + NumToStr(high_edge);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
       else img_name += ".pdf";
       c1->SaveAs(img_name.c_str());
+      c2->SaveAs(img_name_2.c_str());
+      cout << "y_min: " << y_min << endl;
+      cout << "y_max: " << y_max << endl;
 
     }
   } //end bin loop

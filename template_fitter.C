@@ -116,7 +116,10 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   double y_min = 10.;
   double y_max = 1500000;
 
+  //output before and after bin values and errors to make sure things are sensical
+  std::ofstream data_scaling("data_scaling.txt");
 
+  vector<Int_t> fit_status;
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
@@ -131,23 +134,28 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     hlight->Sumw2();
     hcharm->Sumw2();
     hbottom->Sumw2();
-    hdata->SetBinErrorOption(TH1::kPoisson);
+    //    hdata->SetBinErrorOption(TH1::kPoisson);
     //    hdata->Sumw2();
 
     //Dynamic y-axis adjustment
     y_min = (hdata->GetMinimum()) * 0.1;
     y_max = (hdata->GetMaximum()) * 15.;
 
+    data_scaling << "BEGIN LOOP " << bin_i << "OF " << n_kinbins << endl;
+    data_scaling  << "###############################################" << endl;
     //Temporary loop to add uncertainty to data histogram
     for(int k = 1; k < hdata->GetNbinsX()+1; k++){
       double d_bin_value = hdata->GetBinContent(k);
       double d_bin_error = hdata->GetBinError(k);
-      cout << "Old error: " << NumToStr(d_bin_error) << endl;
-      double quad_error = sqrt(d_bin_error*d_bin_error + (d_bin_value*0.05)*(d_bin_value*0.05));
-      //      hdata->SetBinError(k,quad_error);
-      cout << "New error: " << NumToStr(quad_error) << endl;
+      data_scaling << "Bin " << k << ": " << "original value = " << d_bin_value << ", original error = " << d_bin_error << endl;
+      hdata->SetBinContent(k,d_bin_value*0.1);
     }
-
+    hdata->SetBinErrorOption(TH1::kPoisson);
+    for(int k = 1; k < hdata->GetNbinsX()+1; k++){
+      double d_bin_value = hdata->GetBinContent(k);
+      double d_bin_error = hdata->GetBinError(k);
+      data_scaling << "Bin " << k << ": " << "new value = " << d_bin_value << ", new error = " << d_bin_error << endl;
+    }
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();
     Int_t Nbottom = hbottom->Integral();
@@ -214,6 +222,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       double chi2red = roochi2.getVal()/(5.-2.);
 
       double chi2 = xframe->chiSquare(flparams->getSize());
+
+      fit_status.push_back(r->status());
 
       if(!isPrefit){
 	hbottom->Scale(Ndata*b_result/Nbottom);
@@ -316,7 +326,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       
       int low_edge = varbin_array[bin_i-1];
       int high_edge = varbin_array[bin_i];
-      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "newaxis";
+      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "_scaleddata";
 
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
@@ -333,5 +343,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   h_cfrac->Write();
   h_lfrac->Write();
 
+  for(int i=0; i<fit_status.size(); i++){
+    if(fit_status.at(i) != 0) cout << "FIT #" << i << " DID NOT CONVERGE" << endl;
+  }
 
 }

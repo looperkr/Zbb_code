@@ -49,10 +49,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = false;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
   isWideWindow = false;
-  isShort = false;
+  isShort = true;
   
   
   TString option = GetOption();
@@ -84,6 +84,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    eventcheckcut = -1;
    float VarBinPt_vec[22]={0, 5, 10, 15, 20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000};
    const int VarBinPt_size = 21;
+   float zbins_vec[11] = {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5};
+   const int zbins_size = 10;
    //   float VarBinPt_new_vec[19] = {0,10,15,20,25,32,40,50,64,80,100,125,160,200,250,320,400,800,1000};
    //   const int VarBinPt_new_size = 18;
    float VarBinPt_new_vec[22] = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,160,180,210,250,310,400,800};
@@ -303,6 +305,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_charm_had_match_ptbinned = new TH2D("mv1cweight_charm_had_match_ptbinned","mv1c weight (charm)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_bottom_had_match_ptbinned = new TH2D("mv1cweight_bottom_had_match_ptbinned","mv1c weight (bottom)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_ptbinned = new TH2D("mv1cweight_ptbinned","mv1cweight",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
+   h_mv1cweight_ptbinned_3D = new TH3D("mv1cweight_ptbinned_3D","mv1cweight_3D",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec,zbins_size,zbins_vec);
 
    h_mv1cweight_light_had_match_ptbinned_leadjet = new TH2D("mv1cweight_light_had_match_ptbinned_leadjet", "mv1c weight (light) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_charm_had_match_ptbinned_leadjet= new TH2D("mv1cweight_charm_had_match_ptbinned_leadjet","mv1c weight (charm) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
@@ -424,7 +427,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    //
    event_counter = 0;
-
+   data_divider = 0;
 }
 
 Bool_t analysis_Zmumu::Process(Long64_t entry)
@@ -452,6 +455,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(isShort && event_counter > 5000){
     return kFALSE;
   }
+
+  if(isData) data_divider++;
 
   pair<UInt_t,UInt_t> run_event_number; 
   run_event_number.first = RunNumber;
@@ -969,7 +974,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //Fill inclusive Z histograms
   if(isMC && weight == 0) {
     h_good_zeroweight_events->Fill(0);
-    if(pileupweight == 0) h_good_zeroweight_events_pw->Fill(0);
+    if(isMC && pileupweight == 0) h_good_zeroweight_events_pw->Fill(0);
   }
 
   //Fill match/unmatch histograms
@@ -1585,6 +1590,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(jet_v_tight.size()>0){
       h_mv1cweight_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
       if(i == 0) h_mv1cweight_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+      if(isData) h_mv1cweight_ptbinned_3D->Fill(mv1cweight,Z_fourv.Pt()/1000.,data_divider%10,weight);
     }
     h_mv1cweight_binned->Fill(mv1cweight,weight);
     if(isMC){
@@ -1922,6 +1928,7 @@ void analysis_Zmumu::Terminate()
   h_mv1weight->Write();
   h_mv1cweight->Write();
   h_mv1cweight_ptbinned->Write();
+  h_mv1cweight_ptbinned_3D->Write();
   h_mv1cweight_ptbinned_leadjet->Write();
   h_mv1cweight_binned->Write();
   h_mv1cweight_bottom->Write();

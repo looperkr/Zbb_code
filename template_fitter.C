@@ -44,7 +44,7 @@ string NumToStr(double number_val){
   return ss.str();
 }
 
-void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
+void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
   using namespace RooFit;
 
   bool isStack = true;
@@ -79,7 +79,20 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   TH2D *hcharm_2D = (TH2D*)fcharm->Get(hist_name_c.c_str());
   TH2D *hbottom_2D = (TH2D*)fbottom->Get(hist_name_b.c_str());
 
-  TH2D *hdata_2D = (TH2D*)f_data->Get(data_hist_name.c_str());
+  TH2D *hdata_2D;
+
+  zdivided = -1;
+  if(isDivided){
+    zdivided = 10;
+    TH3D *hdata_3D = (TH3D*)f_data->Get("mv1cweight_ptbinned_3D");
+    hdata_3D->GetZaxis()->SetRange(zdivided,zdivided);
+    hdata_2D = (TH2D*)hdata_3D->Project3D("yx");
+    //hdata_2D->Draw();
+    //gPad->WaitPrimitive();
+  }
+  else{
+    hdata_2D = (TH2D*)f_data->Get(data_hist_name.c_str());
+  }
 
   
   //make 2D histogram that holds flavor fractions for each kinematic variable (Z pT) bin
@@ -123,6 +136,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
+    bool hasEmptyBin = false;
     cout << "BEGIN LOOP " << bin_i << "OF " << n_kinbins << endl;
     cout << "###############################################" << endl;
 
@@ -141,21 +155,21 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     y_min = (hdata->GetMinimum()) * 0.1;
     y_max = (hdata->GetMaximum()) * 15.;
 
-    data_scaling << "BEGIN LOOP " << bin_i << "OF " << n_kinbins << endl;
-    data_scaling  << "###############################################" << endl;
+    //    data_scaling << "BEGIN LOOP " << bin_i << "OF " << n_kinbins << endl;
+    //data_scaling  << "###############################################" << endl;
     //Temporary loop to add uncertainty to data histogram
-    for(int k = 1; k < hdata->GetNbinsX()+1; k++){
+    /*for(int k = 1; k < hdata->GetNbinsX()+1; k++){
       double d_bin_value = hdata->GetBinContent(k);
       double d_bin_error = hdata->GetBinError(k);
       data_scaling << "Bin " << k << ": " << "original value = " << d_bin_value << ", original error = " << d_bin_error << endl;
       hdata->SetBinContent(k,d_bin_value*0.1);
-    }
+      }*/
     hdata->SetBinErrorOption(TH1::kPoisson);
-    for(int k = 1; k < hdata->GetNbinsX()+1; k++){
+    /*    for(int k = 1; k < hdata->GetNbinsX()+1; k++){
       double d_bin_value = hdata->GetBinContent(k);
       double d_bin_error = hdata->GetBinError(k);
       data_scaling << "Bin " << k << ": " << "new value = " << d_bin_value << ", new error = " << d_bin_error << endl;
-    }
+      }*/
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();
     Int_t Nbottom = hbottom->Integral();
@@ -164,6 +178,10 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     if(Ndata == 0){
       cout << "EMPTY DATA HISTOGRAM, SKIP!" << endl;
       continue;
+    }
+    for(int k = 1; k < hdata->GetNbinsX()+1; k++){
+      double bin_value = hdata->GetBinContent(k);
+      if(bin_value == 0) hasEmptyBin = true;
     }
 
     RooRealVar x("x","MV1c weight",0.,1.);
@@ -250,7 +268,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       cresult_label.SetNDC();
       cresult_label.SetTextSize(0.03);
 
-      c1->SetLogy();
+      if(!hasEmptyBin) c1->SetLogy();
 
       string x_label = "MV1c weight";
       string y_label = "Events";
@@ -298,7 +316,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 	mc_stack->SetMaximum(y_max);
 	
 	mc_stack->Draw("hist");
-	hdata->Draw("p same");
+	hdata->Draw("p e same");
       
 	mc_stack->GetYaxis()->SetTitle("Events");
 	mc_stack->GetXaxis()->SetTitle("MV1c weight");
@@ -326,8 +344,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       
       int low_edge = varbin_array[bin_i-1];
       int high_edge = varbin_array[bin_i];
-      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge) + "_scaleddata";
-
+      string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
+      if(isDivided) img_name = img_name + "_bin" + NumToStr(zdivided);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
       else img_name += ".pdf";

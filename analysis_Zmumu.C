@@ -49,10 +49,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = false;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
-  isShort = true;
+  isShort = false;
   
   
   TString option = GetOption();
@@ -306,6 +306,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_bottom_had_match_ptbinned = new TH2D("mv1cweight_bottom_had_match_ptbinned","mv1c weight (bottom)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_ptbinned = new TH2D("mv1cweight_ptbinned","mv1cweight",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_ptbinned_3D = new TH3D("mv1cweight_ptbinned_3D","mv1cweight_3D",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec,zbins_size,zbins_vec);
+   h_mv1cweight_ptbinned_3D_leadjet = new TH3D("mv1cweight_ptbinned_3D_leadjet","mv1cweight_3D_leadjet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec,zbins_size,zbins_vec);
 
    h_mv1cweight_light_had_match_ptbinned_leadjet = new TH2D("mv1cweight_light_had_match_ptbinned_leadjet", "mv1c weight (light) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_charm_had_match_ptbinned_leadjet= new TH2D("mv1cweight_charm_had_match_ptbinned_leadjet","mv1c weight (charm) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
@@ -1590,7 +1591,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(jet_v_tight.size()>0){
       h_mv1cweight_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
       if(i == 0) h_mv1cweight_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
-      if(isData) h_mv1cweight_ptbinned_3D->Fill(mv1cweight,Z_fourv.Pt()/1000.,data_divider%10,weight);
+      if(isData){
+	h_mv1cweight_ptbinned_3D->Fill(mv1cweight,Z_fourv.Pt()/1000.,data_divider%10,weight);
+	if(i==0) h_mv1cweight_ptbinned_3D_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,data_divider%10,weight);
+      }
     }
     h_mv1cweight_binned->Fill(mv1cweight,weight);
     if(isMC){
@@ -1929,6 +1933,7 @@ void analysis_Zmumu::Terminate()
   h_mv1cweight->Write();
   h_mv1cweight_ptbinned->Write();
   h_mv1cweight_ptbinned_3D->Write();
+  h_mv1cweight_ptbinned_3D_leadjet->Write();
   h_mv1cweight_ptbinned_leadjet->Write();
   h_mv1cweight_binned->Write();
   h_mv1cweight_bottom->Write();

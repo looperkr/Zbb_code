@@ -48,6 +48,7 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
   using namespace RooFit;
 
   bool isStack = true;
+  bool isLeadJet = true;
 
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
@@ -56,6 +57,16 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
   string hist_name_l = kin_variable + "mv1c_light_jets_hmatch";
   string hist_name_c = kin_variable + "mv1c_charm_jets_hmatch";
   string hist_name_b = kin_variable + "mv1c_bottom_jets_hmatch";
+
+  if(isLeadJet){
+     hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
+     light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch_leadjet.root";
+     charm_f = hist_dir + kin_variable + "mv1c_charm_jets_hmatch_leadjet.root";
+     bottom_f = hist_dir + kin_variable + "mv1c_bottom_jets_hmatch_leadjet.root";
+     hist_name_l = kin_variable + "mv1c_light_jets_hmatch_leadjet";
+     hist_name_c = kin_variable + "mv1c_charm_jets_hmatch_leadjet";
+     hist_name_b = kin_variable + "mv1c_bottom_jets_hmatch_leadjet";
+  }
 
 
   string histlabel = "_mc";
@@ -67,7 +78,7 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
   
-  string data_hist_name = "mv1cweight_ptbinned";
+  string data_hist_name = "mv1cweight_ptbinned_leadjet";
 
   TFile *flight = TFile::Open(light_f.c_str(),"READ");
   TFile *fcharm = TFile::Open(charm_f.c_str(),"READ");
@@ -130,7 +141,8 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
   double y_max = 1500000;
 
   //output before and after bin values and errors to make sure things are sensical
-  std::ofstream data_scaling("data_scaling.txt");
+  //  std::ofstream data_scaling("data_scaling.txt");
+  std::ofstream data_fits("datafit_range.txt",std::ofstream::out | std::ofstream::app);
 
   vector<Int_t> fit_status;
   //begin loop over kinematic variable
@@ -241,7 +253,8 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
 
       double chi2 = xframe->chiSquare(flparams->getSize());
 
-      fit_status.push_back(r->status());
+      double status = r->status();
+      fit_status.push_back(status);
 
       if(!isPrefit){
 	hbottom->Scale(Ndata*b_result/Nbottom);
@@ -331,7 +344,7 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
 
       }	
 
-      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red) + " (Compare to: " + NumToStr(chi2) + ")" ;
+      string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red);
       chi2_label.DrawLatex(0.6,0.9,chi2_label_text.c_str());
       string bfrac_text = "b fraction = " + NumToStr(b_result) + " #pm " + NumToStr(b_result_err);
       string cfrac_text = "c fraction = " + NumToStr(c_result) + " #pm " + NumToStr(c_result_err);
@@ -344,7 +357,12 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
       
       int low_edge = varbin_array[bin_i-1];
       int high_edge = varbin_array[bin_i];
+
+      if(isDivided){
+	data_fits << NumToStr(zdivided) << "," <<  NumToStr(low_edge) << "," <<  NumToStr(high_edge) << "," << NumToStr(b_result) << "," << NumToStr(c_result) << "," << NumToStr(b_result_err) << "," << NumToStr(c_result_err) << "," << NumToStr(status) << "," << NumToStr(chi2red) << endl;
+      }
       string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
+      if(isLeadJet) img_name = img_name + "_leadjet";
       if(isDivided) img_name = img_name + "_bin" + NumToStr(zdivided);
       if(isPrefit) img_name += "_prefit";
       if(isSherpa) img_name += "_sherpa.pdf";
@@ -364,5 +382,7 @@ void template_fitter(bool isDivided = false, string kin_variable = "Z_pt", bool 
   for(int i=0; i<fit_status.size(); i++){
     if(fit_status.at(i) != 0) cout << "FIT #" << i << " DID NOT CONVERGE" << endl;
   }
+
+  data_fits.close();
 
 }

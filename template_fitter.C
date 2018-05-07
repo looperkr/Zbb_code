@@ -127,15 +127,15 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   double y_min = 10.;
   double y_max = 1500000;
 
-  //output before and after bin values and errors to make sure things are sensical
-  //  std::ofstream data_scaling("data_scaling.txt");
-  std::ofstream data_fits;
-  data_fits.open("datafit_range.txt",std::ofstream::out);
-
-  std::ofstream data_prefit;
-  data_prefit.open("data_prefit.txt",std::ofstream::out);
-
   vector<Int_t> fit_status;
+
+  vector<Double_t> bin_center_vec;
+  vector<Double_t> b_frac_vec;
+  vector<Double_t> err_up_vec;
+  vector<Double_t> err_down_vec;
+  vector<Double_t> err_x_vec;
+  
+
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
@@ -340,20 +340,29 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     int low_edge = varbin_array[bin_i-1];
     int high_edge = varbin_array[bin_i];
 
-    data_fits << NumToStr(low_edge) << "," << NumToStr(b_result) << "," << NumToStr(b_result_err) << endl;
+    Double_t bin_width = high_edge-low_edge;
+    Double_t bin_center = low_edge + bin_width/2;
+    bin_center_vec.push_back(bin_center);
+    b_frac_vec.push_back(b_result);
+    err_up_vec.push_back(b_result_err);
+    if(b_result - b_result_err < 0){
+      err_down_vec.push_back(b_result);
+    }
+    else err_down_vec.push_back(b_result_err);
+    err_x_vec.push_back(bin_width/2);
     
     double del_B = sqrt(Nbottom);
     double del_CL = sqrt(Nlight) + sqrt(Ncharm);
     double B_template_fraction = (Double_t)Nbottom/(Ncharm+Nlight);
     double prefit_err = (del_B/Nbottom + del_CL/(Ncharm+Nlight))*B_template_fraction;
-    data_prefit << NumToStr(low_edge) << "," << NumToStr(B_template_fraction) << "," << NumToStr(prefit_err) << endl;
+
     string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
     if(isLeadJet) img_name = img_name + "_leadjet";
     if(isPrefit) img_name += "_prefit";
     if(isSherpa) img_name += "_sherpa.pdf";
     else img_name += ".pdf";
     c1->SaveAs(img_name.c_str());
-    
+    c1->Close();
   }
   //end bin loop
 
@@ -364,12 +373,24 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   h_cfrac->Write();
   h_lfrac->Write();
 
-  cout << b_ratio_integral << endl;
-  cout << B_template_fraction << endl;
+  TCanvas c2 = TCanvas();
+  Double_t x_axis_min = 0;
+  Double_t y_axis_min = -0.005;
+  Double_t x_axis_max = 800;
+  Double_t y_axis_max = 0.1;
+
+  TH1F *frame = c2.DrawFrame(x_axis_min,y_axis_min,x_axis_max,y_axis_max);
+  TGraphAsymmErrors *gr = new TGraphAsymmErrors(bin_center_vec.size(),&bin_center_vec[0],&b_frac_vec[0],&err_x_vec[0],&err_x_vec[0],&err_down_vec[0],&err_up_vec[0]);
+  gr->SetMarkerStyle(21);
+  gr->Draw("p");
+  frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
+  frame->GetYaxis()->SetTitle("b-jet fraction");
+  c2.Update();
+  c2.SaveAs("bfraction_asymerr.pdf");
+
+
+    
   for(int i=0; i<fit_status.size(); i++){
     if(fit_status.at(i) != 0) cout << "FIT #" << i << " DID NOT CONVERGE" << endl;
   }
-
-  data_fits.close();
-  data_prefit.close();
 }

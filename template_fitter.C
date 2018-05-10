@@ -44,7 +44,7 @@ string NumToStr(double number_val){
   return ss.str();
 }
 
-void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool isSherpa=true){
+void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool isSherpa=false){
   using namespace RooFit;
 
   bool isStack = true;
@@ -141,7 +141,11 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
   vector<Double_t> err_up_vec;
   vector<Double_t> err_down_vec;
   vector<Double_t> err_x_vec;
-  
+
+  vector<Double_t> b_frac_dif_vec;
+  vector<Double_t> err_up_dif_vec;
+  vector<Double_t> err_down_dif_vec;
+
   string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
   string plt_dir;
   create_dir(plt_path,plt_dir);
@@ -352,7 +356,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
     double del_B = sqrt(Nbottom);
     double del_CL = sqrt(Nlight) + sqrt(Ncharm);
     double B_template_fraction = (Double_t)Nbottom/(Ncharm+Nlight);
-    double prefit_err = (del_B/Nbottom + del_CL/(Ncharm+Nlight))*B_template_fraction;
+    double prefit_err = sqrt(pow(del_B/Nbottom,2) + pow(del_CL/(Ncharm+Nlight),2))*B_template_fraction;
 
     Double_t bin_width = high_edge-low_edge;
     Double_t bin_center = low_edge + bin_width/2;
@@ -374,6 +378,13 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
       else err_down_vec.push_back(prefit_err);
     }
     err_x_vec.push_back(bin_width/2);
+
+    Double_t b_frac_dif = B_template_fraction - b_result;
+    Double_t b_err_dif = sqrt(pow(b_result_err,2) + pow(prefit_err,2));
+    b_frac_dif_vec.push_back(b_frac_dif);
+    err_up_dif_vec.push_back(b_err_dif);
+    err_down_dif_vec.push_back(b_err_dif);
+
     //end block
 
     string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
@@ -415,6 +426,25 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
   c2.Update();
   c2.SaveAs(bfrac_plot_n.c_str());
 
+  TCanvas c3 = TCanvas();
+  Double_t x_axis_min_dif = 0;
+  Double_t y_axis_min_dif = -0.25;
+  Double_t x_axis_max_dif = 800;
+  Double_t y_axis_max_dif = 0.25;
+
+  TH1F *frame_dif = c3.DrawFrame(x_axis_min_dif,y_axis_min_dif,x_axis_max_dif,y_axis_max_dif);
+  TGraphAsymmErrors *gr_dif = new TGraphAsymmErrors(bin_center_vec.size(),&bin_center_vec[0],&b_frac_dif_vec[0],&err_x_vec[0],&err_x_vec[0],&err_down_dif_vec[0],&err_up_dif_vec[0]);
+  gr_dif->SetMarkerStyle(21);
+  gr_dif->Draw("p");
+  frame_dif->GetXaxis()->SetTitle("Z p_{T} [GeV]");
+  frame_dif->GetYaxis()->SetTitle("Prefit minus postfit b-fraction");
+  string bfrac_plot_n_dif = plt_dir +"/bfraction_asymerr_dif";
+  if(isClosure) bfrac_plot_n_dif += "_isClosure";
+  if(isSherpa) bfrac_plot_n_dif += "_sherpa.pdf";
+  else bfrac_plot_n_dif += ".pdf";
+  c3.Update();
+  c3.SaveAs(bfrac_plot_n_dif.c_str());
+				 
     
   for(int i=0; i<fit_status.size(); i++){
     if(fit_status.at(i) != 0) cout << "FIT #" << i << " DID NOT CONVERGE" << endl;

@@ -44,11 +44,12 @@ string NumToStr(double number_val){
   return ss.str();
 }
 
-void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=true){
+void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool isSherpa=true){
   using namespace RooFit;
 
   bool isStack = true;
   bool isLeadJet = true;
+  bool isClosure = true;
 
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
@@ -77,8 +78,14 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   hist_name_b += histlabel;
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
-  
-  string data_hist_name = "mv1cweight_ptbinned_leadjet";
+  if(isClosure) data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_ptmv1c_leadjet.root";
+  else data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
+
+  string data_hist_name;
+  if(isClosure){
+    data_hist_name = "Z_ptmv1c_leadjet" + histlabel;
+  }
+  else data_hist_name = "mv1cweight_ptbinned_leadjet";
 
   TFile *flight = TFile::Open(light_f.c_str(),"READ");
   TFile *fcharm = TFile::Open(charm_f.c_str(),"READ");
@@ -135,6 +142,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   vector<Double_t> err_down_vec;
   vector<Double_t> err_x_vec;
   
+  string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
+  string plt_dir;
+  create_dir(plt_path,plt_dir);
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
@@ -332,33 +342,44 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     string cfrac_text = "c fraction = " + NumToStr(c_result) + " #pm " + NumToStr(c_result_err);
     bresult_label.DrawLatex(0.6,0.86,bfrac_text.c_str());
     cresult_label.DrawLatex(0.6,0.82,cfrac_text.c_str());
-    
-    string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
-    string plt_dir;
-    create_dir(plt_path,plt_dir);
+   
     
     int low_edge = varbin_array[bin_i-1];
     int high_edge = varbin_array[bin_i];
 
-    Double_t bin_width = high_edge-low_edge;
-    Double_t bin_center = low_edge + bin_width/2;
-    bin_center_vec.push_back(bin_center);
-    b_frac_vec.push_back(b_result);
-    err_up_vec.push_back(b_result_err);
-    if(b_result - b_result_err < 0){
-      err_down_vec.push_back(b_result);
-    }
-    else err_down_vec.push_back(b_result_err);
-    err_x_vec.push_back(bin_width/2);
-    
+    /***********/
+    //Block puts together vectors to fill the b-fraction before and after fit plot
     double del_B = sqrt(Nbottom);
     double del_CL = sqrt(Nlight) + sqrt(Ncharm);
     double B_template_fraction = (Double_t)Nbottom/(Ncharm+Nlight);
     double prefit_err = (del_B/Nbottom + del_CL/(Ncharm+Nlight))*B_template_fraction;
 
+    Double_t bin_width = high_edge-low_edge;
+    Double_t bin_center = low_edge + bin_width/2;
+    bin_center_vec.push_back(bin_center);
+    if(!isPrefit){
+      b_frac_vec.push_back(b_result);
+      err_up_vec.push_back(b_result_err);
+      if(b_result - b_result_err < 0){
+	err_down_vec.push_back(b_result);
+      }
+      else err_down_vec.push_back(b_result_err);
+    }
+    else{
+      b_frac_vec.push_back(B_template_fraction);
+      err_up_vec.push_back(prefit_err);
+      if(B_template_fraction - prefit_err < 0){
+	err_down_vec.push_back(B_template_fraction);
+      }
+      else err_down_vec.push_back(prefit_err);
+    }
+    err_x_vec.push_back(bin_width/2);
+    //end block
+
     string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
     if(isLeadJet) img_name = img_name + "_leadjet";
     if(isPrefit) img_name += "_prefit";
+    if(isClosure) img_name += "_closure";
     if(isSherpa) img_name += "_sherpa.pdf";
     else img_name += ".pdf";
     c1->SaveAs(img_name.c_str());
@@ -378,6 +399,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   Double_t y_axis_min = -0.005;
   Double_t x_axis_max = 800;
   Double_t y_axis_max = 0.1;
+  if(isSherpa) y_axis_max = 0.3;
 
   TH1F *frame = c2.DrawFrame(x_axis_min,y_axis_min,x_axis_max,y_axis_max);
   TGraphAsymmErrors *gr = new TGraphAsymmErrors(bin_center_vec.size(),&bin_center_vec[0],&b_frac_vec[0],&err_x_vec[0],&err_x_vec[0],&err_down_vec[0],&err_up_vec[0]);
@@ -385,9 +407,13 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   gr->Draw("p");
   frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
   frame->GetYaxis()->SetTitle("b-jet fraction");
+  string bfrac_plot_n = plt_dir +"/bfraction_asymerr";
+  if(isClosure) bfrac_plot_n += "_isClosure";
+  if(isPrefit) bfrac_plot_n += "_isPrefit";
+  if(isSherpa) bfrac_plot_n += "_sherpa.pdf";
+  else bfrac_plot_n += ".pdf";
   c2.Update();
-  c2.SaveAs("bfraction_asymerr.pdf");
-
+  c2.SaveAs(bfrac_plot_n.c_str());
 
     
   for(int i=0; i<fit_status.size(); i++){

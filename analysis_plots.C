@@ -321,6 +321,22 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "Z_ptmv1c_leadjet"){
     chooseHistOptions("mv1cweight_ptbinned_leadjet","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
   }
+  else if(var_2_plot == "Z_ptmv1c_leadjet_trueZ"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_ptbinned_leadjet_trueZ","Z pT vs mv1c weight(truth Z)", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Z_ptmv1c_light_jets_hmatch_leadjet_trueZ"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_light_had_match_ptbinned_leadjet_trueZ","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Z_ptmv1c_charm_jets_hmatch_leadjet_trueZ"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_charm_had_match_ptbinned_leadjet_trueZ","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Z_ptmv1c_bottom_jets_hmatch_leadjet_trueZ"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_bottom_had_match_ptbinned_leadjet_trueZ","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
+  }
   else if(var_2_plot == "pileup"){
     if(make_log) logmax = 50000000000;
     else logmax = 700000;

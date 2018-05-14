@@ -44,12 +44,132 @@ string NumToStr(double number_val){
   return ss.str();
 }
 
-void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool isSherpa=false){
+std::vector<Double_t> do_template_fit_rf(TH1D ** hbottom, TH1D **hcharm, TH1D **hlight, TH1D **hdata,vector<Int_t> & fit_status){
+
+  std::vector<Double_t> params;
+  params.resize(7);
+  
+  RooRealVar x("x","MV1c weight",0.,1.);
+
+  RooRealVar frbottom("bjet_fraction","bottom fraction",0.,1.);
+  RooRealVar frcharm("cjet_fraction","charm fraction",0.,1.);
+  RooRealVar frlight("ljet_fraction","light fraction",0.,1.);
+
+  RooDataHist data("data","dataset with x",x,hdata);
+  RooDataHist bjetMC("bjetMC","bjetMC with x",x,hbottom);
+  RooDataHist cjetMC("cjetMC","cjetMC with x",x,hcharm);
+  RooDataHist ljetMC("ljetMC","ljetMC with x",x,hlight);
+
+  RooHistPdf bjetTemplate("bjetTemplate","bjetTemplate",x,bjetMC);
+  RooHistPdf cjetTemplate("cjetTemplate","cjetTemplate",x,cjetMC);
+  RooHistPdf ljetTemplate("ljetTemplate","ljetTemplate",x,ljetMC);
+
+  RooArgList shapes;
+  shapes.add(bjetTemplate);
+  shapes.add(cjetTemplate);
+  shapes.add(ljetTemplate);
+  RooArgList norms;
+  norms.add(frbottom);
+  norms.add(frcharm);
+  RooAddPdf template_model("model","model",shapes,norms);
+
+  RooPlot* xframe = x.frame();
+
+  RooFit::Minimizer("Minuit2");
+  RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save());
+  double p_b = frbottom.getVal();
+  double p_c = frcharm.getVal();
+  double p_l = 1-p_b-p_c;
+
+  double errP_b = frbottom.getError();
+  double errP_c = frcharm.getError();
+  double errP_l= sqrt(pow(errP_b,2) + pow(errP_c,2));
+  xframe->SetMaximum(2000);
+  xframe->SetMinimum(0);
+
+  data.plotOn(xframe,Name("data"));
+  template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
+
+  template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
+  RooArgSet obs(x,"obs set");
+  RooArgSet* flparams = template_model.getParameters(obs);
+  RooChi2Var roochi2("chi2","chi2",template_model,data);
+  double chi2_ndf = roochi2.getVal()/(5.-2.);
+  //double chi2 = xframe->chiSquare(flparams->getSize());
+
+  double status = r->status();
+  fit_status.push_back(status);
+
+  params[0] = p_b;
+  params[1] = p_c;
+  params[2] = p_l;
+  params[3] = errP_b;
+  params[4] = errP_c;
+  params[5] = errP_l;
+  params[6] = chi2_ndf;
+
+  return params;
+
+}
+
+std::vector<Double_t> do_template_fit_tff(TH1D **hbottom, TH1D **hcharm, TH1D **hlight, TH1D **hdata,vector<Int_t> & fit_status){
+
+  //Parameters: b_fraction, c_fraction, l_fraction, b_f_error, c_f_error, l_f_error, chi2_ndf
+                                                                                             
+  std::vector<Double_t> params;
+  params.resize(7);
+  
+  TObjArray *mc = new TObjArray(3);
+  mc->Add(hbottom);
+  mc->Add(hcharm);
+  mc->Add(hlight);
+
+  TFractionFitter* fit = new TFractionFitter(hdata, mc);
+  fit->Constrain(0,0.0,1.0);
+  fit->Constrain(1,0.0,1.0);
+  fit->Constrain(2,0.0,1.0);
+
+  Int_t status = fit->Fit();
+  fit_status.push_back(status);
+
+  TH1F *mcp_b, *mcp_c, *mcp_l;
+  Double_t p_b, p_c, p_l, errP_b, errP_c, errP_l;
+  
+  TH1F* result = (TH1F*) fit->GetPlot();
+
+  double chi2 = fit->GetChisquare();
+  double ndf = fit->GetNDF();
+  double chi2_ndf = chi2/ndf;
+
+  mcp_b = (TH1F*)fit->GetMCPrediction(0);
+  mcp_c = (TH1F*)fit->GetMCPrediction(1);
+  mcp_l = (TH1F*)fit->GetMCPrediction(2);
+
+  fit->GetResult( 0, p_b, errP_b);
+  fit->GetResult( 1, p_c, errP_c);
+  fit->GetResult( 2, p_l, errP_l);
+
+  params[0] = p_b;
+  params[1] = p_c;
+  params[2] = p_l;
+  params[3] = errP_b;
+  params[4] = errP_c;
+  params[5] = errP_l;
+  params[6] = chi2_ndf;
+
+
+  return params;
+
+}
+
+
+void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
   using namespace RooFit;
 
   bool isStack = true;
   bool isLeadJet = true;
   bool isClosure = true;
+  bool isTFF = true;
 
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
@@ -188,66 +308,24 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
       if(bin_value == 0) hasEmptyBin = true;
     }
 
-    RooRealVar x("x","MV1c weight",0.,1.);
-  
-    RooRealVar frbottom("bjet_fraction","bottom fraction",0.,1.);
-    RooRealVar frcharm("cjet_fraction","charm fraction",0.,1.);
-    RooRealVar frlight("ljet_fraction","light fraction",0.,1.);
+
+    //    vector<Double_t> parameters = do_template_fit_rf(hbottom,hcharm,hlight,hdata,fit_status);
+    std::vector<Double_t> parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
+
+    Double_t b_result = parameters[0];
+    Double_t c_result = parameters[1];
+    Double_t l_result = parameters[2];
+    Double_t b_result_err = parameters[3];
+    Double_t c_result_err = parameters[4];
+    Double_t l_result_err = parameters[5];
+    Double_t chi2_ndf = parameters[6];
     
-    RooDataHist data("data","dataset with x",x,hdata);
-    RooDataHist bjetMC("bjetMC","bjetMC with x",x,hbottom);
-    RooDataHist cjetMC("cjetMC","cjetMC with x",x,hcharm);
-    RooDataHist ljetMC("ljetMC","ljetMC with x",x,hlight);
 
-    RooHistPdf bjetTemplate("bjetTemplate","bjetTemplate",x,bjetMC);
-    RooHistPdf cjetTemplate("cjetTemplate","cjetTemplate",x,cjetMC);
-    RooHistPdf ljetTemplate("ljetTemplate","ljetTemplate",x,ljetMC);
- 
-    RooArgList shapes;
-    shapes.add(bjetTemplate);
-    shapes.add(cjetTemplate);
-    shapes.add(ljetTemplate);
-    RooArgList norms;
-    norms.add(frbottom);
-    norms.add(frcharm);
-    RooAddPdf template_model("model","model",shapes,norms);
-
-    RooPlot* xframe = x.frame();
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
-
-
-    RooFit::Minimizer("Minuit2");
-     RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save());
-    double b_result = frbottom.getVal();
-    double c_result = frcharm.getVal();
-    double l_result = 1-b_result-c_result;
-
-    double b_result_err = frbottom.getError();
-    double c_result_err = frcharm.getError();
 
     h_bfrac->SetBinContent(1,bin_i,b_result);
     h_cfrac->SetBinContent(1,bin_i,c_result);
     h_lfrac->SetBinContent(1,bin_i,l_result);
-
-    //begin old comment
-    xframe->SetMaximum(2000);
-    xframe->SetMinimum(0);
-    
-    data.plotOn(xframe,Name("data"));
-    template_model.plotOn(xframe,Name("model"),LineColor(kBlue));
-    
-    //end old comment
-    template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
-    RooArgSet obs(x,"obs set");
-    RooArgSet* flparams = template_model.getParameters(obs);
-    RooChi2Var roochi2("chi2","chi2",template_model,data);
-    double chi2red = roochi2.getVal()/(5.-2.);
-    
-    double chi2 = xframe->chiSquare(flparams->getSize());
-    
-    double status = r->status();
-    fit_status.push_back(status);
-    
     if(!isPrefit){
       hbottom->Scale(Ndata*b_result/Nbottom);
       hcharm->Scale(Ndata*c_result/Ncharm);
@@ -340,7 +418,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
       
     }	
 
-    string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2red);
+    string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2_ndf);
     chi2_label.DrawLatex(0.6,0.9,chi2_label_text.c_str());
     string bfrac_text = "b fraction = " + NumToStr(b_result) + " #pm " + NumToStr(b_result_err);
     string cfrac_text = "c fraction = " + NumToStr(c_result) + " #pm " + NumToStr(c_result_err);
@@ -391,6 +469,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
     if(isLeadJet) img_name = img_name + "_leadjet";
     if(isPrefit) img_name += "_prefit";
     if(isClosure) img_name += "_closure";
+    if(isTFF) img_name += "_TFF";
     if(isSherpa) img_name += "_sherpa.pdf";
     else img_name += ".pdf";
     c1->SaveAs(img_name.c_str());
@@ -421,6 +500,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
   string bfrac_plot_n = plt_dir +"/bfraction_asymerr";
   if(isClosure) bfrac_plot_n += "_isClosure";
   if(isPrefit) bfrac_plot_n += "_isPrefit";
+  if(isTFF) bfrac_plot_n += "_TFF";
   if(isSherpa) bfrac_plot_n += "_sherpa.pdf";
   else bfrac_plot_n += ".pdf";
   c2.Update();
@@ -440,6 +520,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = true, bool is
   frame_dif->GetYaxis()->SetTitle("Prefit minus postfit b-fraction");
   string bfrac_plot_n_dif = plt_dir +"/bfraction_asymerr_dif";
   if(isClosure) bfrac_plot_n_dif += "_isClosure";
+  if(isTFF) bfrac_plot_n_dif += "_TFF";
   if(isSherpa) bfrac_plot_n_dif += "_sherpa.pdf";
   else bfrac_plot_n_dif += ".pdf";
   c3.Update();

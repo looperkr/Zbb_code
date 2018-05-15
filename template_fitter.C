@@ -163,13 +163,14 @@ std::vector<Double_t> do_template_fit_tff(TH1D **hbottom, TH1D **hcharm, TH1D **
 }
 
 
-void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=false){
+void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=true){
   using namespace RooFit;
 
   bool isStack = true;
   bool isLeadJet = true;
   bool isClosure = true;
   bool isTFF = true;
+  bool isTrueZ = true;
 
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
@@ -188,7 +189,15 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
      hist_name_c = kin_variable + "mv1c_charm_jets_hmatch_leadjet";
      hist_name_b = kin_variable + "mv1c_bottom_jets_hmatch_leadjet";
   }
-
+  if(isTrueZ){
+    hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
+    light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch_leadjet_trueZ.root";
+    charm_f = hist_dir + kin_variable + "mv1c_charm_jets_hmatch_leadjet_trueZ.root";
+    bottom_f = hist_dir + kin_variable + "mv1c_bottom_jets_hmatch_leadjet_trueZ.root";
+    hist_name_l = kin_variable + "mv1c_light_jets_hmatch_leadjet_trueZ";
+    hist_name_c = kin_variable + "mv1c_charm_jets_hmatch_leadjet_trueZ";
+    hist_name_b = kin_variable + "mv1c_bottom_jets_hmatch_leadjet_trueZ";
+  }
 
   string histlabel = "_mc";
   if(isSherpa) histlabel = "_sherpa";
@@ -198,12 +207,16 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   hist_name_b += histlabel;
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
-  if(isClosure) data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_ptmv1c_leadjet.root";
+  if(isClosure && !isTrueZ) data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_ptmv1c_leadjet.root";
+  else if(isClosure && isTrueZ) data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_ptmv1c_leadjet_trueZ.root";
   else data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
 
   string data_hist_name;
-  if(isClosure){
+  if(isClosure&&!isTrueZ){
     data_hist_name = "Z_ptmv1c_leadjet" + histlabel;
+  }
+  else if(isTrueZ){
+    data_hist_name = "Z_ptmv1c_leadjet_trueZ" + histlabel;
   }
   else data_hist_name = "mv1cweight_ptbinned_leadjet";
 
@@ -270,6 +283,19 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   string plt_dir;
   create_dir(plt_path,plt_dir);
 
+  //output to .csv
+  string fname_csv = "bfractions_and_difs";
+  if(isLeadJet) fname_csv += "_leadjet";
+  if(isPrefit) fname_csv += "_prefit";
+  if(isClosure) fname_csv += "_closure";
+  if(isTrueZ) fname_csv += "_trueZ";
+  if(isTFF) fname_csv += "_TFF";
+  if(isSherpa) fname_csv += "_sherpa";
+  fname_csv += ".csv";
+  ofstream f_csv;
+  f_csv.open(fname_csv.c_str()); 
+  f_csv << "Bin low edge,Bin high edge,b result,b error, template b frac, template b err, difference, difference err\n";
+
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
@@ -308,9 +334,9 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
       if(bin_value == 0) hasEmptyBin = true;
     }
 
-
-    //    vector<Double_t> parameters = do_template_fit_rf(hbottom,hcharm,hlight,hdata,fit_status);
-    std::vector<Double_t> parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
+    std::vector<Double_t> parameters;
+    if(isTFF)parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
+    else parameters = do_template_fit_rf(hbottom,hcharm,hlight,hdata,fit_status);
 
     Double_t b_result = parameters[0];
     Double_t c_result = parameters[1];
@@ -438,6 +464,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
     Double_t bin_width = high_edge-low_edge;
     Double_t bin_center = low_edge + bin_width/2;
+
     bin_center_vec.push_back(bin_center);
     if(!isPrefit){
       b_frac_vec.push_back(b_result);
@@ -463,12 +490,15 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     err_up_dif_vec.push_back(b_err_dif);
     err_down_dif_vec.push_back(b_err_dif);
 
+    f_csv << NumToStr(low_edge) << "," << NumToStr(high_edge) << "," << NumToStr(b_result) << "," << NumToStr(b_result_err) << "," << NumToStr(B_template_fraction) << "," << NumToStr(prefit_err) << "," << NumToStr(b_frac_dif) << "," << NumToStr(b_err_dif) << "\n";
+
     //end block
 
     string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
     if(isLeadJet) img_name = img_name + "_leadjet";
     if(isPrefit) img_name += "_prefit";
     if(isClosure) img_name += "_closure";
+    if(isTrueZ) img_name += "_trueZ";
     if(isTFF) img_name += "_TFF";
     if(isSherpa) img_name += "_sherpa.pdf";
     else img_name += ".pdf";
@@ -476,7 +506,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     c1->Close();
   }
   //end bin loop
-
+  f_csv.close();
 
   string f_frac_fname = "flavor_fractions/ffrac.root";
   TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"RECREATE");
@@ -500,11 +530,13 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   string bfrac_plot_n = plt_dir +"/bfraction_asymerr";
   if(isClosure) bfrac_plot_n += "_isClosure";
   if(isPrefit) bfrac_plot_n += "_isPrefit";
+  if(isTrueZ) bfrac_plot_n += "_isTrueZ";
   if(isTFF) bfrac_plot_n += "_TFF";
   if(isSherpa) bfrac_plot_n += "_sherpa.pdf";
   else bfrac_plot_n += ".pdf";
   c2.Update();
   c2.SaveAs(bfrac_plot_n.c_str());
+
 
   TCanvas c3 = TCanvas();
   Double_t x_axis_min_dif = 0;
@@ -520,6 +552,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   frame_dif->GetYaxis()->SetTitle("Prefit minus postfit b-fraction");
   string bfrac_plot_n_dif = plt_dir +"/bfraction_asymerr_dif";
   if(isClosure) bfrac_plot_n_dif += "_isClosure";
+  if(isTrueZ) bfrac_plot_n_dif += "_isTrueZ";
   if(isTFF) bfrac_plot_n_dif += "_TFF";
   if(isSherpa) bfrac_plot_n_dif += "_sherpa.pdf";
   else bfrac_plot_n_dif += ".pdf";

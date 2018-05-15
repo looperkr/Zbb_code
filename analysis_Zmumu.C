@@ -2370,7 +2370,7 @@ void analysis_Zmumu::dressMuon(int imu, int mapIndex, vector<pair<int,TLorentzVe
 
     //mapIndex == 0: pythia (alpgen+pythia)
     //mapIndex = 2: sherpa
-    if( (mapIndex == 0 && abs(mc_pdgId->at(phParentIndex)) == 23) || (mapIndex == 2 && mc_pdgId->at(phParentIndex) == 13 && mc_status->at(phParentIndex) == 11)){
+    if( (mapIndex == 0 && abs(mc_pdgId->at(phParentIndex)) == 23) || (mapIndex == 2 && abs(mc_pdgId->at(phParentIndex)) == 13 && mc_status->at(phParentIndex) == 11)){
 
 	BornMuon.SetPtEtaPhiM(mc_pt->at(phParentIndex), mc_eta->at(phParentIndex), mc_phi->at(phParentIndex), mc_m->at(phParentIndex));
 	BareMuon.SetPtEtaPhiM(mc_pt->at(imu), mc_eta->at(imu), mc_phi->at(imu), mc_m->at(imu));

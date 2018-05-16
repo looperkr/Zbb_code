@@ -1153,7 +1153,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   cout << "zplusjets sum: " << zplusjets_sum << endl;
 
   double zplusjets_debug_sum = h_zjets_sum.IntegralHist();
-  if(zplusjets_sum != zplusjets_debug_sum) cout << "SOMETHING IS WRONG" << endl;
+  double zplusjets_debug_ratio = zplusjets_debug_sum/zplusjets_sum;
+  double zplusjets_debug_dif  = zplusjets_debug_sum-zplusjets_sum;
+  double dif_tolerence = 0.00001;
+  if( ((1-dif_tolerence) < zplusjets_debug_ratio) && (zplusjets_debug_ratio < (1+dif_tolerence))) cout << "ok" << endl;
+  else {
+    cout << "SOMETHING IS WRONG" << endl;
+    cout << zplusjets_debug_ratio << endl;
+    cout << zplusjets_debug_dif << endl;
+  }
   cout << "Z plus jets: " << zplusjets_sum << endl;
   cout << "Z plus jets combined: " << zplusjets_debug_sum << endl;
 

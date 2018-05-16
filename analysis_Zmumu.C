@@ -47,9 +47,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
   isShort = false;

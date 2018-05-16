@@ -5,6 +5,13 @@
 #include "AtlasLabels.C"
 #include "AtlasUtils.h"
 
+bool isPrefit = false;
+bool isSherpa=false;
+bool isStack = true;
+bool isLeadJet = true;
+bool isClosure = false;
+bool isTFF = false;
+bool isTrueZ = false;
 
 void create_dir(string & plots_path, string & plots_dir){
   //Get current date and save to vector<string>
@@ -42,6 +49,16 @@ string NumToStr(double number_val){
   ss.precision(3);
   ss << number_val;
   return ss.str();
+}
+
+void AddSuffixes(string & starting_name=""){
+  if(isLeadJet) starting_name += "_leadjet";
+  if(isPrefit) starting_name += "_prefit";
+  if(isClosure) starting_name += "_closure";
+  if(isTrueZ) starting_name += "_trueZ";
+  if(isTFF) starting_name += "_TFF";
+  if(isSherpa) starting_name += "_sherpa";
+ 
 }
 
 std::vector<Double_t> do_template_fit_rf(TH1D ** hbottom, TH1D **hcharm, TH1D **hlight, TH1D **hdata,vector<Int_t> & fit_status){
@@ -163,14 +180,8 @@ std::vector<Double_t> do_template_fit_tff(TH1D **hbottom, TH1D **hcharm, TH1D **
 }
 
 
-void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool isSherpa=true){
+void template_fitter(string kin_variable = "Z_pt"){
   using namespace RooFit;
-
-  bool isStack = true;
-  bool isLeadJet = true;
-  bool isClosure = true;
-  bool isTFF = true;
-  bool isTrueZ = true;
 
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
@@ -285,17 +296,14 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
 
   //output to .csv
   string fname_csv = "bfractions_and_difs";
-  if(isLeadJet) fname_csv += "_leadjet";
-
-  if(isPrefit) fname_csv += "_prefit";
-  if(isClosure) fname_csv += "_closure";
-  if(isTrueZ) fname_csv += "_trueZ";
-  if(isTFF) fname_csv += "_TFF";
-  if(isSherpa) fname_csv += "_sherpa";
+  AddSuffixes(fname_csv);
   fname_csv += ".csv";
+
   ofstream f_csv;
   f_csv.open(fname_csv.c_str()); 
   f_csv << "Bin low edge,Bin high edge,b result,b error, template b frac, template b err, difference, difference err, N events\n";
+
+
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
@@ -496,13 +504,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     //end block
 
     string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
-    if(isLeadJet) img_name = img_name + "_leadjet";
-    if(isPrefit) img_name += "_prefit";
-    if(isClosure) img_name += "_closure";
-    if(isTrueZ) img_name += "_trueZ";
-    if(isTFF) img_name += "_TFF";
-    if(isSherpa) img_name += "_sherpa.pdf";
-    else img_name += ".pdf";
+    AddSuffixes(img_name);
+    img_name += ".pdf";
     c1->SaveAs(img_name.c_str());
     c1->Close();
   }
@@ -529,12 +532,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
   frame->GetYaxis()->SetTitle("b-jet fraction");
   string bfrac_plot_n = plt_dir +"/bfraction_asymerr";
-  if(isClosure) bfrac_plot_n += "_isClosure";
-  if(isPrefit) bfrac_plot_n += "_isPrefit";
-  if(isTrueZ) bfrac_plot_n += "_isTrueZ";
-  if(isTFF) bfrac_plot_n += "_TFF";
-  if(isSherpa) bfrac_plot_n += "_sherpa.pdf";
-  else bfrac_plot_n += ".pdf";
+  AddSuffixes(bfrac_plot_n);
+  bfrac_plot_n += ".pdf";
   c2.Update();
   c2.SaveAs(bfrac_plot_n.c_str());
 
@@ -552,11 +551,8 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   frame_dif->GetXaxis()->SetTitle("Z p_{T} [GeV]");
   frame_dif->GetYaxis()->SetTitle("Prefit minus postfit b-fraction");
   string bfrac_plot_n_dif = plt_dir +"/bfraction_asymerr_dif";
-  if(isClosure) bfrac_plot_n_dif += "_isClosure";
-  if(isTrueZ) bfrac_plot_n_dif += "_isTrueZ";
-  if(isTFF) bfrac_plot_n_dif += "_TFF";
-  if(isSherpa) bfrac_plot_n_dif += "_sherpa.pdf";
-  else bfrac_plot_n_dif += ".pdf";
+  AddSuffixes(bfrac_plot_n_dif);
+  bfrac_plot_n_dif += ".pdf";
   c3.Update();
   c3.SaveAs(bfrac_plot_n_dif.c_str());
 				 

@@ -286,6 +286,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   //output to .csv
   string fname_csv = "bfractions_and_difs";
   if(isLeadJet) fname_csv += "_leadjet";
+
   if(isPrefit) fname_csv += "_prefit";
   if(isClosure) fname_csv += "_closure";
   if(isTrueZ) fname_csv += "_trueZ";
@@ -294,7 +295,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
   fname_csv += ".csv";
   ofstream f_csv;
   f_csv.open(fname_csv.c_str()); 
-  f_csv << "Bin low edge,Bin high edge,b result,b error, template b frac, template b err, difference, difference err\n";
+  f_csv << "Bin low edge,Bin high edge,b result,b error, template b frac, template b err, difference, difference err, N events\n";
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
@@ -490,7 +491,7 @@ void template_fitter(string kin_variable = "Z_pt", bool isPrefit = false, bool i
     err_up_dif_vec.push_back(b_err_dif);
     err_down_dif_vec.push_back(b_err_dif);
 
-    f_csv << NumToStr(low_edge) << "," << NumToStr(high_edge) << "," << NumToStr(b_result) << "," << NumToStr(b_result_err) << "," << NumToStr(B_template_fraction) << "," << NumToStr(prefit_err) << "," << NumToStr(b_frac_dif) << "," << NumToStr(b_err_dif) << "\n";
+    f_csv << NumToStr(low_edge) << "," << NumToStr(high_edge) << "," << NumToStr(b_result) << "," << NumToStr(b_result_err) << "," << NumToStr(B_template_fraction) << "," << NumToStr(prefit_err) << "," << NumToStr(b_frac_dif) << "," << NumToStr(b_err_dif) << "," << NumToStr(Ndata) << "\n";
 
     //end block
 

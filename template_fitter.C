@@ -294,15 +294,23 @@ void template_fitter(string kin_variable = "Z_pt"){
   string plt_dir;
   create_dir(plt_path,plt_dir);
 
-  //output to .csv
+  //output b-fraction crosschecks to .csv
   string fname_csv = "bfractions_and_difs";
   AddSuffixes(fname_csv);
   fname_csv += ".csv";
 
   ofstream f_csv;
   f_csv.open(fname_csv.c_str()); 
-  f_csv << "Bin low edge,Bin high edge,b result,b error, template b frac, template b err, difference, difference err, N events\n";
+  f_csv << "Bin low edge,Bin high edge,b result,b error,template b frac,template b err,difference,difference err,N events\n";
 
+  //create .csv of results
+  string fname_results = "results";
+  AddSuffixes(fname_results);
+  fname_results += ".csv";
+
+  ofstream f_results;
+  f_results.open(fname_results.c_str());
+  f_results << "binlow,binhigh,bfraction,berr,cfraction,cerr,lfraction,lerr,chi2,Ndata\n";
 
 
   //begin loop over kinematic variable
@@ -500,6 +508,9 @@ void template_fitter(string kin_variable = "Z_pt"){
     err_down_dif_vec.push_back(b_err_dif);
 
     f_csv << NumToStr(low_edge) << "," << NumToStr(high_edge) << "," << NumToStr(b_result) << "," << NumToStr(b_result_err) << "," << NumToStr(B_template_fraction) << "," << NumToStr(prefit_err) << "," << NumToStr(b_frac_dif) << "," << NumToStr(b_err_dif) << "," << NumToStr(Ndata) << "\n";
+    
+    f_results << NumToStr(low_edge) << "," << NumToStr(high_edge) << "," << NumToStr(b_result) << "," << NumToStr(b_result_err) << "," << NumToStr(c_result) << "," << NumToStr(c_result_err) << "," << NumToStr(l_result) << "," << NumToStr(l_result_err) << "," << NumToStr(chi2_ndf) << "," << NumToStr(Ndata) << "\n";
+
 
     //end block
 
@@ -511,6 +522,7 @@ void template_fitter(string kin_variable = "Z_pt"){
   }
   //end bin loop
   f_csv.close();
+  f_results.close();
 
   string f_frac_fname = "flavor_fractions/ffrac.root";
   TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"RECREATE");

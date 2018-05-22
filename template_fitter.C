@@ -1,15 +1,50 @@
 //modified version of roofit_template.C, that can iterate over 2D (variable) vs mv1c weight histograms and fit bins, for differential cross-sections
 //assumes hadron-matching
 
+#ifndef __CINT__
+#include "RooGlobalFunc.h"
+#endif
+
 #include "AtlasStyle.C"
 #include "AtlasLabels.C"
 #include "AtlasUtils.h"
+#include "RooRealVar.h"
+#include "RooDataSet.h"
+#include "RooDataHist.h"
+#include "RooHistPdf.h"
+#include "RooAddPdf.h"
+#include "RooPlot.h"
+#include "RooChi2Var.h"
+#include "RooFitResult.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TMath.h"
+#include "TPad.h"
+#include "TLatex.h"
+#include "THStack.h"
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include "TFile.h"
+#include "TString.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TLegend.h"
+#include "TCanvas.h"
+#include "TImage.h"
+#include <ctime>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include "THStack.h"
+#include "TSystem.h"
+#include "TFractionFitter.h"
 
 bool isPrefit = false;
-bool isSherpa=false;
+bool isSherpa= false;
 bool isStack = true;
 bool isLeadJet = true;
-bool isClosure = false;
+bool isClosure = true;
 bool isTFF = false;
 bool isTrueZ = false;
 
@@ -51,17 +86,18 @@ string NumToStr(double number_val){
   return ss.str();
 }
 
-void AddSuffixes(string & starting_name=""){
+void AddSuffixes(string & starting_name){
   if(isLeadJet) starting_name += "_leadjet";
   if(isPrefit) starting_name += "_prefit";
   if(isClosure) starting_name += "_closure";
   if(isTrueZ) starting_name += "_trueZ";
   if(isTFF) starting_name += "_TFF";
   if(isSherpa) starting_name += "_sherpa";
- 
+  //  starting_name += "_withbug";
 }
 
-std::vector<Double_t> do_template_fit_rf(TH1D ** hbottom, TH1D **hcharm, TH1D **hlight, TH1D **hdata,vector<Int_t> & fit_status){
+std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status){
+  using namespace RooFit;
 
   std::vector<Double_t> params;
   params.resize(7);
@@ -72,11 +108,16 @@ std::vector<Double_t> do_template_fit_rf(TH1D ** hbottom, TH1D **hcharm, TH1D **
   RooRealVar frcharm("cjet_fraction","charm fraction",0.,1.);
   RooRealVar frlight("ljet_fraction","light fraction",0.,1.);
 
-  RooDataHist data("data","dataset with x",x,hdata);
+  RooDataHist data("data","dataset with x",x,Import(*hdata,kFALSE));
+  RooDataHist bjetMC("bjetMC","bjetMC with x",x,Import(*hbottom,kFALSE));
+  RooDataHist cjetMC("cjetMC","cjetMC with x",x,Import(*hcharm,kFALSE));
+  RooDataHist ljetMC("ljetMC","ljetMC with x",x,Import(*hlight,kFALSE));
+
+  /*  RooDataHist data("data","dataset with x",x,hdata);
   RooDataHist bjetMC("bjetMC","bjetMC with x",x,hbottom);
   RooDataHist cjetMC("cjetMC","cjetMC with x",x,hcharm);
   RooDataHist ljetMC("ljetMC","ljetMC with x",x,hlight);
-
+  */
   RooHistPdf bjetTemplate("bjetTemplate","bjetTemplate",x,bjetMC);
   RooHistPdf cjetTemplate("cjetTemplate","cjetTemplate",x,cjetMC);
   RooHistPdf ljetTemplate("ljetTemplate","ljetTemplate",x,ljetMC);
@@ -129,7 +170,7 @@ std::vector<Double_t> do_template_fit_rf(TH1D ** hbottom, TH1D **hcharm, TH1D **
 
 }
 
-std::vector<Double_t> do_template_fit_tff(TH1D **hbottom, TH1D **hcharm, TH1D **hlight, TH1D **hdata,vector<Int_t> & fit_status){
+std::vector<Double_t> do_template_fit_tff(TH1D *hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status){
 
   //Parameters: b_fraction, c_fraction, l_fraction, b_f_error, c_f_error, l_f_error, chi2_ndf
                                                                                              
@@ -268,7 +309,6 @@ void template_fitter(string kin_variable = "Z_pt"){
     h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);
   }
   else{
-    h_testb = new TH2D("test","test",1,0,1,nXbins,varbin_array);
     h_bfrac = new TH2D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),1,0,1,nXbins,varbin_array);
     h_cfrac = new TH2D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),1,0,1,nXbins,varbin_array);
     h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,nXbins,varbin_array);
@@ -317,7 +357,7 @@ void template_fitter(string kin_variable = "Z_pt"){
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
     bool hasEmptyBin = false;
-    cout << "BEGIN LOOP " << bin_i << "OF " << n_kinbins << endl;
+    cout << "BEGIN LOOP " << bin_i << " OF " << n_kinbins << endl;
     cout << "###############################################" << endl;
 
     TH1D *hlight = hlight_2D->ProjectionX("light_px", bin_i, bin_i);
@@ -569,7 +609,7 @@ void template_fitter(string kin_variable = "Z_pt"){
   c3.SaveAs(bfrac_plot_n_dif.c_str());
 				 
     
-  for(int i=0; i<fit_status.size(); i++){
+  for(unsigned int i=0; i<fit_status.size(); i++){
     if(fit_status.at(i) != 0) cout << "FIT #" << i << " DID NOT CONVERGE" << endl;
   }
 }

@@ -45,11 +45,13 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
+  
+  TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
   isWideWindow = false;
   isShort = false;

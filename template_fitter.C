@@ -122,6 +122,13 @@ std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hli
   RooHistPdf cjetTemplate("cjetTemplate","cjetTemplate",x,cjetMC);
   RooHistPdf ljetTemplate("ljetTemplate","ljetTemplate",x,ljetMC);
 
+  Double_t template_sum_b = bjetMC.sum(kTRUE);
+  Double_t template_sum_c = cjetMC.sum(kTRUE);
+  Double_t template_sum_l = ljetMC.sum(kTRUE);
+
+  cout << "TEMPLATE SUMS: " << "b = " << template_sum_b << " c = " << template_sum_c << " l = " << template_sum_l << endl;
+
+
   RooArgList shapes;
   shapes.add(bjetTemplate);
   shapes.add(cjetTemplate);
@@ -389,6 +396,44 @@ void template_fitter(string kin_variable = "Z_pt"){
     for(int k = 1; k < hdata->GetNbinsX()+1; k++){
       double bin_value = hdata->GetBinContent(k);
       if(bin_value == 0) hasEmptyBin = true;
+    }
+
+    //create false data histogram that is a weighted sum of the template histograms
+    if(isClosure){
+      hdata->Reset("ICESM");
+      hdata->GetSumw2()->Set(0);
+      hdata->Sumw2();
+      TH1D *l_clone = (TH1D*)hlight->Clone();
+      TH1D *c_clone = (TH1D*)hcharm->Clone();
+      TH1D *b_clone = (TH1D*)hbottom->Clone();
+      
+      Double_t scale_l = 1/l_clone->Integral();
+      Double_t scale_c = 1/c_clone->Integral();
+      Double_t scale_b = 1/b_clone->Integral();
+
+      l_clone->Scale(scale_l);
+      c_clone->Scale(scale_c);
+      b_clone->Scale(scale_b);
+      
+      Double_t lweight = .82;
+      Double_t cweight = .15;
+      Double_t bweight = .03;
+
+      hdata->Add(l_clone,lweight);
+      hdata->Add(c_clone,cweight);
+      hdata->Add(b_clone,bweight);
+
+      cout << "DEBUG ADDITION: " << hdata->Integral() << endl;
+
+      hdata->Scale(Ndata/hdata->Integral());
+      //      hdata->Sumw2();
+      //Set each bin error to sqrt(N)
+      /*Int_t Nbins_closure = hdata->GetNbinsX();
+      for(int b=1; b < Nbins_closure+1; b++){
+	Double_t bin_c_closure = hdata->GetBinContent(b);
+	hdata->SetBinError(b,sqrt(bin_c_closure));
+	}*/
+
     }
 
     std::vector<Double_t> parameters;

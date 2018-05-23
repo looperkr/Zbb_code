@@ -319,6 +319,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mv1cweight_bottom_had_match_ptbinned_leadjet","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "Z_ptmv1c_leadjet"){
+    isTruth = true;
     chooseHistOptions("mv1cweight_ptbinned_leadjet","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "Z_ptmv1c_leadjet_trueZ"){
@@ -1318,6 +1319,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_mc_sum_clone = h_mc_sum.CloneHist();
   if(include_sherpa) h_mc_sherpa_sum_clone = h_mc_sherpa_sum.CloneHist();
   if(!scale_to_lumi && !isTruth){
+    cout << "ENTERED INTO NORMALIZING TO DATA BLOCK" << endl;
     h_mc_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());
     cout << "Normalization ratio: " << h_data->Integral()/h_mc_sum.IntegralHist() << endl;
     h_singletop_sum_clone.ScaleHist(h_data->Integral()/h_mc_sum.IntegralHist());

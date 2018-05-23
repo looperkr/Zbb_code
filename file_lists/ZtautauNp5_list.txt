@@ -1,2 +1,0 @@
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107675.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp5_16.21.1_v0_skim.root/user.klooper.7498900._000001.skim.root
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107675.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp5_16.21.1_v0_skim.root/user.klooper.7498900._000002.skim.root

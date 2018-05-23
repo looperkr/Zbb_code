@@ -1,6 +1,0 @@
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107674.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp4_16.21.1_v0_skim.root/user.klooper.7498898._000001.skim.root
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107674.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp4_16.21.1_v0_skim.root/user.klooper.7498898._000002.skim.root
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107674.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp4_16.21.1_v0_skim.root/user.klooper.7498898._000003.skim.root
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107674.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp4_16.21.1_v0_skim.root/user.klooper.7498898._000004.skim.root
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107674.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp4_16.21.1_v0_skim.root/user.klooper.7498898._000005.skim.root
-/n/atlas05/userdata/klooper/skim_output_MC/user.klooper.prun_slimmed_107674.AlpgenJimmy_AUET2CTEQ6L1_ZtautauNp4_16.21.1_v0_skim.root/user.klooper.7498898._000006.skim.root

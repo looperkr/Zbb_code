@@ -44,7 +44,7 @@ bool isPrefit = false;
 bool isSherpa= false;
 bool isStack = true;
 bool isLeadJet = true;
-bool isClosure = true;
+bool isClosure = false;
 bool isTFF = false;
 bool isTrueZ = false;
 
@@ -93,7 +93,6 @@ void AddSuffixes(string & starting_name){
   if(isTrueZ) starting_name += "_trueZ";
   if(isTFF) starting_name += "_TFF";
   if(isSherpa) starting_name += "_sherpa";
-  //  starting_name += "_withbug";
 }
 
 std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status){
@@ -372,9 +371,9 @@ void template_fitter(string kin_variable = "Z_pt"){
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);
     TH1D *hdata = hdata_2D->ProjectionX("data_px", bin_i, bin_i);
 
-    hlight->Sumw2();
+    /*    hlight->Sumw2();
     hcharm->Sumw2();
-    hbottom->Sumw2();
+    hbottom->Sumw2();*/
     //    hdata->SetBinErrorOption(TH1::kPoisson);
     //    hdata->Sumw2();
 
@@ -382,7 +381,7 @@ void template_fitter(string kin_variable = "Z_pt"){
     y_min = (hdata->GetMinimum()) * 0.1;
     y_max = (hdata->GetMaximum()) * 15.;
 
-    hdata->SetBinErrorOption(TH1::kPoisson);
+    //hdata->SetBinErrorOption(TH1::kPoisson); //testing
 
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();

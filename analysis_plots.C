@@ -319,7 +319,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     chooseHistOptions("mv1cweight_bottom_had_match_ptbinned_leadjet","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "Z_ptmv1c_leadjet"){
-    isTruth = true;
+    //isTruth = true;
     chooseHistOptions("mv1cweight_ptbinned_leadjet","Z pT vs mv1c weight", "Z pT", 0,1,0,1000,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "Z_ptmv1c_leadjet_trueZ"){

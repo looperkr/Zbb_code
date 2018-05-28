@@ -290,13 +290,14 @@ Histogram add_histo(TFile ** farray, const int farray_size, string *file_name, T
     h_array[i] = (TH1D*)farray[i]->Get(h_name);
     if(!h_array[i]) cout << "histogram " << h_name << " in " << i << "th file failed to open";
     events_before_scaling += h_array[i]->Integral();
-    cout << setprecision(5);
+    /*cout << setprecision(5);
     cout << "error before sumw2 for bin 2: "  << h_array[i]->GetBinError(2) << endl;
     cout << "sqrt of contents before sumw2: " << sqrt(h_array[i]->GetBinContent(5)) << endl;
-    cout << "number of entries: " << h_array[i]->GetEntries() << endl;
+    cout << "number of entries: " << h_array[i]->GetEntries() << endl;*/
     h_array[i]->Sumw2();
+    /*
     cout << "error after sumw2 for bin 2: " << h_array[i]->GetBinError(2) << endl;
-    cout << "sqrt of contents after sumw2: " << sqrt(h_array[i]->GetBinContent(5)) << endl;
+    cout << "sqrt of contents after sumw2: " << sqrt(h_array[i]->GetBinContent(5)) << endl;*/
     h_array[i]->Scale(norm_factor[i]);
     events_after_scaling += h_array[i]->Integral();
   }

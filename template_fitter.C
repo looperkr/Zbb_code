@@ -40,7 +40,7 @@
 #include "TSystem.h"
 #include "TFractionFitter.h"
 
-bool isPrefit = false;
+bool isPrefit = true;
 bool isSherpa= false;
 bool isStack = true;
 bool isLeadJet = true;
@@ -371,17 +371,10 @@ void template_fitter(string kin_variable = "Z_pt"){
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);
     TH1D *hdata = hdata_2D->ProjectionX("data_px", bin_i, bin_i);
 
-    /*    hlight->Sumw2();
-    hcharm->Sumw2();
-    hbottom->Sumw2();*/
-    //    hdata->SetBinErrorOption(TH1::kPoisson);
-    //    hdata->Sumw2();
-
     //Dynamic y-axis adjustment
     y_min = (hdata->GetMinimum()) * 0.1;
     y_max = (hdata->GetMaximum()) * 15.;
 
-    //hdata->SetBinErrorOption(TH1::kPoisson); //testing
 
     Int_t Nlight = hlight->Integral();
     Int_t Ncharm = hcharm->Integral();
@@ -425,13 +418,6 @@ void template_fitter(string kin_variable = "Z_pt"){
       cout << "DEBUG ADDITION: " << hdata->Integral() << endl;
 
       hdata->Scale(Ndata/hdata->Integral());
-      //      hdata->Sumw2();
-      //Set each bin error to sqrt(N)
-      /*Int_t Nbins_closure = hdata->GetNbinsX();
-      for(int b=1; b < Nbins_closure+1; b++){
-	Double_t bin_c_closure = hdata->GetBinContent(b);
-	hdata->SetBinError(b,sqrt(bin_c_closure));
-	}*/
 
     }
 
@@ -469,18 +455,8 @@ void template_fitter(string kin_variable = "Z_pt"){
     hdata->SetLineColor(kBlack);
     final_sum->SetLineColor(kBlue);
     
-    TLegend *leg = new TLegend(0.6,0.64,0.95,0.80);
+    TLegend *leg = new TLegend(0.6,0.76,0.95,0.92);
     leg->SetTextSize(0.03);
-    
-    TLatex chi2_label;
-    chi2_label.SetNDC();
-    chi2_label.SetTextSize(0.03);
-    TLatex bresult_label;
-    TLatex cresult_label;
-    bresult_label.SetNDC();
-    bresult_label.SetTextSize(0.03);
-    cresult_label.SetNDC();
-    cresult_label.SetTextSize(0.03);
     
     if(!hasEmptyBin) c1->SetLogy();
     
@@ -545,14 +521,6 @@ void template_fitter(string kin_variable = "Z_pt"){
       
     }	
 
-    string chi2_label_text = "Chi2/ndf = " + NumToStr(chi2_ndf);
-    chi2_label.DrawLatex(0.6,0.9,chi2_label_text.c_str());
-    string bfrac_text = "b fraction = " + NumToStr(b_result) + " #pm " + NumToStr(b_result_err);
-    string cfrac_text = "c fraction = " + NumToStr(c_result) + " #pm " + NumToStr(c_result_err);
-    bresult_label.DrawLatex(0.6,0.86,bfrac_text.c_str());
-    cresult_label.DrawLatex(0.6,0.82,cfrac_text.c_str());
-   
-    
     int low_edge = varbin_array[bin_i-1];
     int high_edge = varbin_array[bin_i];
 
@@ -598,7 +566,7 @@ void template_fitter(string kin_variable = "Z_pt"){
 
     //end block
 
-    string img_name = plt_dir + "/" + "template_text" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
+    string img_name = plt_dir + "/" + "template_" + NumToStr(low_edge) + "to"+ NumToStr(high_edge);
     AddSuffixes(img_name);
     img_name += ".pdf";
     c1->SaveAs(img_name.c_str());

@@ -20,3 +20,4 @@ packages/
 *.cxx
 *.log
 rootlogon.C
+file_lists/

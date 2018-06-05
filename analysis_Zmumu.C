@@ -186,6 +186,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_1j_tighteta_MET_migration = new TH2D("Z_pt_1j_migration","Z pT >= 1j migration matrix", VarBinPt_new_size,VarBinPt_new_vec,VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1j_tighteta_MET = new TH1D("Z_pt_1j","Z pT >= 1j", VarBinPt_new_size, VarBinPt_new_vec);
 
+   h_Z_pt_1j_tighteta_b_truth = new TH1D("Z_pt_1j_b_truth","Z pT (truth level), >= 1j,b",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_b_match = new TH1D("Z_pt_1j_b_match","Z pT (true Z in event, true b)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_b_unmatch = new TH1D("Z_pt_1j_b_unmatch","Z pT (no true Z or no b)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_b_migration = new TH2D("Z_pt_1j_b_migration","Z pT >=1b migration matrix",VarBinPt_new_size,VarBinPt_new_vec,VarBinPt_new_size,VarBinPt_new_vec);
+   
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -504,6 +509,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //truth vectors and objects
   passTruthSelections = false;
   passJetTruthSelections = false; //truth jet in tracking volume in event
+  passLeadJetB = false; //leading truth jet is B-hadron matched
   dressed_Z_mass = 0.;
   dressed_Z_y = 0.;
   dressed_Z_pt = 0.;
@@ -608,12 +614,19 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
         if(dressed_Z_mass > 76. && dressed_Z_mass < 106.){
           passTruthSelections = true;
           getTruthJets(v_dressedMuons,v_truthJets);
-	  if(v_truthJets.size() > 0) passJetTruthSelections = true;
+	  if(v_truthJets.size() > 0){
+	    passJetTruthSelections = true;
+	    int true_flav_label = getJetFlavourLabel(v_truthJets[0].second.Eta(),v_truthJets[0].second.Phi(),0); //0 is dummy designation, don't have AntiKt4TruthWithMunu_flavor_truth_label to tau veto
+	    if(true_flav_label == 5) passLeadJetB = true;
+	  }
           h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
           h_n_jets_truth->Fill(v_truthJets.size(),weight);
 	  if(passJetTruthSelections){
 	    h_leadjet_pt_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
 	    h_Z_pt_1j_tighteta_truth->Fill(dressed_Z_pt,weight);
+	    if(passLeadJetB){
+	      h_Z_pt_1j_tighteta_b_truth->Fill(dressed_Z_pt,weight);
+	    }
 	  }
 	  h_dressed_mu_Z_y->Fill(dressed_Z_y,weight);
 	  h_dressed_mu_Z_pt->Fill(dressed_Z_pt,weight);
@@ -1477,16 +1490,32 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  h_leadjet_pt_migration->Fill(jet_v_tight[0].second.Pt()/1000.,v_truthJets[0].second.Pt()/1000.,weight);
 	  h_Z_pt_1j_tighteta_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
 	  h_Z_pt_1j_tighteta_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
+	  if(passLeadJetB){ 
+	    h_Z_pt_1j_tighteta_b_match->Fill(Z_fourv.Pt()/1000.,weight);
+	    h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
+	  }
 	}
       }
       else{
+	h_n_jets_unmatch->Fill(jet_v_tight.size(),weight);
+      }
+      if(!passTruthSelections || v_truthJets.size() == 0){
+	if(jet_v_tight.size() > 0){
+	  h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+          h_Z_pt_1j_tighteta_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+	}
+      }
+      if(!passTruthSelections || v_truthJets.size() == 0 || !passLeadJetB){
+	h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+      }
+      /*else{
 	h_n_jets_unmatch->Fill(jet_v_tight.size(),weight);
 	if(jet_v_tight.size() > 0){
 	  h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
 	  h_Z_pt_1j_tighteta_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
 	}
-      }
-    }
+	}*/
+    } //end isMC block
     for(unsigned int i = 0; i < jet_v_tight.size(); i++){
       h_jet_pt_tighteta_MET->Fill(jet_v_tight[i].second.Pt()/1000.,weight);
       h_jet_y_tighteta_MET->Fill(jet_v_tight[i].second.Rapidity(),weight);
@@ -1658,7 +1687,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	h_mv1cweight_bottom_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	if(i==0){ 
 	  h_mv1cweight_bottom_had_match_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
-	  if(passTruthSelections) h_mv1cweight_bottom_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+	  if(passTruthSelections){
+	    h_mv1cweight_bottom_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+	  }
+
 	}
 	break;
       case 4:
@@ -1933,6 +1965,10 @@ void analysis_Zmumu::Terminate()
   h_Z_pt_1j_tighteta_MET_unmatch->Write();
   h_Z_pt_1j_tighteta_MET_migration->Write();
   h_Z_pt_1j_tighteta_MET->Write();
+  h_Z_pt_1j_tighteta_b_truth->Write();
+  h_Z_pt_1j_tighteta_b_match->Write();
+  h_Z_pt_1j_tighteta_b_unmatch->Write();
+  h_Z_pt_1j_tighteta_b_migration->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();

@@ -40,7 +40,7 @@
 #include "TSystem.h"
 #include "TFractionFitter.h"
 
-bool isPrefit = true;
+bool isPrefit = false;
 bool isSherpa= false;
 bool isStack = true;
 bool isLeadJet = true;

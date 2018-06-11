@@ -440,19 +440,35 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_pt_1j_truth"){
     isTruth = true;
-    chooseHistOptions("Z_pt_1j_truth","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_truth","Z p_{T}, >= 1j","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j_match"){
     isTruth = true;
-    chooseHistOptions("Z_pt_1j_match","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_match","Z p_{T}, >= 1j","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j_unmatch"){
     isTruth = true;
-    chooseHistOptions("Z_pt_1j_unmatch","Z p_{T}, >= 1j","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_unmatch","Z p_{T}, >= 1j","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j_migration"){
     isTruth = true;
-    chooseHistOptions("Z_pt_1j_migration","Z p_{T}, >= 1j","Events", 0., 1000., 0., 1000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_migration","Z p_{T}, >= 1j","Events", 0., 800., 0., 800, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_truth"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_b_truth","Z p_{T}, >= 1b","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_match"){
+    isTruth= true;
+    chooseHistOptions("Z_pt_1j_b_match","Z p_{T}, >= 1b","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_unmatch"){
+    isTruth= true;
+    chooseHistOptions("Z_pt_1j_b_unmatch","Z p_{T}, >= 1b","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_migration"){
+    isTruth= true;
+    chooseHistOptions("Z_pt_1j_b_migration","Z p_{T}, >= 1j","Events", 0., 800., 0., 800, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_truth"){
     isTruth = true;

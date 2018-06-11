@@ -1,13 +1,21 @@
 from ROOT import TFile, TH1D, TH2D, gROOT, TH1
 import os,sys
+import csv
 
+def divideByBFraction(histo):
+    f = TFile("flavor_fractions/ffrac.root","READ")
+    h_bfrac = f.Get("bfrac_Z_pt")
+    histo.Multiply(h_bfrac)
+    f.Close()
+
+isBresult = True
 #Dictionary stores list with ["distributionname",min,max,binning]
 #testing
 fill_empty = True #Creates empty background histograms for testing
 
-distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Z_Y","Z_pt":"Pt_nomet","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt"} #map my_names -> unfolding_names
+distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Z_Y","Z_pt":"Pt_nomet","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt","Z_pt_1b":"Z_Pt"} #map my_names -> unfolding_names
 truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":"Z_pt", "Z_y":"Z_y", "Z_y_MET":"Z_y",
-              "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt","Z_pt_1j":"Z_pt_1j"} #map reco distribution -> truth distribution
+              "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt","Z_pt_1j":"Z_pt_1j","Z_pt_1b":"Z_pt_1b"} #map reco distribution -> truth distribution
 
 distribution = sys.argv[1]
 truth_distribution = truth_name[distribution]
@@ -38,6 +46,8 @@ for hist in uf_hist_list:
     var_2_plot = distribution
     if hist == "_truth":
         var_2_plot = truth_distribution
+    if isBresult and hist == "":
+        var_2_plot = "Z_pt_1j"
     var_2_plot += hist
     cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,false)"
     print cmd
@@ -51,6 +61,8 @@ for hist in uf_hist_list:
     var_f_name = ""
     if hist == "_truth":
         var_f_name = "unfolding_preprocessed/"+ truth_distribution + hist + ".root"
+    elif hist == "" and isBresult:
+        var_f_name = "unfolding_preprocessed/" + "Z_pt_1j" + hist + ".root"
     else:
         var_f_name = "unfolding_preprocessed/"+ distribution + hist + ".root"
     f = TFile(var_f_name,"READ")
@@ -77,12 +89,19 @@ for j in range(0,len(sig_samples)):
     uf_f = TFile(uf_fname,"UPDATE")
     for i in range(0,len(uf_hist_list)):
         uf_h = hist_arr[i][j]
+        if i == 0 and isBresult:
+            print uf_h.Integral()
+            divideByBFraction(uf_h)
+            print uf_h.Integral()
+            uf_f.cd()
         uf_h.Write()
     uf_f.Close()
 
 for element in nbins_list:
     print "Number of bins in " + element[1] + ": " + str(element[0])
 
+if isBresult:
+    distribution = "Z_pt_1j"
 bkg_var_f_name = "unfolding_preprocessed/"+ distribution +".root"
 f_reco = TFile(bkg_var_f_name,"READ")
 for k in range(0,len(bkg_samples)):
@@ -110,6 +129,9 @@ print uf_h_name_data
 h_data.SetName(uf_h_name_data)
 uf_fname_data = "unfolding_inputs/hist-data.root"
 uf_f_data = TFile(uf_fname_data,"UPDATE")
+if isBresult:
+    divideByBFraction(h_data)
+uf_f_data.cd()
 h_data.Write()
 uf_f_data.Close()
 

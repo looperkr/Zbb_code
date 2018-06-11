@@ -291,16 +291,16 @@ void template_fitter(string kin_variable = "Z_pt"){
   TH2D *hdata_2D = (TH2D*)f_data->Get(data_hist_name.c_str());
 
   
-  //make 2D histogram that holds flavor fractions for each kinematic variable (Z pT) bin
+  //make histogram that holds flavor fractions for each kinematic variable (Z pT) bin
   TAxis *y_axis_kinvar = hdata_2D->GetYaxis();
 
-  TH2D *h_bfrac;
-  TH2D *h_cfrac;
-  TH2D *h_lfrac;
+  TH1D *h_bfrac;
+  TH1D *h_cfrac;
+  TH1D *h_lfrac;
 
-  int nXbins = hdata_2D->GetNbinsX();
+  int nYbins = hdata_2D->GetNbinsY();
   const Double_t *varbin_array = y_axis_kinvar->GetXbins()->GetArray();
-
+  
   bool isVarBinned = true;
 
   if(y_axis_kinvar->GetXbins()->GetSize() == 0){
@@ -310,14 +310,22 @@ void template_fitter(string kin_variable = "Z_pt"){
     double y_max_kinvar = y_axis_kinvar->GetXmax();
     double n_bins_kinvar = y_axis_kinvar->GetNbins();
     
+    h_bfrac = new TH1D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),n_bins_kinvar,y_min_kinvar,y_max_kinvar);
+    h_cfrac = new TH1D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),n_bins_kinvar,y_min_kinvar,y_max_kinvar);
+    h_lfrac = new TH1D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),n_bins_kinvar,y_min_kinvar,y_max_kinvar);
+    /*
     h_bfrac = new TH2D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);
     h_cfrac = new TH2D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);
-    h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);
+    h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,n_bins_kinvar,y_min_kinvar,y_max_kinvar);*/
   }
   else{
+    h_bfrac = new TH1D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),nYbins,varbin_array);
+    h_cfrac = new TH1D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),nYbins,varbin_array);
+    h_lfrac = new TH1D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),nYbins,varbin_array);
+    /*
     h_bfrac = new TH2D(("bfrac_"+kin_variable).c_str(), (kin_variable + " b fraction").c_str(),1,0,1,nXbins,varbin_array);
     h_cfrac = new TH2D(("cfrac_"+kin_variable).c_str(), (kin_variable + " c fraction").c_str(),1,0,1,nXbins,varbin_array);
-    h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,nXbins,varbin_array);
+    h_lfrac = new TH2D(("lfrac_"+kin_variable).c_str(), (kin_variable + " lfraction").c_str(),1,0,1,nXbins,varbin_array);*/
   }
 
   //Default values -- dynamically changed in fitting loop
@@ -383,6 +391,7 @@ void template_fitter(string kin_variable = "Z_pt"){
 
     if(Ndata == 0){
       cout << "EMPTY DATA HISTOGRAM, SKIP!" << endl;
+      h_bfrac->SetBinContent(bin_i,0);
       continue;
     }
     for(int k = 1; k < hdata->GetNbinsX()+1; k++){
@@ -436,9 +445,13 @@ void template_fitter(string kin_variable = "Z_pt"){
 
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 
-    h_bfrac->SetBinContent(1,bin_i,b_result);
-    h_cfrac->SetBinContent(1,bin_i,c_result);
-    h_lfrac->SetBinContent(1,bin_i,l_result);
+    h_bfrac->SetBinContent(bin_i,b_result);
+    h_cfrac->SetBinContent(bin_i,c_result);
+    h_lfrac->SetBinContent(bin_i,l_result);
+    h_bfrac->SetBinError(bin_i,b_result_err);
+    h_cfrac->SetBinError(bin_i,c_result_err);
+    h_lfrac->SetBinError(bin_i,l_result_err);
+
     if(!isPrefit){
       hbottom->Scale(Ndata*b_result/Nbottom);
       hcharm->Scale(Ndata*c_result/Ncharm);

@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isGrid = false;
   isMJ = false;

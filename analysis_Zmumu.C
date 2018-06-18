@@ -328,11 +328,6 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_bottom_had_match_ptbinned_leadjet = new TH2D("mv1cweight_bottom_had_match_ptbinned_leadjet","mv1c weight (bottom) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_ptbinned_leadjet = new TH2D("mv1cweight_ptbinned_leadjet","mv1cweight leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
 
-   h_mv1cweight_light_had_match_ptbinned_leadjet = new TH2D("mv1cweight_light_had_match_ptbinned_leadjet", "mv1c weight (light) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
-   h_mv1cweight_charm_had_match_ptbinned_leadjet= new TH2D("mv1cweight_charm_had_match_ptbinned_leadjet","mv1c weight (charm) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
-   h_mv1cweight_bottom_had_match_ptbinned_leadjet = new TH2D("mv1cweight_bottom_had_match_ptbinned_leadjet","mv1c weight (bottom) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
-   h_mv1cweight_ptbinned_leadjet = new TH2D("mv1cweight_ptbinned_leadjet","mv1cweight leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
-
    //quark-matched, testing
    h_mv1cweight_light_ptbinned_leadjet = new TH2D("mv1cweight_light_ptbinned_leadjet", "mv1c weight (light) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_charm_ptbinned_leadjet= new TH2D("mv1cweight_charm_ptbinned_leadjet","mv1c weight (charm) leading jet",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);

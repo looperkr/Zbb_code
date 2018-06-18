@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
@@ -194,7 +194,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_1j_tighteta_notb_truth = new TH1D("Z_pt_1j_tighteta_notb_truth","Z pT (truth level), >= 1j, notb",VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1j_tighteta_b_reco = new TH1D("Z_pt_1j_tighteta_b_reco","Z pT (reco), >= 1b",VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1j_tighteta_notb_reco = new TH1D("Z_pt_1j_tighteta_notb_reco","Z pT (reco) >= 1j, notb",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_b_unmatch_norecobcheck = new TH1D("Z_pt_1j_tighteta_b_unmatch_norecobcheck","Z pT (reco) >= 1j,norecobcheck",VarBinPt_new_size,VarBinPt_new_vec);
 
+   h_DeltaR_trueleadjet_recoleadjet = new TH1D("dR_trueleadjet_recoleadjet","DeltaR between true leading jet and reco leading jet",110,0,5.5);
+   h_DeltaR_trueleadb_recoleadjet = new TH1D("dR_trueleadb_recoleadjet","DeltaR between truth leading jet (b) and reco leading jet",110,0,5.5);
+   h_trueb_pt_noleadingrecojet = new TH1D("trueb_pt_noleadingrecojet","pT of b-jets with no reco jets in event",4000,0,2000);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -514,6 +518,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   passTruthSelections = false;
   passJetTruthSelections = false; //truth jet in tracking volume in event
   passLeadJetB = false; //leading truth jet is B-hadron matched
+  passRecoLeadJetB = false; //leading reco jet is B-hadron matched
   dressed_Z_mass = 0.;
   dressed_Z_y = 0.;
   dressed_Z_pt = 0.;
@@ -1488,19 +1493,31 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(jet_v.size() > 4) h_Z_mass_5j_MET->Fill(Zmass,weight);
     //tight eta distributions 
     h_jet_n_tighteta_MET->Fill(jet_v_tight.size(),weight);
+    if(isMC && jet_v_tight.size() > 0){
+      int reco_flavor = getJetFlavourLabel(jet_v_tight[0].second.Eta(), jet_v_tight[0].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[0].first));
+      if(reco_flavor == 5){
+	passRecoLeadJetB = true;
+	h_Z_pt_1j_tighteta_b_reco->Fill(Z_fourv.Pt()/1000.,weight);
+      }
+    }
     if(isMC){
       if(passTruthSelections){
 	h_n_jets_match->Fill(jet_v_tight.size(),weight);
 	h_n_jets_migration->Fill(jet_v_tight.size(),v_truthJets.size(),weight);
+	if(jet_v_tight.size() == 0 && v_truthJets.size() > 0 && passLeadJetB){
+	  h_trueb_pt_noleadingrecojet->Fill(v_truthJets[0].second.Pt()/1000.,weight);
+	}
 	if(jet_v_tight.size() > 0 && v_truthJets.size() > 0){
 	  h_leadjet_pt_match->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
 	  h_leadjet_pt_migration->Fill(jet_v_tight[0].second.Pt()/1000.,v_truthJets[0].second.Pt()/1000.,weight);
 	  h_Z_pt_1j_tighteta_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
 	  h_Z_pt_1j_tighteta_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
-	  if(passLeadJetB){ 
+	  Double_t deltaR_truthjet_recojet = v_truthJets[0].second.DeltaR(jet_v_tight[0].second);
+	  h_DeltaR_trueleadjet_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
+	  if(passLeadJetB) h_DeltaR_trueleadb_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
+	  if(passLeadJetB && passRecoLeadJetB){
 	    h_Z_pt_1j_tighteta_b_match->Fill(Z_fourv.Pt()/1000.,weight);
 	    h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
-	    h_Z_pt_1j_tighteta_b_reco->Fill(Z_fourv.Pt()/1000.,weight);
 	  }
 	  else{
 	    h_Z_pt_1j_tighteta_notb_reco->Fill(Z_fourv.Pt()/1000.,weight);
@@ -1517,15 +1534,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	}
       }
       if(!passTruthSelections || v_truthJets.size() == 0 || !passLeadJetB){
-	h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+	if(passRecoLeadJetB) h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+	h_Z_pt_1j_tighteta_b_unmatch_norecobcheck->Fill(Z_fourv.Pt()/1000.,weight);
       }
-      /*else{
-	h_n_jets_unmatch->Fill(jet_v_tight.size(),weight);
-	if(jet_v_tight.size() > 0){
-	  h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-	  h_Z_pt_1j_tighteta_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
-	}
-	}*/
     } //end isMC block
     for(unsigned int i = 0; i < jet_v_tight.size(); i++){
       h_jet_pt_tighteta_MET->Fill(jet_v_tight[i].second.Pt()/1000.,weight);
@@ -1983,6 +1994,10 @@ void analysis_Zmumu::Terminate()
   h_Z_pt_1j_tighteta_b_migration->Write();
   h_Z_pt_1j_tighteta_b_reco->Write();
   h_Z_pt_1j_tighteta_notb_reco->Write();
+  h_Z_pt_1j_tighteta_b_unmatch_norecobcheck->Write();
+  h_DeltaR_trueleadjet_recoleadjet->Write();
+  h_DeltaR_trueleadb_recoleadjet->Write();
+  h_trueb_pt_noleadingrecojet->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();

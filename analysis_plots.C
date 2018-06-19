@@ -480,7 +480,23 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "Z_pt_1b_migration"){
     isTruth= true;
-    chooseHistOptions("Z_pt_1j_b_migration","Z p_{T}, >= 1j","Events", 0., 800., 0., 800, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_b_migration","Z p_{T}, >= 1b","Events", 0., 800., 0., 800, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_b_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_tighteta_b_reco","Z p_{T}, >= 1b","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "dR_trueleadjet_recoleadjet"){
+    isTruth = true;
+    chooseHistOptions("dR_trueleadjet_recoleadjet","#Delta R (j_true,j_reco)", "Events/0.5", 0, 5.0, 1, 3000, 10, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "dR_trueleadb_recoleadjet"){
+    isTruth = true;
+    chooseHistOptions("dR_trueleadb_recoleadjet","#Delta R(b_true,j_reco)","Events/0.5", 0, 5.0, 1, 3000, 10, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "trueb_pt_noleadingrecojet"){
+    isTruth = true;
+    chooseHistOptions("trueb_pt_noleadingrecojet","Truth leading jet p_{T}","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_truth"){
     isTruth = true;

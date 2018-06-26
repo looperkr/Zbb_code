@@ -49,13 +49,14 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
-  
+
+  cout << "1" << endl; //forcing recompiling
   
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
@@ -1557,7 +1558,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     if(jet_v_tight.size() > 3) h_Z_mass_4j_tighteta_MET->Fill(Zmass,weight);
     if(jet_v_tight.size() > 4) h_Z_mass_5j_tighteta_MET->Fill(Zmass,weight);
 
-  }
+  } //end if(met70)
 
   
   if(!met70) return kFALSE;

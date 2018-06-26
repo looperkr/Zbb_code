@@ -86,6 +86,10 @@ class Histogram{
     if(is1D) hist_1D->Draw();
     else hist_2D->Draw();
   }
+  Int_t GetSize(){
+    if(is1D) return hist_1D->GetSize();
+    else return hist_2D->GetSize();
+  }
   Histogram CloneHist(){
     Histogram newHist;
     if(is1D) {
@@ -294,7 +298,7 @@ Histogram add_histo(TFile ** farray, const int farray_size, string *file_name, T
     cout << "error before sumw2 for bin 2: "  << h_array[i]->GetBinError(2) << endl;
     cout << "sqrt of contents before sumw2: " << sqrt(h_array[i]->GetBinContent(5)) << endl;
     cout << "number of entries: " << h_array[i]->GetEntries() << endl;*/
-    h_array[i]->Sumw2();
+    // h_array[i]->Sumw2();
     /*
     cout << "error after sumw2 for bin 2: " << h_array[i]->GetBinError(2) << endl;
     cout << "sqrt of contents after sumw2: " << sqrt(h_array[i]->GetBinContent(5)) << endl;*/

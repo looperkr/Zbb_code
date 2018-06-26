@@ -1179,13 +1179,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_singletop_sum.AddHist(h_schan_sum);
   h_singletop_sum.AddHist(h_Wtchan_sum);
 
-  h_zmumu_sum.SetFillColorHist(kBlue);
-  h_zmumubb_sum.SetFillColorHist(kYellow);
-  h_zmumucc_sum.SetFillColorHist(kGreen);
+  h_zmumu_sum.SetFillColorHist(kYellow);
+  h_zmumubb_sum.SetFillColorHist(kGreen);
+  h_zmumucc_sum.SetFillColorHist(kRed);
   h_ztautau_sum.SetFillColorHist(kCyan);
   h_wjets_sum.SetFillColorHist(kAzure+3);
   h_ttbar_sum.SetFillColorHist(kViolet);
-  h_singletop_sum.SetFillColorHist(kRed+1);
+  h_singletop_sum.SetFillColorHist(kViolet-6);
   h_diboson_sum.SetFillColorHist(kOrange);
 
   gStyle->SetOptStat("");
@@ -1242,8 +1242,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_zmumubb_sum.RebinHist(rebin);
     h_zmumucc_sum.RebinHist(rebin);
     h_ztautau_sum.RebinHist(rebin);
-    //    h_wjets_sum.RebinHist(rebin);
+    cout << "before rebinning, Wmunu bins  =" << h_wmunu_sum.GetSize() << endl;
+    cout << "before rebinning, Wjets bins = " << h_wjets_sum.GetSize() << endl;
+    h_wjets_sum.RebinHist(rebin);
     h_wmunu_sum.RebinHist(rebin);
+    cout << "after rebinning, Wmunu bins = " << h_wmunu_sum.GetSize() << endl;
+    cout << "after rebinning, Wjets bins = " << h_wjets_sum.GetSize() << endl;
     h_wcc_sum.RebinHist(rebin);
     h_wc_sum.RebinHist(rebin);
     h_wbb_sum.RebinHist(rebin);
@@ -1251,9 +1255,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_tchan_sum.RebinHist(rebin);
     h_schan_sum.RebinHist(rebin);
     h_Wtchan_sum.RebinHist(rebin);
+    h_singletop_sum.RebinHist(rebin);
     h_WW_sum.RebinHist(rebin);
     h_WZ_sum.RebinHist(rebin);
     h_ZZ_sum.RebinHist(rebin);
+    h_diboson_sum.RebinHist(rebin);
     if(!isTruth) h_data->Rebin(rebin);
   }
   if(include_sherpa) h_zmumu_sherpa_sum.SetXRangeHist(x_min,x_max);
@@ -1340,6 +1346,17 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_diboson_sherpa_sum_clone = h_diboson_sum.CloneHist();
   }
 
+  cout << "Zmumu bins: " << h_mc_sum.GetSize() << endl;
+  cout << "Zbb bins: " << h_zmumubb_sum_clone.GetSize() << endl;
+  cout << "Zcc bins: " << h_zmumucc_sum_clone.GetSize() << endl;
+  cout << "Ztautau bins: " << h_ztautau_sum_clone.GetSize() << endl;
+  cout << "Wjets bins: " << h_wjets_sum_clone.GetSize() << endl;
+  cout << "ttbar bins: " << h_ttbar_sum_clone.GetSize() << endl;
+  cout << "singletop bins: " << h_singletop_sum_clone.GetSize() << endl;
+  cout << "diboson bins: " << h_diboson_sum_clone.GetSize() << endl;
+  cout << "sherpa bins: " << h_mc_sherpa_sum.GetSize() << endl;
+
+  cout << "begin adding" << endl;
   h_mc_sum.AddHist(h_zmumubb_sum_clone);
   h_mc_sum.AddHist(h_zmumucc_sum_clone);
   h_mc_sum.AddHist(h_ztautau_sum_clone);
@@ -1347,7 +1364,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_mc_sum.AddHist(h_ttbar_sum_clone);
   h_mc_sum.AddHist(h_singletop_sum_clone);
   h_mc_sum.AddHist(h_diboson_sum_clone);
+  cout << "end adding" <<endl;
 
+  cout << "begin sherpa adding" << endl;
   if(include_sherpa){
     h_mc_sherpa_sum.AddHist(h_ztautau_sherpa_sum_clone);
     h_mc_sherpa_sum.AddHist(h_wjets_sherpa_sum_clone);
@@ -1355,6 +1374,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_mc_sherpa_sum.AddHist(h_singletop_sherpa_sum_clone);
     h_mc_sherpa_sum.AddHist(h_diboson_sherpa_sum_clone);
   }
+  cout << "end sherpa adding" << endl;
   
   //  TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
   // TH1D *h_mc_sherpa_sum_clone;

@@ -62,7 +62,7 @@ for hist in uf_hist_list:
     if hist == "_truth":
         var_f_name = "unfolding_preprocessed/"+ truth_distribution + hist + ".root"
     elif hist == "" and isBresult:
-        var_f_name = "unfolding_preprocessed/" + "Z_pt_1j" + hist + ".root"
+        var_f_name = "unfolding_preprocessed/" + distribution + "_reco" + ".root"
     else:
         var_f_name = "unfolding_preprocessed/"+ distribution + hist + ".root"
     f = TFile(var_f_name,"READ")
@@ -89,11 +89,11 @@ for j in range(0,len(sig_samples)):
     uf_f = TFile(uf_fname,"UPDATE")
     for i in range(0,len(uf_hist_list)):
         uf_h = hist_arr[i][j]
-        if i == 0 and isBresult:
+        '''if i == 0 and isBresult:
             print uf_h.Integral()
             divideByBFraction(uf_h)
             print uf_h.Integral()
-            uf_f.cd()
+            uf_f.cd()'''
         uf_h.Write()
     uf_f.Close()
 

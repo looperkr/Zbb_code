@@ -200,6 +200,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_DeltaR_trueleadjet_recoleadjet = new TH1D("dR_trueleadjet_recoleadjet","DeltaR between true leading jet and reco leading jet",110,0,5.5);
    h_DeltaR_trueleadb_recoleadjet = new TH1D("dR_trueleadb_recoleadjet","DeltaR between truth leading jet (b) and reco leading jet",110,0,5.5);
    h_trueb_pt_noleadingrecojet = new TH1D("trueb_pt_noleadingrecojet","pT of b-jets with no reco jets in event",4000,0,2000);
+   h_Deltaphi_Deltaeta_trueleadb_recoleadjet = new TH2D("dphi_deta_trueleadb_recoleadjet","Deltaphi and deltaR between truth leading jet (b) and reco leading jet",160,-4,4,200,-5,5);
 
    h_jet_pt = new TH1D("jet_pt","jet pT",4000,0,2000);
    h_jet_y = new TH1D("jet_y","jet rapidity",120,-6,6);
@@ -297,6 +298,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    tagging_bins[5] = 1.;
 
    h_mv1cweight_binned = new TH1D("mv1cweight_binned","mv1c weights", 5, tagging_bins);
+   h_mv1cweight_binned_leadjet = new TH1D("mv1cweight_binned_leadjet","mv1c weights (leading jets)",5,tagging_bins);
    //following six are MC only
    h_mv1cweight_light = new TH1D("mv1cweight_light","mv1c weight (light)", 5, tagging_bins);
    h_mv1cweight_light_up = new TH1D("mv1cweight_light_up","mv1c weight (light)", 5, tagging_bins);
@@ -316,6 +318,10 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_mv1cweight_bottom_had_match = new TH1D("mv1cweight_bottom_had_match","mv1c weight (bottom)", 5, tagging_bins);
    h_mv1cweight_bottom_had_match_up = new TH1D("mv1cweight_bottom_had_match_up","mv1c weight (bottom)", 5, tagging_bins);
    h_mv1cweight_bottom_had_match_down = new TH1D("mv1cweight_bottom_had_match_down","mv1c weight (bottom)", 5, tagging_bins);
+
+   h_mv1cweight_bottom_had_match_leadjet = new TH1D("mv1cweight_bottom_had_match_leadjet","mv1c weight (bottom)(leadjet)",5,tagging_bins);
+   h_mv1cweight_charm_had_match_leadjet = new TH1D("mv1cweight_charm_had_match_leadjet","mv1c weight (charm)(leadjet)",5,tagging_bins);
+   h_mv1cweight_light_had_match_leadjet = new TH1D("mv1cweight_light_had_match_leadjet","mv1c weight (light)(leadjet)",5,tagging_bins);
 
    h_mv1cweight_light_had_match_ptbinned = new TH2D("mv1cweight_light_had_match_ptbinned","mv1c weight (light)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
    h_mv1cweight_charm_had_match_ptbinned = new TH2D("mv1cweight_charm_had_match_ptbinned","mv1c weight (charm)",5,tagging_bins,VarBinPt_new_size,VarBinPt_new_vec);
@@ -1509,8 +1515,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  h_Z_pt_1j_tighteta_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
 	  h_Z_pt_1j_tighteta_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
 	  Double_t deltaR_truthjet_recojet = v_truthJets[0].second.DeltaR(jet_v_tight[0].second);
+	  Double_t deltaPhi_truthjet_recojet = v_truthJets[0].second.DeltaPhi(jet_v_tight[0].second);
+	  Double_t deltaEta_truthjet_recojet = v_truthJets[0].second.Eta() - jet_v_tight[0].second.Eta();
 	  h_DeltaR_trueleadjet_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
-	  if(passLeadJetB) h_DeltaR_trueleadb_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
+	  if(passLeadJetB){
+	    h_DeltaR_trueleadb_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
+	    h_Deltaphi_Deltaeta_trueleadb_recoleadjet->Fill(deltaPhi_truthjet_recojet,deltaEta_truthjet_recojet,weight);
+	  }
 	  if(passLeadJetB && passRecoLeadJetB){
 	    h_Z_pt_1j_tighteta_b_match->Fill(Z_fourv.Pt()/1000.,weight);
 	    h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
@@ -1663,6 +1674,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	if(i==0) h_mv1cweight_ptbinned_3D_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,data_divider%10,weight);
       }
     }
+    if(i==0)h_mv1cweight_binned_leadjet->Fill(mv1cweight,weight);
     h_mv1cweight_binned->Fill(mv1cweight,weight);
     if(isMC){
       switch (jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first)){
@@ -1703,7 +1715,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	h_mv1cweight_bottom_had_match_up->Fill(mv1cweight,upweight);
 	h_mv1cweight_bottom_had_match_down->Fill(mv1cweight,downweight);
 	h_mv1cweight_bottom_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
-	if(i==0){ 
+	if(i==0){
+	  h_mv1cweight_bottom_had_match_leadjet->Fill(mv1cweight,weight);
 	  h_mv1cweight_bottom_had_match_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	  if(passTruthSelections){
 	    h_mv1cweight_bottom_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
@@ -1717,6 +1730,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	h_mv1cweight_charm_had_match_down->Fill(mv1cweight,downweight);
 	h_mv1cweight_charm_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	if(i==0){
+	  h_mv1cweight_charm_had_match_leadjet->Fill(mv1cweight,weight);
 	  h_mv1cweight_charm_had_match_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	  if(passTruthSelections)h_mv1cweight_charm_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	}
@@ -1729,6 +1743,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	h_mv1cweight_light_had_match_down->Fill(mv1cweight,downweight);
 	h_mv1cweight_light_had_match_ptbinned->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	if(i==0){
+	  h_mv1cweight_light_had_match_leadjet->Fill(mv1cweight,weight);
 	  h_mv1cweight_light_had_match_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	  if(passTruthSelections)h_mv1cweight_light_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
 	}
@@ -1994,6 +2009,7 @@ void analysis_Zmumu::Terminate()
   h_DeltaR_trueleadjet_recoleadjet->Write();
   h_DeltaR_trueleadb_recoleadjet->Write();
   h_trueb_pt_noleadingrecojet->Write();
+  h_Deltaphi_Deltaeta_trueleadb_recoleadjet->Write();
   h_jet_pt->Write();
   h_jet_y->Write();
   h_jet_n->Write();
@@ -2036,6 +2052,7 @@ void analysis_Zmumu::Terminate()
   h_mv1cweight_ptbinned_leadjet->Write();
   h_mv1cweight_ptbinned_leadjet_trueZ->Write();
   h_mv1cweight_binned->Write();
+  h_mv1cweight_binned_leadjet->Write();
   h_mv1cweight_bottom->Write();
   h_mv1cweight_bottom_up->Write();
   h_mv1cweight_bottom_down->Write();
@@ -2045,6 +2062,9 @@ void analysis_Zmumu::Terminate()
   h_mv1cweight_light->Write();
   h_mv1cweight_light_up->Write();
   h_mv1cweight_light_down->Write();
+  h_mv1cweight_bottom_had_match_leadjet->Write();
+  h_mv1cweight_charm_had_match_leadjet->Write();
+  h_mv1cweight_light_had_match_leadjet->Write();
   h_mv1cweight_bottom_had_match->Write();
   h_mv1cweight_bottom_had_match_up->Write();
   h_mv1cweight_bottom_had_match_down->Write();

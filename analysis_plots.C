@@ -488,15 +488,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
   else if(var_2_plot == "dR_trueleadjet_recoleadjet"){
     isTruth = true;
-    chooseHistOptions("dR_trueleadjet_recoleadjet","#Delta R (j_true,j_reco)", "Events/0.5", 0, 5.0, 1, 3000, 10, ratiomin, ratiomax);
+    chooseHistOptions("dR_trueleadjet_recoleadjet","#Delta R (j_true,j_reco)", "Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dR_trueleadb_recoleadjet"){
     isTruth = true;
-    chooseHistOptions("dR_trueleadb_recoleadjet","#Delta R(b_true,j_reco)","Events/0.5", 0, 5.0, 1, 3000, 10, ratiomin, ratiomax);
+    chooseHistOptions("dR_trueleadb_recoleadjet","#Delta R(b(true),j(reco))","Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "trueb_pt_noleadingrecojet"){
     isTruth = true;
-    chooseHistOptions("trueb_pt_noleadingrecojet","Truth leading jet p_{T}","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("trueb_pt_noleadingrecojet","Truth leading jet p_{T}","Events", 0., 1000., 1, 100000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "n_jets_truth"){
     isTruth = true;
@@ -1554,7 +1554,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   }
 
   sum_stack->Draw("HIST");
-  sum_stack->GetXaxis()->SetNdivisions(000);
+  if(!isTruth)sum_stack->GetXaxis()->SetNdivisions(000);
   if(include_sherpa) h_mc_sherpa_sum.GetHist()->Draw("HIST SAME");
   if(!isTruth) h_data->Draw("HIST ELP SAME");
   sum_stack->GetXaxis()->SetRangeUser(x_min,x_max);
@@ -1622,9 +1622,9 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     ratiolegend->AddEntry(h_mc_sum_clone_h,"Alpgen","lp");
     if(include_sherpa) ratiolegend->AddEntry(h_mc_sherpa_sum_clone_h,"Sherpa","lp");
     ratiolegend->Draw();
-  
-    pad1->cd();
   }
+  pad1->cd();
+    
 
   TLegend *legend = new TLegend(0.6,0.64,0.95,0.95);
   legend->SetTextSize(0.03);

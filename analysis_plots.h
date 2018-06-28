@@ -82,9 +82,9 @@ class Histogram{
     if(is1D) hist_1D->SetName(name.c_str());
     else hist_2D->SetName(name.c_str());
   }
-  void DrawHist(){
-    if(is1D) hist_1D->Draw();
-    else hist_2D->Draw();
+  void DrawHist(string opt){
+    if(is1D) hist_1D->Draw(opt.c_str());
+    else hist_2D->Draw(opt.c_str());
   }
   Int_t GetSize(){
     if(is1D) return hist_1D->GetSize();

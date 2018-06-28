@@ -1563,6 +1563,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_mc_sherpa_sum.SetLineWidthHist(2);
   }
 
+  
   sum_stack->Draw("HIST");
   if(!isTruth)sum_stack->GetXaxis()->SetNdivisions(000);
   if(include_sherpa) h_mc_sherpa_sum.GetHist()->Draw("HIST SAME");

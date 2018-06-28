@@ -259,6 +259,21 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "mv1c_bins"){
     chooseHistOptions("mv1cweight_binned","mv1c weight", "Events",0, 1, 100,100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "mv1c_bins_leadjet"){
+    chooseHistOptions("mv1cweight_binned_leadjet","mv1c weight (leading jet)","Event",0,1,100,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "bottom_jets_hmatch_leadjet"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_bottom_had_match_leadjet","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
+}
+  else if(var_2_plot == "charm_jets_hmatch_leadjet"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_charm_had_match_leadjet","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
+}
+  else if(var_2_plot == "light_jets_hmatch_leadjet"){
+    isTruth = true;
+    chooseHistOptions("mv1cweight_light_had_match_leadjet","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
+}
   else if(var_2_plot == "light_jets"){
     isTruth = true;
     chooseHistOptions("mv1cweight_light","mv1c weight", "Events",0,1,1,100000000, 1, ratiomin, ratiomax);
@@ -497,6 +512,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   else if(var_2_plot == "trueb_pt_noleadingrecojet"){
     isTruth = true;
     chooseHistOptions("trueb_pt_noleadingrecojet","Truth leading jet p_{T}","Events", 0., 1000., 1, 100000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "dphi_deta_trueleadb_recoleadjet"){
+    isTruth = true;
+    chooseHistOptions("dphi_deta_trueleadb_recoleadjet","dPhi","dEta",-4.,4.,-5.,5.,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "n_jets_truth"){
     isTruth = true;
@@ -1346,17 +1365,6 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_diboson_sherpa_sum_clone = h_diboson_sum.CloneHist();
   }
 
-  cout << "Zmumu bins: " << h_mc_sum.GetSize() << endl;
-  cout << "Zbb bins: " << h_zmumubb_sum_clone.GetSize() << endl;
-  cout << "Zcc bins: " << h_zmumucc_sum_clone.GetSize() << endl;
-  cout << "Ztautau bins: " << h_ztautau_sum_clone.GetSize() << endl;
-  cout << "Wjets bins: " << h_wjets_sum_clone.GetSize() << endl;
-  cout << "ttbar bins: " << h_ttbar_sum_clone.GetSize() << endl;
-  cout << "singletop bins: " << h_singletop_sum_clone.GetSize() << endl;
-  cout << "diboson bins: " << h_diboson_sum_clone.GetSize() << endl;
-  cout << "sherpa bins: " << h_mc_sherpa_sum.GetSize() << endl;
-
-  cout << "begin adding" << endl;
   h_mc_sum.AddHist(h_zmumubb_sum_clone);
   h_mc_sum.AddHist(h_zmumucc_sum_clone);
   h_mc_sum.AddHist(h_ztautau_sum_clone);
@@ -1364,9 +1372,8 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
   h_mc_sum.AddHist(h_ttbar_sum_clone);
   h_mc_sum.AddHist(h_singletop_sum_clone);
   h_mc_sum.AddHist(h_diboson_sum_clone);
-  cout << "end adding" <<endl;
 
-  cout << "begin sherpa adding" << endl;
+
   if(include_sherpa){
     h_mc_sherpa_sum.AddHist(h_ztautau_sherpa_sum_clone);
     h_mc_sherpa_sum.AddHist(h_wjets_sherpa_sum_clone);
@@ -1374,7 +1381,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     h_mc_sherpa_sum.AddHist(h_singletop_sherpa_sum_clone);
     h_mc_sherpa_sum.AddHist(h_diboson_sherpa_sum_clone);
   }
-  cout << "end sherpa adding" << endl;
+
   
   //  TH1D *h_mc_sum_clone =(TH1D*)h_mc_sum->Clone();
   // TH1D *h_mc_sherpa_sum_clone;
@@ -1535,12 +1542,15 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
 
 
   //draw mc and data and make ratio plot
-  TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
+  TPad *pad1;// = new TPad("pad1","pad1",0,0.3,1,1);
+  if(!isTruth) pad1 = new TPad("pad1","pad1",0,0.3,1,1);
+  else pad1 = new TPad("pad1","pad1",0,0,1,1);
   if(make_log){
     pad1->SetLogy();
   }
   pad1->SetTopMargin(0.05);
-  pad1->SetBottomMargin(0);
+  if(!isTruth)pad1->SetBottomMargin(0);
+  else pad1->SetBottomMargin(0.15);
   pad1->SetRightMargin(0.05);
   pad1->SetLeftMargin(0.16);
   pad1->SetFillStyle(4000);
@@ -1562,11 +1572,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     sum_stack->GetXaxis()->CenterTitle();
   }
   sum_stack->GetYaxis()->SetTitle(y_name);
+  if(isTruth) sum_stack->GetXaxis()->SetTitle(x_name);
   c1->Modified();
 
   c1->cd();
-  TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
+  TPad *pad2;//= new TPad("pad2","pad2",0,0,1,0.3);
   if(!isTruth){
+    if(!isTruth) pad2 = new TPad("pad2","pad2",0,0,1,0.3);
     pad2->SetTopMargin(0);
     pad2->SetBottomMargin(0.48);
     pad2->SetRightMargin(0.05);

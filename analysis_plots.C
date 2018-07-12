@@ -517,6 +517,25 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi, bool make_log, bool in
     isTruth = true;
     chooseHistOptions("dphi_deta_trueleadb_recoleadjet","dPhi","dEta",-4.,4.,-5.,5.,1,ratiomin,ratiomax);
   }
+  else if(var_2_plot == "dR_Z_leadjet"){
+    chooseHistOptions("dR_Z_leadjet","Delta R(Z,j(leading))","Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "dR_Z_leadjet_true_reco"){
+    isTruth = true;
+    chooseHistOptions("dR_Z_leadjet_true_reco","#Delta R(Z,j(leading)) (truth)","#Delta R(Z,j(leading)) (reco)",0,5.0,0,5.0,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "trueleadb_recorank"){
+    isTruth = true;
+    chooseHistOptions("trueleadb_recorank","Rank of reco jet matching true b (0 == no match)","Events",0.,10.,1,10000000.,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "trueleadb_pt_nomatchingleadjet"){
+    isTruth = true;
+    chooseHistOptions("trueleadb_pt_nomatchingleadjet","p_{T} [GeV]","Events/10 GeV",0.,800.,1,100000,20,ratiomin,ratiomax);
+  }
+  else if(var_2_plot =="trueleadb_pt_nomatchingjet"){
+    isTruth = true;
+    chooseHistOptions("trueleadb_pt_nomatchingjet","p_{T} [GeV]","Events/10 GeV",0.,800.,1,100000,20,ratiomin,ratiomax);
+  }
   else if(var_2_plot == "n_jets_truth"){
     isTruth = true;
     chooseHistOptions("n_jets_truth_dressed","N jets truth","Events", 0., 12., 1, 100000000, 1, ratiomin, ratiomax);

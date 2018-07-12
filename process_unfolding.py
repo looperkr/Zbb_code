@@ -8,7 +8,7 @@ def divideByBFraction(histo):
     histo.Multiply(h_bfrac)
     f.Close()
 
-isBresult = True
+isBresult = False
 #Dictionary stores list with ["distributionname",min,max,binning]
 #testing
 fill_empty = True #Creates empty background histograms for testing
@@ -19,6 +19,9 @@ truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":
 
 distribution = sys.argv[1]
 truth_distribution = truth_name[distribution]
+
+if distribution == "Z_pt_1b":
+    isBresult = True
 
 TH1.AddDirectory(0)
 
@@ -47,7 +50,7 @@ for hist in uf_hist_list:
     if hist == "_truth":
         var_2_plot = truth_distribution
     if isBresult and hist == "":
-        var_2_plot = "Z_pt_1j"
+        var_2_plot = "Z_pt_1b_reco"
     var_2_plot += hist
     cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,false)"
     print cmd
@@ -79,6 +82,8 @@ for hist in uf_hist_list:
             print "Could not find histogram " + sample_hist + "in file " + var_f_name
         nbins = h.GetSize()
         nbins_list.append([nbins,sample_hist])
+        int_sig_sample = h.Integral()
+        print "Hist " + hist + " integral: " + str(int_sig_sample)
         h.SetName(uf_h_name)
         var_arr.append(h)
     hist_arr.append(var_arr)
@@ -130,7 +135,8 @@ h_data.SetName(uf_h_name_data)
 uf_fname_data = "unfolding_inputs/hist-data.root"
 uf_f_data = TFile(uf_fname_data,"UPDATE")
 if isBresult:
-    divideByBFraction(h_data)
+    pass
+#    divideByBFraction(h_data)
 uf_f_data.cd()
 h_data.Write()
 uf_f_data.Close()

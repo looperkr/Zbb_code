@@ -65,13 +65,13 @@ void rebin2(TH1 *h, Int_t ngx, Int_t ngy)
 
 void draw_2D(){
 
-  TFile *f = TFile::Open("MC_histograms_root/dphi_deta_trueleadb_recoleadjet.root","READ");
-  TH1D *h = (TH1D*)f->Get("dphi_deta_trueleadb_recoleadjet_mc");
+  TFile *f = TFile::Open("MC_histograms_root/dR_Z_leadjet_true_reco.root","READ");
+  TH1D *h = (TH1D*)f->Get("dR_Z_leadjet_true_reco_mc");
   rebin2(h,5,5);
   
   //  h->Draw("BOX");
-  h->SetXTitle("#Delta#phi");
-  h->SetYTitle("#Delta#eta");
+  h->SetXTitle("truth");
+  h->SetYTitle("reco");
   h->Draw("BOX");
 
 

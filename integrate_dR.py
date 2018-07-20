@@ -1,8 +1,8 @@
 from ROOT import TFile, TH1D, TH2D, gROOT, TH1
 
-f = TFile("MC_histograms_root/dR_trueleadb_recoleadjet.root")
+f = TFile("MC_histograms_root/recoleadb_truebrank.root")
 
-h = f.Get("dR_trueleadb_recoleadjet_mc")
+h = f.Get("recoleadb_truebrank_mc")
 
 n_bins = h.GetSize()
 bin_contents = []

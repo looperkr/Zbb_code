@@ -46,12 +46,12 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
 
   string histlabel = "_mc";
   if(isSherpa) histlabel = "_sherpa";
-  string hist_label_had = "_hmatch" + histlabel;
+  string hist_label_had = "_hmatch_leadjet" + histlabel;
 
   if(isHadMatch){
-    light_f += "_hmatch.root";
-    charm_f += "_hmatch.root";
-    bottom_f += "_hmatch.root";
+    light_f += "_hmatch_leadjet.root";
+    charm_f += "_hmatch_leadjet.root";
+    bottom_f += "_hmatch_leadjet.root";
     hist_name_l += hist_label_had;
     hist_name_c += hist_label_had;
     hist_name_b += hist_label_had;
@@ -66,7 +66,7 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
   }
 
   string data_f = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/alldata.root";
-  string data_hist_name = "mv1cweight_binned";
+  string data_hist_name = "mv1cweight_binned_leadjet";
 
   TFile *flight = TFile::Open(light_f.c_str(),"READ");
   TFile *fcharm = TFile::Open(charm_f.c_str(),"READ");
@@ -127,10 +127,12 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
   cout << "Chi2 2, electric boogaloo: " << chi2red << endl;
 
   //  RooAbsPdf::paramOn(xframe, Parameters(RooArgSet(bjetTemplate,cjetTemplate)));
-  template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
-  xframe->getAttText()->SetTextSize(0.03);
-  xframe->getAttLine()->SetLineWidth(0);
-  xframe->getAttFill()->SetFillStyle(0);
+  //  template_model.paramOn(xframe,Parameters(RooArgSet(frbottom,frcharm)));
+  cout << "frbottom: " << frbottom << endl;
+  cout << "frcharm: " << frcharm << endl;
+  //  xframe->getAttText()->SetTextSize(0.03);
+  //xframe->getAttLine()->SetLineWidth(0);
+  //xframe->getAttFill()->SetFillStyle(0);
 
   if(!isPrefit){
     hbottom->Scale(Ndata*b_result/Nbottom);
@@ -155,7 +157,7 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
   hdata->GetXaxis()->SetTitle(x_label.c_str());
   hdata->GetYaxis()->SetTitle(y_label.c_str());
 
-  if(!isStack){
+  /*  if(!isStack){
     hbottom->SetLineColor(kGreen);
     hcharm->SetLineColor(kRed);
     hlight->SetLineColor(kYellow);
@@ -179,45 +181,45 @@ void roofit_template(bool isPrefit = false, bool isSherpa=false){
     leg->Draw();
 
   }
-  else{
-    hbottom->SetFillColor(kGreen);
-    hcharm->SetFillColor(kRed);
-    hlight->SetFillColor(kYellow);
+  else{*/
+  hbottom->SetFillColor(kGreen);
+  hcharm->SetFillColor(kRed);
+  hlight->SetFillColor(kYellow);
+  
+  THStack *mc_stack =  new THStack("stack","stack");
+  mc_stack->Add(hlight);
+  mc_stack->Add(hcharm);
+  mc_stack->Add(hbottom);
+  
+  mc_stack->SetMinimum(5000);
+  
+  mc_stack->Draw("hist");
+  hdata->Draw("p same");
+  
+  mc_stack->GetYaxis()->SetTitle("Events");
+  mc_stack->GetXaxis()->SetTitle("MV1c weight");
+  c1->Modified();
+  
+  leg->AddEntry(hdata,"Data","lp");
+  leg->AddEntry(hbottom,"bottom","f");
+  leg->AddEntry(hcharm,"charm","f");
+  leg->AddEntry(hlight,"light","f");
+  
+  leg->Draw();
+  
+  //  if(!isPrefit) xframe->Draw("same");
+  string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
+  string plt_dir;
+  create_dir(plt_path,plt_dir);
+  
+  cout << hdata << endl;
+  string img_name = plt_dir + "/" + "template_text";
+  if(isPrefit) img_name += "_prefit";
+  if(isSherpa) img_name += "_sherpa.pdf";
+  else img_name += ".pdf";
+  c1->SaveAs(img_name.c_str());
 
-    THStack *mc_stack =  new THStack("stack","stack");
-    mc_stack->Add(hbottom);
-    mc_stack->Add(hcharm);
-    mc_stack->Add(hlight);
-
-    mc_stack->SetMinimum(5000);
-
-    mc_stack->Draw("hist");
-    hdata->Draw("p same");
-
-    mc_stack->GetYaxis()->SetTitle("Events");
-    mc_stack->GetXaxis()->SetTitle("MV1c weight");
-    c1->Modified();
-
-    leg->AddEntry(hdata,"Data","lp");
-    leg->AddEntry(hbottom,"bottom","f");
-    leg->AddEntry(hcharm,"charm","f");
-    leg->AddEntry(hlight,"light","f");
-
-    leg->Draw();
-
-    if(!isPrefit) xframe->Draw("same");
-    string plt_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_plots/";
-    string plt_dir;
-    create_dir(plt_path,plt_dir);
-
-    cout << hdata << endl;
-    string img_name = plt_dir + "/" + "template_text";
-    if(isPrefit) img_name += "_prefit";
-    if(isSherpa) img_name += "_sherpa.pdf";
-    else img_name += ".pdf";
-    c1->SaveAs(img_name.c_str());
-
-  }
+  
 
 
 }

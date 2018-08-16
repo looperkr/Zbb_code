@@ -51,7 +51,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = true;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -79,6 +79,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    cout << "Starting time: " << dt << endl;
 
    bch_bad = false; //true when bch flagged as bad
+
+   //output four-vectors to .csv 
+   jetfourv_f.open("csv_files/jetfourv_f.csv");
+   jetfourv_f<<"trueZ Mass,trueZ pT,trueZ Eta,trueZ Phi,trueb pT,trueb eta, trueb phi, trueb E, recoZ mass, recoZ pT, recoZ eta, recoZ phi, jet pT, jet eta, jet phi, jet E";
+   fourv_csv_count = 0;
 
    n_TRT = 0;
    n_events = 0;
@@ -553,6 +558,12 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   dressed_Z_y = 0.;
   dressed_Z_pt = 0.;
 
+  csv_pt_str.Clear();
+  csv_eta_str.Clear();
+  csv_phi_str.Clear();
+  csv_e_str.Clear();
+  
+
   v_bareMuons.clear();
   v_bornMuons.clear();
   v_dressedMuons.clear();
@@ -656,7 +667,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  if(v_truthJets.size() > 0){
 	    passJetTruthSelections = true;
 	    int true_flav_label = getJetFlavourLabel(v_truthJets[0].second.Eta(),v_truthJets[0].second.Phi(),0); //0 is dummy designation, don't have AntiKt4TruthWithMunu_flavor_truth_label to tau veto
-	    if(true_flav_label == 5) passLeadJetB = true;
+	    if(true_flav_label == 5){
+	      passLeadJetB = true;
+	      fourv_csv_count++;
+	      if(fourv_csv_count < 100){
+		jetfourv_f<<"\n";
+		jetfourv_f<<dressed_Z_mass<<","<<dressed_Z_pt<<","<<dressed_Z.Eta()<<","<<dressed_Z.Phi()<<",";
+		jetfourv_f<<v_truthJets[0].second.Pt() << "," << v_truthJets[0].second.Eta() << "," << v_truthJets[0].second.Phi() << "," << v_truthJets[0].second.E();
+	      }
+	    }
 	    for(unsigned int i =0; i<v_truthJets.size();i++){
 	      if(getJetFlavourLabel(v_truthJets[i].second.Eta(),v_truthJets[i].second.Phi(),0) == 5) truth_jet_v_isb.push_back(true);
 	      else truth_jet_v_isb.push_back(false);
@@ -1040,6 +1059,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       weight_nomuonSF *= weight_nopw;
       weight_nopw*= sf;
       weight_notriggerSF *= sf;
+      
+      if(passLeadJetB && fourv_csv_count < 100){
+	jetfourv_f<<","<<Zmass<<","<<Zpt<<","<<Z_fourv.Eta()<<","<<Z_fourv.Phi();
+      }
     }
     
     h_cutflow_w->Fill(Float_t(icut),weight);
@@ -1553,6 +1576,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  Double_t closest_jet_DeltaR = 1000.;
 	  int matching_jet_index = -1;
 	  Double_t truth_reco_jet_separation;
+	  TString csv_reco_pt_str;
+	  TString csv_reco_eta_str;
+	  TString csv_reco_phi_str;
+	  TString csv_reco_e_str;
 	  for(unsigned int rj = 0; rj < jet_v_tight.size(); rj++){
 	    truth_reco_jet_separation = v_truthJets[0].second.DeltaR(jet_v_tight[rj].second);
 	    if(truth_reco_jet_separation < 0.5){
@@ -1561,6 +1588,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 		closest_jet_DeltaR = truth_reco_jet_separation;
 		matching_jet_index = rj;
 	      }
+	    }
+	    if(fourv_csv_count < 100){
+	      csv_reco_pt_str.Form("%d",jet_v_tight[rj].second.Pt());
+	      csv_reco_eta_str.Form("%d",jet_v_tight[rj].second.Eta());
+	      csv_reco_phi_str.Form("%d",jet_v_tight[rj].second.Phi());
+	      csv_reco_e_str.Form("%d",jet_v_tight[rj].second.E());
+	      jetfourv_f<<","<<jet_v_tight[rj].second.Pt()<<","<<jet_v_tight[rj].second.Eta()<<","<<jet_v_tight[rj].second.Phi()<<","<<jet_v_tight[rj].second.E();
 	    }
 	  }
 	  if(hasjmatch) {
@@ -1982,12 +2016,15 @@ void analysis_Zmumu::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
 
+  jetfourv_f.close();
+
   string output_name_string;
   vector<string> output_split;
   string output_split_str;
   vector<string> fname_split;
   ofstream results_txt;
   string cf_filename;
+
 
   if(!isGrid){
     output_name_string = string(output_name.Data());

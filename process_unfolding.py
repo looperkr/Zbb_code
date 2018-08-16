@@ -84,6 +84,8 @@ for hist in uf_hist_list:
         nbins_list.append([nbins,sample_hist])
         int_sig_sample = h.Integral()
         print "Hist " + hist + " integral: " + str(int_sig_sample)
+        if isBresult:
+            h.SetBinContent(1,0)
         h.SetName(uf_h_name)
         var_arr.append(h)
     hist_arr.append(var_arr)
@@ -94,11 +96,6 @@ for j in range(0,len(sig_samples)):
     uf_f = TFile(uf_fname,"UPDATE")
     for i in range(0,len(uf_hist_list)):
         uf_h = hist_arr[i][j]
-        '''if i == 0 and isBresult:
-            print uf_h.Integral()
-            divideByBFraction(uf_h)
-            print uf_h.Integral()
-            uf_f.cd()'''
         uf_h.Write()
     uf_f.Close()
 
@@ -115,6 +112,8 @@ for k in range(0,len(bkg_samples)):
     if not h:
         print "Could not find histogram " + sample_hist + "in file " + bkg_var_f_name
     uf_h_name = uf_h_name_bkg[k] + "_" + channel + "_" + reco_region + "_" + uf_distribution
+    if isBresult:
+        h.SetBinContent(1,0)
     h.SetName(uf_h_name)
     print uf_h_name
     uf_fname = "unfolding_inputs/hist-"+uf_bkg_samples[k]+".root"
@@ -135,7 +134,7 @@ h_data.SetName(uf_h_name_data)
 uf_fname_data = "unfolding_inputs/hist-data.root"
 uf_f_data = TFile(uf_fname_data,"UPDATE")
 if isBresult:
-    pass
+    h_data.SetBinContent(1,0)
 #    divideByBFraction(h_data)
 uf_f_data.cd()
 h_data.Write()

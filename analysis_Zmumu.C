@@ -82,7 +82,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    //output four-vectors to .csv 
    jetfourv_f.open("csv_files/jetfourv_f.csv");
-   jetfourv_f<<"trueZ Mass,trueZ pT,trueZ Eta,trueZ Phi,trueb pT,trueb eta, trueb phi, trueb E, recoZ mass, recoZ pT, recoZ eta, recoZ phi, jet pT, jet eta, jet phi, jet E";
+   jetfourv_f<<"trueZ Mass,trueZ pT,trueZ Eta,trueZ Phi,trueb pT,trueb eta, trueb phi, trueb E, recoZ mass, recoZ pT, recoZ eta, recoZ phi, jet pT, jet eta, jet phi, jet E, jetIsB";
    fourv_csv_count = 0;
 
    n_TRT = 0;
@@ -1594,7 +1594,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	      csv_reco_eta_str.Form("%d",jet_v_tight[rj].second.Eta());
 	      csv_reco_phi_str.Form("%d",jet_v_tight[rj].second.Phi());
 	      csv_reco_e_str.Form("%d",jet_v_tight[rj].second.E());
-	      jetfourv_f<<","<<jet_v_tight[rj].second.Pt()<<","<<jet_v_tight[rj].second.Eta()<<","<<jet_v_tight[rj].second.Phi()<<","<<jet_v_tight[rj].second.E();
+	      bool isBcsv = false;
+	      if(getJetFlavourLabel(jet_v_tight[rj].second.Eta(), jet_v_tight[rj].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[rj].first)) == 5) isBcsv = true;
+	      jetfourv_f<<","<<jet_v_tight[rj].second.Pt()<<","<<jet_v_tight[rj].second.Eta()<<","<<jet_v_tight[rj].second.Phi()<<","<<jet_v_tight[rj].second.E()<<","<<isBcsv;
 	    }
 	  }
 	  if(hasjmatch) {

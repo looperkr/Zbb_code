@@ -13,7 +13,7 @@ isBresult = False
 #testing
 fill_empty = True #Creates empty background histograms for testing
 
-distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Pt","Z_y_MET":"Z_Y","Z_pt":"Pt_nomet","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt","Z_pt_1b":"Z_Pt"} #map my_names -> unfolding_names
+distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Z_Pt","Z_y_MET":"Z_Y","Z_pt":"Z_Pt","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt_1j","Z_pt_1b":"Z_Pt_1b"} #map my_names -> unfolding_names
 truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":"Z_pt", "Z_y":"Z_y", "Z_y_MET":"Z_y",
               "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt","Z_pt_1j":"Z_pt_1j","Z_pt_1b":"Z_pt_1b"} #map reco distribution -> truth distribution
 
@@ -54,6 +54,10 @@ for hist in uf_hist_list:
     var_2_plot += hist
     cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,false)"
     print cmd
+    gROOT.ProcessLine(cmd)
+
+if isBresult:
+    cmd = "analysis_plots(\"Z_pt_1j\")"
     gROOT.ProcessLine(cmd)
 
 

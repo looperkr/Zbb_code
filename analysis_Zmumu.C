@@ -49,9 +49,9 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
-  isGrid = true;
+  isGrid = false;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -1420,10 +1420,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
       mappair.second = cutflowpair;
       cutflowjet_map.insert(mappair);
     }
-    /*    jetcf_pair.first = 3;
-    jetcf_pair.second = EventNumber;
-    onejet_eventn.push_back(jetcf_pair);
-    cutflowjet_v.push_back(jet_v[0].second);*/
   }
   cutdes[icut] = "Njets == 3";
   icut++;
@@ -1510,236 +1506,107 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   //  if(finalMET_et/1000. > 70.0) return kFALSE;
 
   if(finalMET_et/1000. <= 70) met70 = true;
-
-  if(met70){
-    h_Z_mass_MET->Fill(Zmass,weight);
-    if(isMC && passTruthSelections){
-      h_Z_mass_MET_match->Fill(Zmass,weight);
-      h_Z_mass_MET_migration->Fill(Zmass,dressed_Z_mass,weight);
-      h_Z_y_MET_match->Fill(Z_fourv.Rapidity(),weight);
-      h_Z_y_MET_migration->Fill(Z_fourv.Rapidity(),dressed_Z_y,weight);
-      h_Z_pt_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
-      h_Z_pt_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
-    }
-    else if(isMC){
-      h_Z_mass_MET_unmatch->Fill(Zmass,weight);
-      h_Z_y_MET_unmatch->Fill(Z_fourv.Rapidity(),weight);
-      h_Z_pt_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
-    }
-    h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
-    h_jet_n_MET->Fill(jet_v.size(),weight);
-    h_Z_mass_0j_MET->Fill(Zmass,weight);
-    for(unsigned int i = 0; i < jet_v.size(); i++){
-      h_jet_pt_MET->Fill(jet_v[i].second.Pt()/1000.,weight);
-      h_jet_y_MET->Fill(jet_v[i].second.Rapidity(),weight);
-    }
-    if(jet_v.size() > 0){
-      h_leadjet_pt_MET->Fill(jet_v[0].second.Pt()/1000.,weight);
-      h_leadjet_y_MET->Fill(jet_v[0].second.Rapidity(),weight);
-      h_jet_st_MET->Fill(st/1000.,weight);
-      h_jet_mu_ht_MET->Fill(ht/1000.,weight);
-      h_Z_mass_1j_MET->Fill(Zmass,weight);
-    }
-    if(jet_v.size() > 1){
-      h_subjet_pt_MET->Fill(jet_v[1].second.Pt()/1000.,weight);
-      h_subjet_y_MET->Fill(jet_v[1].second.Rapidity()/1000.,weight);
-      TLorentzVector dijet_fourv = jet_v[0].second + jet_v[1].second;
-      h_dijet_m_MET->Fill(dijet_fourv.M()/1000.,weight);
-      h_Z_mass_2j_MET->Fill(Zmass,weight);
-    }
-    if(jet_v.size() > 2) h_Z_mass_3j_MET->Fill(Zmass,weight);
-    if(jet_v.size() > 3) h_Z_mass_4j_MET->Fill(Zmass,weight);
-    if(jet_v.size() > 4) h_Z_mass_5j_MET->Fill(Zmass,weight);
-    //tight eta distributions 
-    h_jet_n_tighteta_MET->Fill(jet_v_tight.size(),weight);
-    if(isMC && jet_v_tight.size() > 0){
-      int reco_flavor = getJetFlavourLabel(jet_v_tight[0].second.Eta(), jet_v_tight[0].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[0].first));
-      if(reco_flavor == 5){
-	passRecoLeadJetB = true;
-	h_Z_pt_1j_tighteta_b_reco->Fill(Z_fourv.Pt()/1000.,weight);
-      }
-      for(unsigned int i = 0; i < jet_v_tight.size(); i++){
-	reco_flavor = getJetFlavourLabel(jet_v_tight[i].second.Eta(), jet_v_tight[i].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first));
-	if(reco_flavor == 5) jet_v_tight_isb.push_back(true);
-	else jet_v_tight_isb.push_back(false);
-      }
-    }
-    if(isMC){
-      if(passTruthSelections){
-	h_n_jets_match->Fill(jet_v_tight.size(),weight);
-	h_n_jets_migration->Fill(jet_v_tight.size(),v_truthJets.size(),weight);
-	if(jet_v_tight.size() == 0 && v_truthJets.size() > 0 && passLeadJetB){
-	  h_trueb_pt_noleadingrecojet->Fill(v_truthJets[0].second.Pt()/1000.,weight);
-	}
-	if(v_truthJets.size() > 0 && passLeadJetB){
-	  bool hasjmatch = false;
-	  Double_t closest_jet_DeltaR = 1000.;
-	  int matching_jet_index = -1;
-	  Double_t truth_reco_jet_separation;
-	  TString csv_reco_pt_str;
-	  TString csv_reco_eta_str;
-	  TString csv_reco_phi_str;
-	  TString csv_reco_e_str;
-	  for(unsigned int rj = 0; rj < jet_v_tight.size(); rj++){
-	    truth_reco_jet_separation = v_truthJets[0].second.DeltaR(jet_v_tight[rj].second);
-	    if(truth_reco_jet_separation < 0.5){
-	      hasjmatch = true;
-	      if(truth_reco_jet_separation < closest_jet_DeltaR){
-		closest_jet_DeltaR = truth_reco_jet_separation;
-		matching_jet_index = rj;
-	      }
-	    }
-	    if(fourv_csv_count < 100){
-	      csv_reco_pt_str.Form("%d",jet_v_tight[rj].second.Pt());
-	      csv_reco_eta_str.Form("%d",jet_v_tight[rj].second.Eta());
-	      csv_reco_phi_str.Form("%d",jet_v_tight[rj].second.Phi());
-	      csv_reco_e_str.Form("%d",jet_v_tight[rj].second.E());
-	      bool isBcsv = false;
-	      if(getJetFlavourLabel(jet_v_tight[rj].second.Eta(), jet_v_tight[rj].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[rj].first)) == 5) isBcsv = true;
-	      jetfourv_f<<","<<jet_v_tight[rj].second.Pt()<<","<<jet_v_tight[rj].second.Eta()<<","<<jet_v_tight[rj].second.Phi()<<","<<jet_v_tight[rj].second.E()<<","<<isBcsv;
-	    }
-	  }
-	  if(hasjmatch) {
-	    h_trueleadb_recorank->Fill(matching_jet_index+1,weight);
-	    h_trueleadb_matchingDeltaR->Fill(closest_jet_DeltaR,weight);
-	    h_trueleadb_matchingpT->Fill(jet_v_tight[matching_jet_index].second.Pt()/1000.,weight);
-	    if(jet_v_tight_isb[matching_jet_index]){
-	      h_trueleadb_matchingpT_isb->Fill(jet_v_tight[matching_jet_index].second.Pt()/1000.,weight);
-	      h_trueleadb_recorank_isb->Fill(matching_jet_index+1,weight);
-	    }
-	    else{
-	      h_trueleadb_recorank_isb->Fill(0.,weight);
-	      h_trueleadb_pt_nomatchingbjet->Fill(v_truthJets[0].second.Pt()/1000.,weight);
-	    }
-	  }
-	  else{
-	    h_trueleadb_recorank->Fill(0.0,weight);
-	    h_trueleadb_recorank_isb->Fill(0.0,weight);
-	    h_trueleadb_pt_nomatchingjet->Fill(v_truthJets[0].second.Pt()/1000.,weight);
-	    h_trueleadb_pt_nomatchingbjet->Fill(v_truthJets[0].second.Pt()/1000.,weight);
-	  }
-	  if(jet_v_tight.size() == 0 || (jet_v_tight.size() > 0 && v_truthJets[0].second.DeltaR(jet_v_tight[0].second) >= 0.5)){
-	    h_trueleadb_pt_nomatchingleadjet->Fill(v_truthJets[0].second.Pt()/1000.,weight);
-	  }
-	}
-	if(jet_v_tight.size() > 0 && v_truthJets.size() > 0){
-	  h_leadjet_pt_match->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-	  h_leadjet_pt_migration->Fill(jet_v_tight[0].second.Pt()/1000.,v_truthJets[0].second.Pt()/1000.,weight);
-	  h_Z_pt_1j_tighteta_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
-	  h_Z_pt_1j_tighteta_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
-	  Double_t deltaR_truthjet_recojet = v_truthJets[0].second.DeltaR(jet_v_tight[0].second);
-	  Double_t deltaPhi_truthjet_recojet = v_truthJets[0].second.DeltaPhi(jet_v_tight[0].second);
-	  Double_t deltaEta_truthjet_recojet = v_truthJets[0].second.Eta() - jet_v_tight[0].second.Eta();
-	  Double_t deltaR_Z_leadjet_reco = jet_v_tight[0].second.DeltaR(Z_fourv);
-	  Double_t deltaR_Z_leadjet_true = v_truthJets[0].second.DeltaR(dressed_Z);
-	  h_DeltaR_trueleadjet_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
-	  h_DeltaR_Z_leadjet_true_reco->Fill(deltaR_Z_leadjet_reco,deltaR_Z_leadjet_true,weight);
-	  if(passLeadJetB){
-	    h_DeltaR_trueleadb_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
-	    h_Deltaphi_Deltaeta_trueleadb_recoleadjet->Fill(deltaPhi_truthjet_recojet,deltaEta_truthjet_recojet,weight);
-	  }
-	  if(passLeadJetB && passRecoLeadJetB){
-	    h_Z_pt_1j_tighteta_b_match->Fill(Z_fourv.Pt()/1000.,weight);
-	    h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
-	  }
-	  else{
-	    h_Z_pt_1j_tighteta_notb_reco->Fill(Z_fourv.Pt()/1000.,weight);
-	  }
-	}
-      }
-      else{
-	h_n_jets_unmatch->Fill(jet_v_tight.size(),weight);
-      }
-      if(!passTruthSelections || v_truthJets.size() == 0){
-	if(jet_v_tight.size() > 0){
-	  h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-          h_Z_pt_1j_tighteta_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
-	}
-      }
-      if(!passTruthSelections || v_truthJets.size() == 0 || !passLeadJetB){
-	if(passRecoLeadJetB) h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
-	h_Z_pt_1j_tighteta_b_unmatch_norecobcheck->Fill(Z_fourv.Pt()/1000.,weight);
-      }
-    } //end isMC block
-    if(isMC){
-      if(jet_v_tight.size() > 0 && jet_v_tight_isb[0]){
-	  if(passTruthSelections){
-	    h_recoleadb_trueZ_ZpT->Fill(Z_fourv.Pt()/1000.,weight);
-	    h_recoleadb_trueZ_bjetpT->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-	    if(passJetTruthSelections){
-	      h_recoleadb_trueZ_truej_ZpT->Fill(Z_fourv.Pt()/1000.,weight);
-	      h_recoleadb_trueZ_truej_bjetpT->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-	      Double_t delR_recob_truej_closest = 1000.;
-	      bool matching_truth_j = false;
-	      int closest_true_jet_index = -1;
-	      Double_t delR_recob_trueb_closest = 1000.;
-	      bool matching_truth_b = false;
-	      int closest_true_b_index = -1;
-	      for(unsigned int i=0; i < v_truthJets.size();i++){
-		Double_t delR_recob_truej = jet_v_tight[0].second.DeltaR(v_truthJets[i].second);
-		if(delR_recob_truej < 0.5){
-		  matching_truth_j = true;
-		  if(delR_recob_truej < delR_recob_truej_closest){
-		    delR_recob_truej_closest = delR_recob_truej;
-		    closest_true_jet_index = i;
-		  }
-		  if(truth_jet_v_isb[i]){
-		    matching_truth_b = true;
-		    if(delR_recob_truej < delR_recob_trueb_closest){
-		      delR_recob_trueb_closest = delR_recob_truej;
-		      closest_true_b_index = i;
-		    }
-		  }
-		}
-	      }//end truth jet loop
-	      if(matching_truth_j) h_recoleadb_truejrank->Fill(closest_true_jet_index+1,weight);
-	      else h_recoleadb_truejrank->Fill(0.0,weight);
-	      if(matching_truth_b) h_recoleadb_truebrank->Fill(closest_true_b_index+1,weight);
-	      else h_recoleadb_truebrank->Fill(0.0,weight);
-	    }
-	    else{
-	      h_recoleadb_trueZ_notruej_ZpT->Fill(Z_fourv.Pt()/1000.,weight);
-	      h_recoleadb_trueZ_notruej_bjetpT->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-	      h_recoleadb_truejrank->Fill(0.0,weight);
-	      h_recoleadb_truebrank->Fill(0.0,weight);
-	    }
-	  }
-	  else{
-	    h_recoleadb_notrueZ_ZpT->Fill(Z_fourv.Pt()/1000.,weight);
-	    h_recoleadb_notrueZ_bjetpT->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-	  }
-	}
-    }
-    for(unsigned int i = 0; i < jet_v_tight.size(); i++){
-      h_jet_pt_tighteta_MET->Fill(jet_v_tight[i].second.Pt()/1000.,weight);
-      h_jet_y_tighteta_MET->Fill(jet_v_tight[i].second.Rapidity(),weight);
-    }
-    if(jet_v_tight.size() > 0){
-      h_leadjet_pt_tighteta_MET->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
-      h_leadjet_y_tighteta_MET->Fill(jet_v_tight[0].second.Rapidity(),weight);
-      h_jet_st_tighteta_MET->Fill(st_tight/1000.,weight);
-      h_jet_mu_ht_tighteta_MET->Fill(ht_tight/1000.,weight);
-      h_Z_mass_1j_tighteta_MET->Fill(Zmass,weight);
-      h_Z_pt_1j_tighteta_MET->Fill(Z_fourv.Pt()/1000.,weight);
-      h_DeltaR_Z_leadjet->Fill(jet_v_tight[0].second.DeltaR(Z_fourv),weight);
-      event_counter++;
-    }
-    if(jet_v_tight.size() > 1){
-      h_subjet_pt_tighteta_MET->Fill(jet_v_tight[1].second.Pt()/1000.,weight);
-      h_subjet_y_tighteta_MET->Fill(jet_v_tight[1].second.Rapidity(),weight);
-      TLorentzVector dijet_fourv_tight = jet_v_tight[0].second + jet_v_tight[1].second;
-      h_dijet_m_tighteta_MET->Fill(dijet_fourv_tight.M()/1000.,weight);
-      h_Z_mass_2j_tighteta_MET->Fill(Zmass,weight);
-    }
-    if(jet_v_tight.size() > 2) h_Z_mass_3j_tighteta_MET->Fill(Zmass,weight);
-    if(jet_v_tight.size() > 3) h_Z_mass_4j_tighteta_MET->Fill(Zmass,weight);
-    if(jet_v_tight.size() > 4) h_Z_mass_5j_tighteta_MET->Fill(Zmass,weight);
-
-  } //end if(met70)
-
-  
   if(!met70) return kFALSE;
-  //btag optimization   
+
+  h_Z_mass_MET->Fill(Zmass,weight);
+  if(isMC && passTruthSelections){
+    h_Z_mass_MET_match->Fill(Zmass,weight);
+    h_Z_mass_MET_migration->Fill(Zmass,dressed_Z_mass,weight);
+    h_Z_y_MET_match->Fill(Z_fourv.Rapidity(),weight);
+    h_Z_y_MET_migration->Fill(Z_fourv.Rapidity(),dressed_Z_y,weight);
+    h_Z_pt_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
+    h_Z_pt_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
+  }
+  else if(isMC){
+    h_Z_mass_MET_unmatch->Fill(Zmass,weight);
+    h_Z_y_MET_unmatch->Fill(Z_fourv.Rapidity(),weight);
+    h_Z_pt_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+  }
+  h_Z_pt_MET->Fill(Z_fourv.Pt()/1000.,weight);
+  h_jet_n_MET->Fill(jet_v.size(),weight);
+  h_Z_mass_0j_MET->Fill(Zmass,weight);
+  for(unsigned int i = 0; i < jet_v.size(); i++){
+    h_jet_pt_MET->Fill(jet_v[i].second.Pt()/1000.,weight);
+    h_jet_y_MET->Fill(jet_v[i].second.Rapidity(),weight);
+  }
+  if(jet_v.size() > 0){
+    h_leadjet_pt_MET->Fill(jet_v[0].second.Pt()/1000.,weight);
+    h_leadjet_y_MET->Fill(jet_v[0].second.Rapidity(),weight);
+    h_jet_st_MET->Fill(st/1000.,weight);
+    h_jet_mu_ht_MET->Fill(ht/1000.,weight);
+    h_Z_mass_1j_MET->Fill(Zmass,weight);
+  }
+  if(jet_v.size() > 1){
+    h_subjet_pt_MET->Fill(jet_v[1].second.Pt()/1000.,weight);
+    h_subjet_y_MET->Fill(jet_v[1].second.Rapidity()/1000.,weight);
+    TLorentzVector dijet_fourv = jet_v[0].second + jet_v[1].second;
+    h_dijet_m_MET->Fill(dijet_fourv.M()/1000.,weight);
+    h_Z_mass_2j_MET->Fill(Zmass,weight);
+  }
+  if(jet_v.size() > 2) h_Z_mass_3j_MET->Fill(Zmass,weight);
+  if(jet_v.size() > 3) h_Z_mass_4j_MET->Fill(Zmass,weight);
+  if(jet_v.size() > 4) h_Z_mass_5j_MET->Fill(Zmass,weight);
+  //tight eta distributions 
+  h_jet_n_tighteta_MET->Fill(jet_v_tight.size(),weight);
+  
+  if(isMC){
+    if(passTruthSelections){
+      h_n_jets_match->Fill(jet_v_tight.size(),weight);
+      h_n_jets_migration->Fill(jet_v_tight.size(),v_truthJets.size(),weight);
+      
+      if(jet_v_tight.size() > 0 && v_truthJets.size() > 0){
+	h_leadjet_pt_match->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+	h_leadjet_pt_migration->Fill(jet_v_tight[0].second.Pt()/1000.,v_truthJets[0].second.Pt()/1000.,weight);
+	h_Z_pt_1j_tighteta_MET_match->Fill(Z_fourv.Pt()/1000.,weight);
+	h_Z_pt_1j_tighteta_MET_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
+	Double_t deltaR_truthjet_recojet = v_truthJets[0].second.DeltaR(jet_v_tight[0].second);
+	Double_t deltaPhi_truthjet_recojet = v_truthJets[0].second.DeltaPhi(jet_v_tight[0].second);
+	Double_t deltaEta_truthjet_recojet = v_truthJets[0].second.Eta() - jet_v_tight[0].second.Eta();
+	Double_t deltaR_Z_leadjet_reco = jet_v_tight[0].second.DeltaR(Z_fourv);
+	Double_t deltaR_Z_leadjet_true = v_truthJets[0].second.DeltaR(dressed_Z);
+	h_DeltaR_trueleadjet_recoleadjet->Fill(deltaR_truthjet_recojet,weight);
+	h_DeltaR_Z_leadjet_true_reco->Fill(deltaR_Z_leadjet_reco,deltaR_Z_leadjet_true,weight);
+	h_Z_pt_1j_tighteta_notb_reco->Fill(Z_fourv.Pt()/1000.,weight);
+      }
+    }      
+    else{
+      h_n_jets_unmatch->Fill(jet_v_tight.size(),weight);
+    }
+    if(!passTruthSelections || v_truthJets.size() == 0){
+      if(jet_v_tight.size() > 0){
+	h_leadjet_pt_unmatch->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+	h_Z_pt_1j_tighteta_MET_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
+      }
+    }
+  } //end isMC block
+  
+  for(unsigned int i = 0; i < jet_v_tight.size(); i++){
+    h_jet_pt_tighteta_MET->Fill(jet_v_tight[i].second.Pt()/1000.,weight);
+    h_jet_y_tighteta_MET->Fill(jet_v_tight[i].second.Rapidity(),weight);
+  }
+  if(jet_v_tight.size() > 0){
+    h_leadjet_pt_tighteta_MET->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
+    h_leadjet_y_tighteta_MET->Fill(jet_v_tight[0].second.Rapidity(),weight);
+    h_jet_st_tighteta_MET->Fill(st_tight/1000.,weight);
+    h_jet_mu_ht_tighteta_MET->Fill(ht_tight/1000.,weight);
+    h_Z_mass_1j_tighteta_MET->Fill(Zmass,weight);
+    h_Z_pt_1j_tighteta_MET->Fill(Z_fourv.Pt()/1000.,weight);
+    h_DeltaR_Z_leadjet->Fill(jet_v_tight[0].second.DeltaR(Z_fourv),weight);
+    event_counter++;
+  }
+  if(jet_v_tight.size() > 1){
+    h_subjet_pt_tighteta_MET->Fill(jet_v_tight[1].second.Pt()/1000.,weight);
+    h_subjet_y_tighteta_MET->Fill(jet_v_tight[1].second.Rapidity(),weight);
+    TLorentzVector dijet_fourv_tight = jet_v_tight[0].second + jet_v_tight[1].second;
+    h_dijet_m_tighteta_MET->Fill(dijet_fourv_tight.M()/1000.,weight);
+    h_Z_mass_2j_tighteta_MET->Fill(Zmass,weight);
+  }
+  if(jet_v_tight.size() > 2) h_Z_mass_3j_tighteta_MET->Fill(Zmass,weight);
+  if(jet_v_tight.size() > 3) h_Z_mass_4j_tighteta_MET->Fill(Zmass,weight);
+  if(jet_v_tight.size() > 4) h_Z_mass_5j_tighteta_MET->Fill(Zmass,weight);
+  
+  
+  //b-tagging
 
   float mv1c_80_wp = 0.4051;
   float mv1c_70_wp = 0.7068;
@@ -1750,14 +1617,11 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   string label;
   int jet_i;
   //bjet calibration
-  //comment out until new skims are complete
 
   //weights for systematic variation
   upweight = weight;
   downweight = weight;
 
-  //Temporary placement, think harder about this 
-  if(!met70) return kFALSE;
   //testing data weights
   for(unsigned int i = 0; i < jet_v.size(); i++){
     
@@ -1873,7 +1737,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
     
     if(isMC){
-      //      for(unsigned int i=0; i<jet_v_tight.size(); i++){
       int jet_flavor_had_match = getJetFlavourLabel(jet_v_tight[i].second.Eta(), jet_v_tight[i].second.Phi(),jet_AntiKt4LCTopo_flavor_truth_label->at(jet_v_tight[i].first));
       switch (jet_flavor_had_match){
       case 5:
@@ -1884,10 +1747,15 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	if(i==0){
 	  h_mv1cweight_bottom_had_match_leadjet->Fill(mv1cweight,weight);
 	  h_mv1cweight_bottom_had_match_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+	  h_Z_pt_1j_tighteta_b_reco->Fill(Z_fourv.Pt()/1000.,weight);
 	  if(passTruthSelections){
 	    h_mv1cweight_bottom_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
+	    if(passLeadJetB){
+	      h_Z_pt_1j_tighteta_b_match->Fill(Z_fourv.Pt()/1000.,weight);
+	      h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
+	    }
 	  }
-
+	  if(!passTruthSelections || !passLeadJetB) h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
 	}
 	break;
       case 4:
@@ -1925,9 +1793,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
   
-  if(met70){
-    h_bjet_n->Fill(bjet_v.size(),weight);
-  }
+
+  h_bjet_n->Fill(bjet_v.size(),weight);
+
   for(unsigned int i = 0; i < jet_v.size(); i++){
     if(jet_AntiKt4LCTopo_flavor_weight_MV1c->at(jet_v[i].first) > mv1c_80_wp && fabs(jet_v[i].second.Eta()) < 2.4){
       bjet_v_mv1c_80.push_back(jet_v[i]);
@@ -1949,30 +1817,30 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   if(bjet_v.size() >= 1){
     h_MET_1tag->Fill(finalMET_et/1000.);
-    if(met70){
-      h_bjet_deltaR_Zb->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
-      h_bjet_deltaphi_Zb->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
-      h_bjet_lead_pt->Fill(bjet_v[0].second.Pt()/1000.,weight);
-      double delta_eta_Zb = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
-      h_bjet_deltaeta_Zb->Fill(delta_eta_Zb,weight);
-      h_Z_mass_1b->Fill(Zmass,weight);
-    }  
+  
+    h_bjet_deltaR_Zb->Fill(bjet_v[0].second.DeltaR(Z_fourv),weight);
+    h_bjet_deltaphi_Zb->Fill(fabs(bjet_v[0].second.DeltaPhi(Z_fourv)),weight);
+    h_bjet_lead_pt->Fill(bjet_v[0].second.Pt()/1000.,weight);
+    double delta_eta_Zb = fabs(Z_fourv.Eta() - bjet_v[0].second.Eta());
+    h_bjet_deltaeta_Zb->Fill(delta_eta_Zb,weight);
+    h_Z_mass_1b->Fill(Zmass,weight);
+    
   }
   if(bjet_v.size() >= 2){
     h_MET_2tag->Fill(finalMET_et/1000.);
-    if(met70){
-      h_bjet_deltaR_bb->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
-      h_bjet_deltaphi_bb->Fill(fabs(bjet_v[0].second.DeltaPhi(bjet_v[1].second)),weight);
-      h_bjet_sublead_pt->Fill(bjet_v[1].second.Pt()/1000.,weight);
-      TLorentzVector b_jets_sum = bjet_v[0].second + bjet_v[1].second;
-      h_bjet_m_bb->Fill(b_jets_sum.M()/1000.,weight);
-      h_bjet_pt_bb->Fill(b_jets_sum.Pt()/1000.,weight);
-      double delta_eta_bb = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
-      h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
-      h_Z_mass_2b->Fill(Zmass,weight);
-    }
+
+    h_bjet_deltaR_bb->Fill(bjet_v[0].second.DeltaR(bjet_v[1].second),weight);
+    h_bjet_deltaphi_bb->Fill(fabs(bjet_v[0].second.DeltaPhi(bjet_v[1].second)),weight);
+    h_bjet_sublead_pt->Fill(bjet_v[1].second.Pt()/1000.,weight);
+    TLorentzVector b_jets_sum = bjet_v[0].second + bjet_v[1].second;
+    h_bjet_m_bb->Fill(b_jets_sum.M()/1000.,weight);
+    h_bjet_pt_bb->Fill(b_jets_sum.Pt()/1000.,weight);
+    double delta_eta_bb = fabs(bjet_v[0].second.Eta()-bjet_v[1].second.Eta());
+    h_bjet_deltaeta_bb->Fill(delta_eta_bb,weight);
+    h_Z_mass_2b->Fill(Zmass,weight);
+
   }
-  //  if(!met70) return kFALSE;
+
   //re-sort b-jets by mv1c weight
   int s;
   pair<int,TLorentzVector> tmp_s;

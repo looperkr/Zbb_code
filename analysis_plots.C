@@ -434,7 +434,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     isTruth = true;
     chooseHistOptions("Z_y_migration","Z rapidity (migration matrix)","Z y",-3.5,3.5,-3.5,3.5,1,0.7,1.5);
   }
-  else if(var_2_plot == "Z_pt_truth_dressed"){
+  else if(var_2_plot == "Z_pt_truth"){
     isTruth = true;
     chooseHistOptions("Z_pt_truth_dressed","Z p_{T} (truth dressed)", "Events/50 GeV", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }

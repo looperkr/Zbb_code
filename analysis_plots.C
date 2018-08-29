@@ -501,6 +501,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     isTruth = true;
     chooseHistOptions("Z_pt_1j_tighteta_b_reco","Z p_{T}, >= 1b","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "dR_toB"){
+    isTruth = true;
+    chooseHistOptions("dR_toB","#Delta R (j_reco,B)", "Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
+  }
   else if(var_2_plot == "dR_trueleadjet_recoleadjet"){
     isTruth = true;
     chooseHistOptions("dR_trueleadjet_recoleadjet","#Delta R (j_true,j_reco)", "Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);

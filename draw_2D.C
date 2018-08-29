@@ -65,13 +65,15 @@ void rebin2(TH1 *h, Int_t ngx, Int_t ngy)
 
 void draw_2D(){
 
-  TFile *f = TFile::Open("MC_histograms_root/dR_Z_leadjet_true_reco.root","READ");
-  TH1D *h = (TH1D*)f->Get("dR_Z_leadjet_true_reco_mc");
-  rebin2(h,5,5);
+  TFile *f = TFile::Open("output.root","READ");
+  TH1D *h = (TH1D*)f->Get("jet_pt_2D");
+  h->SetAxisRange(0.,400.,"X");
+  h->SetAxisRange(0.,400.,"Y");
+  //  rebin2(h,5,5);
   
   //  h->Draw("BOX");
-  h->SetXTitle("truth");
-  h->SetYTitle("reco");
+  h->SetXTitle("reco");
+  h->SetYTitle("truth");
   h->Draw("BOX");
 
 

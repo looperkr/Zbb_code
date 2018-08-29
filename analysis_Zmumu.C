@@ -82,8 +82,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
 
    //output four-vectors to .csv 
    jetfourv_f.open("csv_files/jetfourv_f_Zbb.csv");
-   jetfourv_f << std::unitbuf;
-   jetfourv_f << "testing\n";
+   //   jetfourv_f << std::unitbuf;
+   //   jetfourv_f << "testing\n";
    fourv_csv_count = 0;
 
    n_TRT = 0;
@@ -1762,20 +1762,20 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  h_Z_pt_1j_tighteta_b_reco->Fill(Z_fourv.Pt()/1000.,weight);
 	  h_dRtoB->Fill(jet_AntiKt4LCTopo_flavor_truth_dRminToB->at(jet_v_tight[i].first),weight);
 	  if(fourv_csv_count < 20){
-	    jetfourv_f << Z_fourv.M()/1000.;
+	    //	    jetfourv_f << Z_fourv.M()/1000.;
 	    for(unsigned int ri=0;ri<jet_v_tight.size();ri++){
 	      //print jet four vectors if reco jet is a b-jet
-	      jetfourv_f << "," << jet_v_tight[ri].second.Pt()/1000. << "," << jet_v_tight[ri].second.Eta() << "," << jet_v_tight[ri].second.Phi() << "," << jet_v_tight[ri].second.E()/1000.;
+	      //	      jetfourv_f << "," << jet_v_tight[ri].second.Pt()/1000. << "," << jet_v_tight[ri].second.Eta() << "," << jet_v_tight[ri].second.Phi() << "," << jet_v_tight[ri].second.E()/1000.;
 	    }
 	  }
 	  if(passTruthSelections){
 	    h_mv1cweight_bottom_had_match_ptbinned_leadjet_trueZ->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);
-	    if(fourv_csv_count < 20) jetfourv_f << "," << dressed_Z.M()/1000.;	    
+	    //if(fourv_csv_count < 20) jetfourv_f << "," << dressed_Z.M()/1000.;	    
 	    if(passJetTruthSelections && fourv_csv_count < 20){
 	      for(unsigned int ti=0;ti<v_truthJets.size();ti++){
 		//print truth jet four vectors if reco jet is a b-jet
-		jetfourv_f << "," << v_truthJets[ti].second.Pt()/1000. << "," << v_truthJets[ti].second.Eta() << "," << v_truthJets[ti].second.Phi() << "," << v_truthJets[ti].second.E()/1000.;
-		jetfourv_f << "," << truth_jet_v_isb[ti];
+		//jetfourv_f << "," << v_truthJets[ti].second.Pt()/1000. << "," << v_truthJets[ti].second.Eta() << "," << v_truthJets[ti].second.Phi() << "," << v_truthJets[ti].second.E()/1000.;
+		//jetfourv_f << "," << truth_jet_v_isb[ti];
 	      }
 	    }
 	    if(passLeadJetB){
@@ -1783,7 +1783,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	      h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
 	    }
 	  }
-	  if(fourv_csv_count < 20) jetfourv_f << "\n";
+	  //	  if(fourv_csv_count < 20) jetfourv_f << "\n";
 	  fourv_csv_count++;
 	  if(!passTruthSelections || !passLeadJetB) h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
 	}

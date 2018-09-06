@@ -186,7 +186,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     chooseHistOptions("jet_mu_ht_tighteta","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_pt_tight"){
-    chooseHistOptions("jet_pt_lead_tighteta","leading jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt_lead_tighteta","leading jet pT [GeV]", "Events/10 GeV", 0., 1000., 1, 10000000,1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dijet_m_tight"){
     chooseHistOptions("dijet_m_tighteta", "m_{jj} [GeV]","Events/20 GeV", 0., 1000., 1, 100000000, 40,ratiomin, ratiomax);
@@ -508,6 +508,21 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   else if(var_2_plot == "dRtoB"){
     isTruth = true;
     chooseHistOptions("dRtoB","#Delta R (j_reco,B)", "Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Nb_truth"){
+    isTruth = true;
+    chooseHistOptions("Nb_truth","N_b (truth)","Events",-0.5,19.5,1,10000000.,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Nb_reco"){
+    isTruth = true;
+    chooseHistOptions("Nb_reco","N_b (truth)","Events",-0.5,19.5,1,10000000.,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Zpt_1j_incl"){
+    chooseHistOptions("Zpt_1j_incl","Z p_T inclusive (events >= cut value)","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Zpt_1j_truth_incl"){
+    isTruth = true;
+    chooseHistOptions("Zpt_1j_truth_incl","Z p_T inclusive (truth events >= cut value)","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dR_trueleadjet_recoleadjet"){
     isTruth = true;

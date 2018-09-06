@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
@@ -249,7 +249,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_dijet_dy_tighteta = new TH1D("dijet_dy_tighteta","#Delta y between jets (|#eta| < 2.4)",200,-5,5);
    h_dijet_deta_tighteta = new TH1D("dijet_deta_tighteta","#Delta #eta between jets (|#eta| < 2.4)",200,-5,5);
 
-
+   h_leadjet_pt_tighteta_gtr100 = new TH1D("jet_pt_lead_tighteta_gtr100","leading jet pT (|#eta| < 2.4)(p_T>100 GeV)",VarBinPt_size, VarBinPt_vec);
+   h_leadjet_pt_truth_gtr100 = new TH1D("leadjet_pt_truth_dressed_gtr100","Leading jet pT (truth)",VarBinPt_size, VarBinPt_vec);
    //All histograms after this point have MET cut applied
 
    h_Z_mass_MET = new TH1D("Z_mass_MET","Z mass after MET cut",20,70,110);
@@ -531,6 +532,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   jet_v_tight_isb.clear();
   truth_jet_v_isb.clear();
   bjet_v.clear();
+  jet_v_b_truth.clear();
+  jet_v_b_reco.clear();
 
   float pt_bins[22] = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,160,180,210,250,310,400,800};
   const int pt_bins_size = 21;
@@ -664,6 +667,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  h_Nb_truth->Fill(jet_v_b_truth.size(),weight);
 	  if(passJetTruthSelections){
 	    h_leadjet_pt_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
+	    if(v_truthJets[0].second.Pt()/1000.>100.)h_leadjet_pt_truth_gtr100->Fill(v_truthJets[0].second.Pt()/1000.,weight);
 	    h_Z_pt_1j_tighteta_truth->Fill(dressed_Z_pt,weight);
 	    for(unsigned int b=0;b<pt_bins_size;b++){
 	      if(dressed_Z_pt>pt_bins[b]) h_Zpt_1j_truth_incl->Fill(pt_bins[b]+1,weight);
@@ -1453,6 +1457,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(jet_v_tight.size() > 0){
     h_leadjet_pt_tighteta->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
     h_leadjet_y_tighteta->Fill(jet_v_tight[0].second.Rapidity(),weight);
+    if(jet_v_tight[0].second.Pt()/1000. > 100.) h_leadjet_pt_tighteta_gtr100->Fill(jet_v_tight[0].second.Pt()/1000.,weight);
   }
   if(jet_v_tight.size() > 1){
     TLorentzVector tmp_4v_tight = jet_v_tight[0].second + jet_v_tight[1].second;
@@ -2052,6 +2057,8 @@ void analysis_Zmumu::Terminate()
   h_dijet_dphi_tighteta->Write();
   h_dijet_dy_tighteta->Write();
   h_dijet_deta_tighteta->Write();
+  h_leadjet_pt_tighteta_gtr100->Write();
+  h_leadjet_pt_truth_gtr100->Write();
   h_mv1weight->Write();
   h_mv1cweight->Write();
   h_mv1cweight_ptbinned->Write();

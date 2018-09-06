@@ -65,10 +65,10 @@ void rebin2(TH1 *h, Int_t ngx, Int_t ngy)
 
 void draw_2D(){
 
-  TFile *f = TFile::Open("output.root","READ");
-  TH1D *h = (TH1D*)f->Get("jet_pt_2D");
-  h->SetAxisRange(0.,400.,"X");
-  h->SetAxisRange(0.,400.,"Y");
+  TFile *f = TFile::Open("MC_histograms_root/jet_pt_2D.root","READ");
+  TH1D *h = (TH1D*)f->Get("jet_pt_2D_mc");
+  h->SetAxisRange(0.,800.,"X");
+  h->SetAxisRange(0.,800.,"Y");
   //  rebin2(h,5,5);
   
   //  h->Draw("BOX");

@@ -501,9 +501,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     isTruth = true;
     chooseHistOptions("Z_pt_1j_tighteta_b_reco","Z p_{T}, >= 1b","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "dR_toB"){
+  else if(var_2_plot == "jet_pt_2D"){
     isTruth = true;
-    chooseHistOptions("dR_toB","#Delta R (j_reco,B)", "Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt_2D","jet p_{T}, reco v. truth","Events",0.,800.,0,800.,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "dRtoB"){
+    isTruth = true;
+    chooseHistOptions("dRtoB","#Delta R (j_reco,B)", "Events/0.5", 0, 5.0, 1, 10000000., 10, ratiomin, ratiomax);
   }
   else if(var_2_plot == "dR_trueleadjet_recoleadjet"){
     isTruth = true;
@@ -603,6 +607,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   else if(var_2_plot == "leadjet_pt_truth_dressed"){
     isTruth = true;
     chooseHistOptions("leadjet_pt_truth_dressed","Truth leadjet pt","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "leadjet_pt_truth_aftercalib"){
+    isTruth = true;
+    chooseHistOptions("leadjet_pt_truth_aftercalib","Truth leadjet pt (after calib","Events",0.,1000.,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "leadjet_pt_tightmet_match"){
     isTruth = true;

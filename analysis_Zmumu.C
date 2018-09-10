@@ -51,7 +51,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    //run flags
   isMC = false;
   isData = !isMC;
-  isGrid = false;
+  isGrid = true;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
@@ -197,6 +197,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_1j_tighteta_notb_truth = new TH1D("Z_pt_1j_tighteta_notb_truth","Z pT (truth level), >= 1j, notb",VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1j_tighteta_b_reco = new TH1D("Z_pt_1j_tighteta_b_reco","Z pT (reco), >= 1b",VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1j_tighteta_notb_reco = new TH1D("Z_pt_1j_tighteta_notb_reco","Z pT (reco) >= 1j, notb",VarBinPt_new_size,VarBinPt_new_vec);
+
+   h_Z_pt_1b_matchedjet_reco = new TH1D("Z_pt_1b_matchedjet_reco","Z pT (reco), >= 1b (truth-matched)",VarBinPt_new_size,VarBinPt_new_vec);
 
    h_jet_pt_tighteta_b_truth = new TH1D("jet_pt_tighteta_b_truth","jet pT, truth b",VarBinPt_size, VarBinPt_vec);
    h_jet_pt_tighteta_notb_truth = new TH1D("jet_pt_tighteta_notb_truth","jet pT, truth non-b",VarBinPt_size, VarBinPt_vec);
@@ -513,6 +515,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cout << "#############################################################" << endl;
     cout << "DUPLICATE EVENT: " << run_event_number.first << ", " << run_event_number.second << endl;
     cout << "#############################################################" << endl;
+    if(isData){
+      Abort("DUPLICATE DATA EVENT, CHECK DATASET");
+    }
     return kFALSE;
   }
   run_evt_set.insert(run_event_number);
@@ -1742,6 +1747,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	    if(passLeadJetB){
 	      h_Z_pt_1j_tighteta_b_match->Fill(Z_fourv.Pt()/1000.,weight);
 	      h_Z_pt_1j_tighteta_b_migration->Fill(Z_fourv.Pt()/1000.,dressed_Z_pt,weight);
+	      Double_t dR_leadb_true_reco = jet_v_tight[0].second.DeltaR(v_truthJets[0].second);
+	      if(dR_leadb_true_reco < 0.2) h_Z_pt_1b_matchedjet_reco->Fill(Z_fourv.Pt()/1000.,weight);
 	    }
 	  }
 	  if(!passTruthSelections || !passLeadJetB) h_Z_pt_1j_tighteta_b_unmatch->Fill(Z_fourv.Pt()/1000.,weight);
@@ -2015,6 +2022,7 @@ void analysis_Zmumu::Terminate()
   h_jet_pt_tighteta_b_truth->Write();
   h_jet_pt_tighteta_notb_truth->Write();
   h_DeltaR_trueleadjet_recoleadjet->Write();
+  h_Z_pt_1b_matchedjet_reco->Write();
 
   h_trueb_pt_noleadingrecojet->Write();
 

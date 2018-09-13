@@ -11,7 +11,8 @@ def divideByBFraction(histo):
 isBresult = False
 #Dictionary stores list with ["distributionname",min,max,binning]
 #testing
-fill_empty = True #Creates empty background histograms for testing
+fill_empty = False #Creates empty background histograms for testing
+isSherpa = True
 
 distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Z_Pt","Z_y_MET":"Z_Y","Z_pt":"Z_Pt","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt_1j","Z_pt_1b":"Z_Pt_1b"} #map my_names -> unfolding_names
 truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":"Z_pt", "Z_y":"Z_y", "Z_y_MET":"Z_y",
@@ -39,6 +40,10 @@ truth_channel = "dressedMu"
 reco_region = "iBiJ"
 truth_region = "dressed"
 
+if isSherpa:
+    uf_sig_samples[0] = "Zmumujet_sherpa"
+    uf_h_name_sig = "Z"
+    sig_samples[0] = "zjets_sherpa"
 
 uf_hist_list = ["","_truth","_match","_unmatch","_migration"]
 
@@ -52,7 +57,7 @@ for hist in uf_hist_list:
     if isBresult and hist == "":
         var_2_plot = "Z_pt_1b_reco"
     var_2_plot += hist
-    cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,false)"
+    cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,true)"
     print cmd
     gROOT.ProcessLine(cmd)
 

@@ -68,6 +68,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   else if(var_2_plot == "mu_eta"){
     chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 1, 100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "cutflow"){
+    chooseHistOptions("cutflow_calib","cutflow","Events",-0.5,30.5,0.1,100000000,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "truth_cutflow"){
+    isTruth = true;
+    chooseHistOptions("cutflow_truth","truth cutflow","Events",-0.5,30.5,0.1,100000000,1,ratiomin,ratiomax);
+  }
   else if(var_2_plot == "Z_mass"){
     if(!isMJ && !isWide){
       chooseHistOptions("Z_mass","m_{#mu#mu} [GeV]","Events/2 GeV", 70, 110, 1, 1000000000, 1, 0.7, 1.5);
@@ -469,9 +476,41 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     isTruth = true;
     chooseHistOptions("Z_pt_1b_matchedjet_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "Z_pt_1b_matchedjet_0225_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1b_matchedjet_0225_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_matchedjet_025_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1b_matchedjet_025_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_matchedjet_0275_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1b_matchedjet_0275_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_matchedjet_03_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1b_matchedjet_03_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_matchedjet_notrueZ_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1b_matchedjet_notrueZ_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_truth_postcalib"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_tighteta_b_truth","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
   else if(var_2_plot == "Z_pt_1notb_reco"){
     isTruth = true;
     chooseHistOptions("Z_pt_1j_tighteta_notb_reco","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "truebrank_Z1b_reco"){
+    isTruth = true;
+    chooseHistOptions("truebrank_Z1b_reco","Truth b rank","Events",0,10,1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "truebrank_Z1b_trueZ_reco"){
+    isTruth = true;
+    chooseHistOptions("truebrank_Z1b_trueZ_reco","Truth b rank","Events",0,10,1,100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j"){
     chooseHistOptions("Z_pt_1j","Z p_{T} [GeV] ","Events", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
@@ -1593,6 +1632,10 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   if(!isTruth){
     h_data->SetName("data");
     h_data->Write();
+  }
+  if(include_sherpa){
+    h_zmumu_sherpa_sum.SetName("zjets_sherpa_sum");
+    h_zmumu_sherpa_sum.GetHist()->Write();
   }
   f_unfolding->Close();
 

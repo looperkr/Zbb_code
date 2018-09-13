@@ -49,14 +49,14 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
   isWideWindow = false;
   isShort = false;
 
-  
+  n_duplicate = 0;  
   TString option = GetOption();
   Info("Begin", "starting h1analysis with process option: %s", option.Data());
 
@@ -529,7 +529,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     cout << "DUPLICATE EVENT: " << run_event_number.first << ", " << run_event_number.second << endl;
     cout << "#############################################################" << endl;
     if(isData){
-      Abort("DUPLICATE DATA EVENT, CHECK DATASET");
+      n_duplicate++;
+      //Abort("DUPLICATE DATA EVENT, CHECK DATASET");
     }
     return kFALSE;
   }
@@ -2131,6 +2132,7 @@ void analysis_Zmumu::Terminate()
   time_t end = time(0);
   char* enddt = ctime(&end);
   cout << "Ending time: " << enddt << endl;
+  cout << "Duplicate events: " << n_duplicate << endl;
 
   if(isGrid){
     output_name = "output.root";

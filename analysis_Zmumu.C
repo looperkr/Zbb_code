@@ -191,6 +191,11 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_1j_tighteta_b_unmatch = new TH1D("Z_pt_1j_b_unmatch","Z pT (no true Z or no b)",VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1j_tighteta_b_migration = new TH2D("Z_pt_1j_b_migration","Z pT >=1b migration matrix",VarBinPt_new_size,VarBinPt_new_vec,VarBinPt_new_size,VarBinPt_new_vec);
 
+   h_Z_pt_1j_cjets = new TH1D("Z_pt_1j_cjets","Z pT, leading c-jet",200,0,200);
+   h_Z_pt_1j_bjets = new TH1D("Z_pt_1j_bjets","Z pT, leading b-jet",200,0,200);
+   h_Z_pt_1j_ljets = new TH1D("Z_pt_1j_ljets","Z pT, leading l-jet",200,0,200);
+   h_Z_pt_1b_bjets = new TH1D("Z_pt_1b_bjets","Z pT, leading b-jet",200,0,200);
+
    h_Z_pt_1b_truth_postcalib = new TH1D("Z_pt_1j_tighteta_b_truth","Z pT (truth level)(after calibration)",VarBinPt_new_size,VarBinPt_new_vec);
    
    h_dRtoB = new TH1D("dRtoB","dR to B (reco leading jet)",110,0,5.5);
@@ -561,6 +566,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   passTruthSelections = false;
   passJetTruthSelections = false; //truth jet in tracking volume in event
   passLeadJetB = false; //leading truth jet is B-hadron matched
+  isLeadJetC = false;
   passRecoLeadJetB = false; //leading reco jet is B-hadron matched
   dressed_Z_mass = 0.;
   dressed_Z_y = 0.;
@@ -713,6 +719,9 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 		cutdes_truth[icut_truth] = "Leading b-jet";
 		icut_truth++;
 	      }
+	      else if(true_flav_label == 4){
+		isLeadJetC = true;
+	      }
 	    }
 	    h_dressed_mu_Z_mass->Fill(dressed_Z_mass,weight);
 	    h_n_jets_truth->Fill(v_truthJets.size(),weight);
@@ -721,12 +730,16 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	      h_leadjet_pt_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
 	      if(v_truthJets[0].second.Pt()/1000.>100.)h_leadjet_pt_truth_gtr100->Fill(v_truthJets[0].second.Pt()/1000.,weight);
 	      h_Z_pt_1j_tighteta_truth->Fill(dressed_Z_pt,weight);
+	      if(passLeadJetB) h_Z_pt_1j_bjets->Fill(dressed_Z_pt,weight);
+	      else if(isLeadJetC) h_Z_pt_1j_cjets->Fill(dressed_Z_pt,weight);
+	      else h_Z_pt_1j_ljets->Fill(dressed_Z_pt,weight);
 	      for(unsigned int b=0;b<pt_bins_size;b++){
 		if(dressed_Z_pt>pt_bins[b]) h_Zpt_1j_truth_incl->Fill(pt_bins[b]+1,weight);
 	      }
 	      if(passLeadJetB){
 		h_Z_pt_1j_tighteta_b_truth->Fill(dressed_Z_pt,weight);
 		h_jet_pt_tighteta_b_truth->Fill(v_truthJets[0].second.Pt()/1000.,weight);
+		h_Z_pt_1b_bjets->Fill(dressed_Z_pt,weight);
 	      }
 	      else{
 		h_Z_pt_1j_tighteta_notb_truth->Fill(dressed_Z_pt,weight);
@@ -741,6 +754,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
   icut_truth_max = 8;
+
 
   /*~~~~~~~~~~~selection cuts~~~~~~~~~~~~~*/
 
@@ -1570,34 +1584,43 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   if(jet_v_tight.size() == 0){
     h_cutflow_allcalib->Fill((Float_t)icut,weight);
-    cutdes[icut] = "Njets (tight) == 0";
-    icut++;
   }
+  cutdes[icut] = "Njets (tight) == 0";
+  icut++;
+
   if(jet_v_tight.size() == 1){
     h_cutflow_allcalib->Fill((Float_t)icut,weight);
-    cutdes[icut] = "Njets (tight) == 1";
-    icut++;
   }
+  cutdes[icut] = "Njets (tight) == 1";
+  icut++;
+
   if(jet_v_tight.size() == 2){
     h_cutflow_allcalib->Fill((Float_t)icut,weight);
-    cutdes[icut] = "Njets (tight) == 2";
-    icut++;
   }
+  cutdes[icut] = "Njets (tight) == 2";
+  icut++;
+
   if(jet_v_tight.size() == 3){
     h_cutflow_allcalib->Fill((Float_t)icut,weight);
-    cutdes[icut] = "Njets (tight) == 3";
-    icut++;
   }
+  cutdes[icut] = "Njets (tight) == 3";
+  icut++;
+
   if(jet_v_tight.size() == 4){
     h_cutflow_allcalib->Fill((Float_t)icut,weight);
-    cutdes[icut] = "Njets (tight) == 4";
-    icut++;
   }
+  cutdes[icut] = "Njets (tight) == 4";
+  icut++;
+
   if(jet_v_tight.size() == 5){
     h_cutflow_allcalib->Fill((Float_t)icut,weight);
-    cutdes[icut] = "Njets (tight) == 5";
-    icut++;
   }
+  cutdes[icut] = "Njets (tight) == 5";
+
+  icut++;
+
+
+
 
   h_Z_mass_MET->Fill(Zmass,weight);
   if(isMC && passTruthSelections){
@@ -1792,7 +1815,6 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
   }
  
-
   h_cutflow_allcalib->Fill((Float_t)icut,weight);
   cutdes[icut] = "Bjet calibration weight";
   icut++;
@@ -1939,42 +1961,47 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   }
   
   if(isMC) h_Nb_reco->Fill(jet_v_b_reco.size(),weight);
+
   if(isMC){
     if(passRecoLeadJetB){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
     }
     if(jet_v_b_reco.size() == 0){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
-      cutdes[icut] = "N bjets == 0";
-      icut++;
     }
+    cutdes[icut] = "N bjets == 0";
+    icut++;
+
     if(jet_v_b_reco.size() == 1){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
-      cutdes[icut] = "N bjets == 1";
-      icut++;
     }
+    cutdes[icut] = "N bjets == 1";
+    icut++;
+
     if(jet_v_b_reco.size() == 2){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
-      cutdes[icut] = "N bjets == 2";
-      icut++;
     }
+    cutdes[icut] = "N bjets == 2";
+    icut++;
+    
     if(jet_v_b_reco.size() == 3){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
-      cutdes[icut] = "N bjets == 3";
-      icut++;
     }
+    cutdes[icut] = "N bjets == 3";
+    icut++;
+    
     if(jet_v_b_reco.size() == 4){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
-      cutdes[icut] = "N bjets == 4";
-      icut++;
     }
+    cutdes[icut] = "N bjets == 4";
+    icut++;
+    
     if(jet_v_b_reco.size() == 5){
       h_cutflow_allcalib->Fill((Float_t)icut,weight);
-      cutdes[icut] = "N bjets == 5";
-      icut++;
     }
-
-
+    cutdes[icut] = "N bjets == 5";
+    icut++;
+   
   }
 
   icut_max_allcalib = icut;
@@ -2129,6 +2156,7 @@ void analysis_Zmumu::Terminate()
     }
   }
 
+
   time_t end = time(0);
   char* enddt = ctime(&end);
   cout << "Ending time: " << enddt << endl;
@@ -2140,7 +2168,10 @@ void analysis_Zmumu::Terminate()
 
   cout << "Output file: " << output_name << endl;
   TFile f(output_name,"recreate");
- 
+
+  f.WriteObjectAny(&cutdes,"TString","cutdes");
+  f.WriteObjectAny(&cutdes_truth,"TString","cutdes_truth");
+
   h_good_zeroweight_events->Write();
   h_good_zeroweight_events_pw->Write();
   h_cutflow->Write();
@@ -2232,6 +2263,11 @@ void analysis_Zmumu::Terminate()
   h_Z_pt_1b_truth_postcalib->Write();
   h_truebrank_Z1b_reco->Write();
   h_truebrank_Z1b_trueZ_reco->Write();
+
+  h_Z_pt_1j_cjets->Write();
+  h_Z_pt_1j_bjets->Write();
+  h_Z_pt_1j_ljets->Write();
+  h_Z_pt_1b_bjets->Write();
 
   h_Z_pt_1b_matchedjet_0225_reco->Write();
   h_Z_pt_1b_matchedjet_025_reco->Write();

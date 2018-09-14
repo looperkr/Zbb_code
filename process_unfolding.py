@@ -86,6 +86,7 @@ for hist in uf_hist_list:
         uf_h_name = uf_h_name + "_" + channel + "_" + reco_region + hist + "_"+ uf_distribution
     for sample in sig_samples:
         sample_hist = sample + "_sum"
+        print "Fetching histogram " + sample_hist + "from file " + var_f_name
         h = f.Get(sample_hist)
         if not h:
             print "Could not find histogram " + sample_hist + "in file " + var_f_name

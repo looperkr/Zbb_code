@@ -20,7 +20,7 @@ Last edited by: K. Looper
 #include "THStack.h"
 
 
-void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=true, bool include_sherpa=false, bool isMJ=false, bool isWide=false){
+void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=true, bool include_sherpa=true, bool isMJ=false, bool isWide=false){
 
   bool isShort = false;
   bool isTruth = false;
@@ -69,11 +69,11 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     chooseHistOptions("mu_eta","#eta^{#mu}","Events/0.1", -3, 3, 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "cutflow"){
-    chooseHistOptions("cutflow_calib","cutflow","Events",-0.5,30.5,0.1,100000000,1,ratiomin,ratiomax);
+    chooseHistOptions("cutflow_calib","cutflow","Events",0,60,0.1,100000000,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "truth_cutflow"){
     isTruth = true;
-    chooseHistOptions("cutflow_truth","truth cutflow","Events",-0.5,30.5,0.1,100000000,1,ratiomin,ratiomax);
+    chooseHistOptions("cutflow_truth","truth cutflow","Events",0,30,0.1,100000000,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "Z_mass"){
     if(!isMJ && !isWide){
@@ -467,6 +467,22 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   else if(var_2_plot == "Z_pt_1j_notb_truth"){
     isTruth = true;
     chooseHistOptions("Z_pt_1j_tighteta_notb_truth","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_cjets"){
+    isTruth = true;
+    chooseHistOptions("h_Z_pt_1j_cjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_bjets"){
+    isTruth = true;
+    chooseHistOptions("h_Z_pt_1j_bjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot =="Z_pt_1j_ljets"){
+    isTruth = true;
+    chooseHistOptions("h_Z_pt_1j_ljets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1b_bjets"){
+    isTruth = true;
+    chooseHistOptions("h_Z_pt_1b_bjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1b_reco"){
     isTruth = true;

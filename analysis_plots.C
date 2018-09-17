@@ -1,8 +1,6 @@
 ///////////////macro for plotting Z+bb results //////////////
 /*
 Created by: K. Looper (2 Oct 2015)
-Last edited: 13 Nov 2017
-Last edited by: K. Looper
 */
 
 

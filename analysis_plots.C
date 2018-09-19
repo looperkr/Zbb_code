@@ -468,19 +468,39 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   }
   else if(var_2_plot == "Z_pt_1j_cjets"){
     isTruth = true;
-    chooseHistOptions("h_Z_pt_1j_cjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_cjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1j_bjets"){
     isTruth = true;
-    chooseHistOptions("h_Z_pt_1j_bjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_bjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot =="Z_pt_1j_ljets"){
     isTruth = true;
-    chooseHistOptions("h_Z_pt_1j_ljets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1j_ljets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt_1b_bjets"){
     isTruth = true;
-    chooseHistOptions("h_Z_pt_1b_bjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pt_1b_bjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_cjets_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_cjets_reco","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_bjets_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_bjets_reco","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_1j_ljets_reco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1j_ljets_reco","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_v_p_bjets"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_v_p_bjets","Z p_{T} [GeV]","Z p",0.,200.,0.,200.,1,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_v_p_ljets"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_v_p_ljets","Z p_{T} [GeV]","Z p",0.,200.,0.,200.,1,ratiomin,ratiomax);
   }
   else if(var_2_plot == "Z_pt_1b_reco"){
     isTruth = true;

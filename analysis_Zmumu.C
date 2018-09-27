@@ -224,7 +224,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_Z_pt_1b_matchedjet_0275_reco = new TH1D("Z_pt_1b_matchedjet_0275_reco","Z pT (reco), >= 1b (truth-matched)",VarBinPt_new_size,VarBinPt_new_vec);
    h_Z_pt_1b_matchedjet_03_reco = new TH1D("Z_pt_1b_matchedjet_03_reco","Z pT (reco), >= 1b (truth-matched)",VarBinPt_new_size,VarBinPt_new_vec);
 
-   h_Z_pt_1j_tighteta_b_quarkmatched_reco = new TH1D("Z_pt_1j_tighteta_b_reco","Z pT (reco), >= 1b (quark-matched)",VarBinPt_new_size,VarBinPt_new_vec);
+   h_Z_pt_1j_tighteta_b_quarkmatched_reco = new TH1D("Z_pt_1j_tighteta_b_reco_quarkmatched","Z pT (reco), >= 1b (quark-matched)",VarBinPt_new_size,VarBinPt_new_vec);
 
    h_truebrank_Z1b_reco = new TH1D("truebrank_Z1b_reco","Rank of truth b-jet in reco event",20,0,20);
    h_truebrank_Z1b_trueZ_reco= new TH1D("truebrank_Z1b_trueZ_reco","Rank of truth b-jet in reco event",20,0,20);
@@ -570,6 +570,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   bjet_v.clear();
   jet_v_b_truth.clear();
   jet_v_b_reco.clear();
+  jet_v_b_reco_qmatch.clear();
 
   float pt_bins[22] = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,160,180,210,250,310,400,800};
   const int pt_bins_size = 21;
@@ -1867,6 +1868,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
         h_mv1cweight_bottom->Fill(mv1cweight,weight);
 	h_mv1cweight_bottom_up->Fill(mv1cweight,upweight);
 	h_mv1cweight_bottom_down->Fill(mv1cweight,downweight);
+	jet_v_b_reco_qmatch.push_back(jet_v_tight[i]);
 	if(i==0){
 	  h_mv1cweight_bottom_ptbinned_leadjet->Fill(mv1cweight,Z_fourv.Pt()/1000.,weight);	  
 	  h_Z_pt_1j_tighteta_b_quarkmatched_reco->Fill(Z_fourv.Pt()/1000.,weight);
@@ -2034,7 +2036,44 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
     cutdes[icut] = "N bjets == 5";
     icut++;
-   
+
+    if(jet_v_b_reco_qmatch.size() == 0){
+      h_cutflow_allcalib->Fill((Float_t)icut,weight);
+    }
+    cutdes[icut] = "N bjets (qmatch) == 0";
+    icut++;
+
+    if(jet_v_b_reco_qmatch.size() == 1){
+      h_cutflow_allcalib->Fill((Float_t)icut,weight);
+    }
+    cutdes[icut] = "N bjets (qmatch) == 1";
+    icut++;
+
+    if(jet_v_b_reco_qmatch.size() == 2){
+      h_cutflow_allcalib->Fill((Float_t)icut,weight);
+    }
+    cutdes[icut] = "N bjets (qmatch) == 2";
+    icut++;
+
+    if(jet_v_b_reco_qmatch.size() == 3){
+      h_cutflow_allcalib->Fill((Float_t)icut,weight);
+    }
+    cutdes[icut] = "N bjets (qmatch) == 3";
+    icut++;
+
+    if(jet_v_b_reco_qmatch.size() == 4){
+      h_cutflow_allcalib->Fill((Float_t)icut,weight);
+    }
+    cutdes[icut] = "N bjets (qmatch) == 4";
+    icut++;
+
+    if(jet_v_b_reco_qmatch.size() == 5){
+      h_cutflow_allcalib->Fill((Float_t)icut,weight);
+    }
+    cutdes[icut] = "N bjets (qmatch) == 5";
+    icut++;
+
+
   }
 
   icut_max_allcalib = icut;

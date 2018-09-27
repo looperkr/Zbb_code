@@ -3,7 +3,7 @@
 #include "TH1.h"
 #include "THStack.h"
 
-void make_stack(bool isSherpa = true){
+void make_stack(bool isSherpa = false){
 
   
   TString fn_c = "MC_histograms_root/Z_pt_1j_cjets.root";
@@ -51,19 +51,38 @@ void make_stack(bool isSherpa = true){
   h_l->SetTitle("light jets");
   h_b->SetTitle("b jets");
 
-  TCanvas *c = new TCanvas("c","c",1440,600);
-  c->Divide(3,1);
-  c->cd(1);
+  TCanvas *c1 = new TCanvas("","",600,800);
+  string img_name_flav;
   h_l->Draw();
-  c->cd(2);
+  if(isSherpa) img_name_flav = "Zpt_light_sherpa.pdf";
+  else img_name_flav = "Zpt_light_alpgen.pdf";
+  c1->SaveAs(img_name_flav.c_str());
+  c1->Clear();
   h_c->Draw();
-  c->cd(3);
+  if(isSherpa) img_name_flav = "Zpt_charm_sherpa.pdf";
+  else img_name_flav = "Zpt_charm_alpgen.pdf";
+  c1->SaveAs(img_name_flav.c_str());
+  c1->Clear();
+  h_b->Draw();
+  if(isSherpa) img_name_flav = "Zpt_bottom_sherpa.pdf";
+  else img_name_flav = "Zpt_bottom_alpgen.pdf";
+  c1->SaveAs(img_name_flav.c_str());
+  c1->Clear();
+ 
+
+  TCanvas *c2 = new TCanvas("c2","c2",1440,600);
+  c2->Divide(3,1);
+  c2->cd(1);
+  h_l->Draw();
+  c2->cd(2);
+  h_c->Draw();
+  c2->cd(3);
   h_b->Draw();
 
   TString img_name_splt = "flavor_split_";
   if(isSherpa) img_name_splt += "sherpa.pdf";
   else img_name_splt += "alpgen.pdf";
-  c->SaveAs(img_name_splt);
+  c2->SaveAs(img_name_splt);
 
   h_c->SetFillColor(kRed);
   h_b->SetFillColor(kGreen);
@@ -74,8 +93,8 @@ void make_stack(bool isSherpa = true){
   h_stack->Add(h_c);
   h_stack->Add(h_l);
 
-  TCanvas *c1 = new TCanvas("c1","c1",1200,1200);  
-  c1->SetLogy();
+  TCanvas *c3 = new TCanvas("c3","c3",1200,1200);  
+  c3->SetLogy();
 
   h_stack->SetMinimum(10);
   h_stack->Draw("HIST");
@@ -90,11 +109,11 @@ void make_stack(bool isSherpa = true){
   legend->AddEntry(h_l,"other","f");
   legend->Draw();
 
-  c1->Modified();
+  c3->Modified();
 
   TString img_name_stack = "flavor_stack_";
   if(isSherpa) img_name_stack += "sherpa.pdf";
   else img_name_stack += "alpgen.pdf";
-  c1->SaveAs(img_name_stack);
+  c3->SaveAs(img_name_stack);
 
 }

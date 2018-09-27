@@ -466,6 +466,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     isTruth = true;
     chooseHistOptions("Z_pt_1j_tighteta_notb_truth","Z p_{T} [GeV]","Events",0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "Z_pt_1b_truelightjet"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_1b_truelightjet","Z p_{T} [GeV]","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
+  }
+  else if(var_2_plot == "Z_pt_trueb_notbreco"){
+    isTruth = true;
+    chooseHistOptions("Z_pt_trueb_notbreco","Z p_{T} [GeV]","Events",0.,800.,1,100000000, 1, ratiomin, ratiomax);
+  }
   else if(var_2_plot == "Z_pt_1j_cjets"){
     isTruth = true;
     chooseHistOptions("Z_pt_1j_cjets","Z p_{T} [GeV]","Events",0., 200., 1, 100000000, 1, ratiomin, ratiomax);

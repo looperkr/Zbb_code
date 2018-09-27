@@ -17,30 +17,7 @@
 #include <sys/types.h>
 #include "THStack.h"
 
-void create_dir(string & plots_path, string & plots_dir){
-  //Get current date and save to vector<string>                                                                                               
-  time_t now = time(0);
-  string date_str(ctime(&now));
-  string buffer_str;
-  stringstream ss(date_str);
 
-  vector<string> tokens;
-  while (ss >> buffer_str) tokens.push_back(buffer_str);
-
-  plots_dir = plots_path + "plots_" + tokens[1] + tokens[2];
-
-  //check if directory for today's date exists: if not, create directory                                                                     
-  struct stat statbuf;
-  bool isDir = false;
-  if(stat(plots_dir.c_str(), &statbuf) != -1){
-    if (S_ISDIR(statbuf.st_mode)){
-      isDir = true;
-    }
-  }
-  if(!isDir){
-    mkdir(plots_dir.c_str(),S_IRWXU | S_IRWXG | S_IROTH);
-  }
-}
 void create_dir(string & plots_path, string & plots_dir){
   //Get current date and save to vector<string>                                                                                               
   time_t now = time(0);
@@ -117,9 +94,9 @@ void rebin2(TH1 *h, Int_t ngx, Int_t ngy)
 
 void draw_2D(){
 
-  bool isSherpa = true;
+  bool isSherpa = false;
 
-  string var = "Z_pt_v_p_ljets";
+  string var = "Z_pt_v_p_bjets";
   string path = "MC_histograms_root/" + var + ".root";
 
   if(isSherpa){

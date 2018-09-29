@@ -52,7 +52,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   isMC = true;
   isData = !isMC;
   isGrid = false;
-  isMJ = false;
+  isMJ = true;
   isWideWindow = false;
   isShort = false;
 

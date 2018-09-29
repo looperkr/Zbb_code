@@ -4,7 +4,7 @@ import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
 isMC = True
-isMJ = False
+isMJ = True
 isWide = False
 
 #processes until 5k events have passed Z+1jet selection
@@ -55,6 +55,10 @@ if isMC:
     elif output_type == "WtChanIncl":
         output_type = "singletop_WtChanIncl"
     output_name = "./MC_histograms/" + output_type + "_hists"
+    if isMJ:
+        output_name = "./MC_histograms_MJ/" + output_type + "_hists"
+    elif isWide:
+        output_name = "./MC_histograms_wide/" + output_type + "_hists"
     print output_name
 else:
     output_el = file_list.split("_")

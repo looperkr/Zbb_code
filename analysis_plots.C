@@ -968,8 +968,12 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   //====================
   string cutflow_h_path = "/n/atlas02/user_codes/looper.6/Vbb/hfor_histograms_new/";
   string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms/";
-  //string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/old_histograms/old_MC_histograms/MC_histograms_Aug24/";
-  //  string mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/hfor_histograms/";
+  if(isMJ){
+    mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_MJ/";
+  }
+  else if(isWide){
+    mc_path =  "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_wide/"
+  }
 
   //Sherpa Zmumu
 
@@ -1307,9 +1311,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   //====================
   //My data
   string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms/";
-  //string data_path ="/n/atlas02/user_codes/looper.6/Vbb/analysis_code/../old_histograms/old_data_histograms/data_histograms_Aug24/";
-  //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_debug/";
-  //  string data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_arantxa/";
+  if(isMJ){
+    data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_MJ/";
+  }
+  else if(isWide){
+    data_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/data_histograms_wide/";
+  }
+
   TFile *fdata;
   string data_name = data_path + "alldata";
   if(isMJ) data_name += "_MJ.root";

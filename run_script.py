@@ -4,8 +4,8 @@ import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
 isMC = True
-isMJ = True
-isWide = False
+isMJ = False
+isWide = True
 
 #processes until 5k events have passed Z+1jet selection
 isShort = False
@@ -66,6 +66,10 @@ else:
     output_type_name = output_el_el.split("/")
     output_type = output_type_name[-1].strip()
     output_name = "./data_histograms/" + output_type + "_hists"
+    if isMJ:
+        output_name = "./data_histograms_MJ/" + output_type + "_hists"
+    elif isWide:
+        output_name = "./data_histograms_wide/" + output_type + "_hists"
     print output_name
 if isShort:
     output_name += "_short"

@@ -52,8 +52,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   isMC = true;
   isData = !isMC;
   isGrid = false;
-  isMJ = true;
-  isWideWindow = false;
+  isMJ = false;
+  isWideWindow = true;
   isShort = false;
 
   n_duplicate = 0;  

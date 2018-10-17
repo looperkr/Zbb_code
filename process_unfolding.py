@@ -12,9 +12,9 @@ isBresult = False
 #Dictionary stores list with ["distributionname",min,max,binning]
 #testing
 fill_empty = False #Creates empty background histograms for testing
-isSherpa = True
+isSherpa = False
 
-distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Z_Pt","Z_y_MET":"Z_Y","Z_pt":"Z_Pt","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt_1j","Z_pt_1b":"Z_Pt_1b"} #map my_names -> unfolding_names
+distribution_dict = {"Z_mass":"Mll_nomet","Z_mass_MET":"Z_Mll","Z_pt_MET":"Z_Pt","Z_y_MET":"Z_Y","Z_pt":"Z_Pt","Z_y":"Z_Y","n_jets_tightmet":"nJetsEx","Z_pt_1j":"Z_Pt_1j","Z_pt_1b":"Z_Pt_1b","leadjet_pt_tightmet":"leadJet_Pt"} #map my_names -> unfolding_names
 truth_name = {"Z_mass":"Z_mass","Z_mass_MET":"Z_mass","Z_pt":"Z_pt", "Z_pt_MET":"Z_pt", "Z_y":"Z_y", "Z_y_MET":"Z_y",
               "n_jets_tightmet":"n_jets","leadjet_pt_tightmet":"leadjet_pt","Z_pt_1j":"Z_pt_1j","Z_pt_1b":"Z_pt_1b"} #map reco distribution -> truth distribution
 

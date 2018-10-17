@@ -18,7 +18,7 @@ Created by: K. Looper (2 Oct 2015)
 #include "THStack.h"
 
 
-void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=true, bool include_sherpa=true, bool isMJ=false, bool isWide=false){
+void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=true, bool include_sherpa=false, bool isMJ=false, bool isWide=false){
 
   bool isShort = false;
   bool isTruth = false;
@@ -143,7 +143,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     chooseHistOptions("Z_phi", "#phi^{Z}", "Events/0.1", -TMath::Pi()-.5, TMath::Pi()+.5, 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "Z_pt"){
-    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
+    chooseHistOptions("Z_pT","Z p_{T}", "Events/50 GeV", 0., 800., 1, 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "met"){
     chooseHistOptions("met","MET [GeV]","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
@@ -711,7 +711,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     isTruth = true;
     chooseHistOptions("n_jets_migration","N jets migration","Events", 0., 12., 0, 12., 1, ratiomin, ratiomax);
   }
-  else if(var_2_plot == "leadjet_pt_truth_dressed"){
+  else if(var_2_plot == "leadjet_pt_truth"){
     isTruth = true;
     chooseHistOptions("leadjet_pt_truth_dressed","Truth leadjet pt","Events", 0., 1000., 1, 100000000, 1, ratiomin, ratiomax);
   }
@@ -972,7 +972,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     mc_path = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_MJ/";
   }
   else if(isWide){
-    mc_path =  "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_wide/"
+    mc_path =  "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_wide/";
   }
 
   //Sherpa Zmumu
@@ -996,6 +996,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   fname_zmumu_sherpa[0] = zmumu_sherpa_name;
   zmumu_sherpa_name = mc_path + zmumu_sherpa_name;
   if(include_sherpa){
+    cout << "Opening sherpa" << endl;
     fzmumu_sherpa[0] = TFile::Open(zmumu_sherpa_name.c_str(),"UPDATE");
     fzmumu_sherpa_cf[0] = TFile::Open(zmumu_sherpa_cf_name.c_str(),"UPDATE");
   }
@@ -1008,6 +1009,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_zmumu[6];
   string zmumu_name;
   string zmumu_cf_name;
+  cout << "Opening Z+jets" << endl;
   for(int i=0;i<6;i++){
     zmumu_name = "ZmumuNp"+ NumToStr(i) + "_hists";
     zmumu_cf_name = cutflow_h_path + zmumu_name + ".root";
@@ -1026,6 +1028,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_zmumubb[4];
   string zmumubb_name;
   string zmumubb_cf_name;
+  cout << "Opening Z+bjets" << endl;
   for(int i=0;i<4;i++){
     zmumubb_name = "ZmumubbNp" + NumToStr(i) + "_hists";
     zmumubb_cf_name = cutflow_h_path + zmumubb_name + ".root";
@@ -1044,6 +1047,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_zmumucc[4];
   string zmumucc_name;
   string zmumucc_cf_name;
+  cout << "Opening Z+cjets" << endl;
   for(int i=0;i<4;i++){
     zmumucc_name = "ZmumuccNp" + NumToStr(i) + "_hists";
     zmumucc_cf_name = cutflow_h_path + zmumucc_name + ".root";
@@ -1062,6 +1066,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_ztautau[6];
   string ztautau_name;
   string ztautau_cf_name;
+  cout << "opening Z->tautau" << endl;
   for(int i=0; i<6; i++){
     ztautau_name = "ZtautauNp" + NumToStr(i) + "_hists";
     ztautau_cf_name = cutflow_h_path + ztautau_name + ".root";
@@ -1081,13 +1086,13 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_wmunu[6];
   string wmunu_name;
   string wmunu_cf_name;
+  cout << "opening W+jets" << endl;
   for(int i=0; i<6; i++){
     wmunu_name = "WmunuNp" + NumToStr(i) + "_hists";
     wmunu_cf_name = cutflow_h_path + wmunu_name + ".root";
     wmunu_name += file_suffix;
     fname_wmunu[i] = wmunu_name;
     wmunu_name = mc_path + wmunu_name;
-    cout << wmunu_name << endl;
     fwmunu[i] = TFile::Open(wmunu_name.c_str(),"UPDATE");
     fwmunu_cf[i] = TFile::Open(wmunu_cf_name.c_str(),"UPDATE");
   }
@@ -1100,6 +1105,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_wcc[4];
   string wcc_name;
   string wcc_cf_name;
+  cout << "Opening W+cc" << endl;
   for(int i=0; i<4; i++){
     wcc_name = "WccNp" + NumToStr(i) + "_hists";
     wcc_cf_name = cutflow_h_path + wcc_name + ".root";
@@ -1118,6 +1124,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_wc[5];
   string wc_name;
   string wc_cf_name;
+  cout << "Opening W+c" << endl;
   for(int i=0; i<5; i++){
     wc_name = "WcNp" + NumToStr(i) + "_hists";
     wc_cf_name= cutflow_h_path + wc_name + ".root";
@@ -1136,6 +1143,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_wbb[4];
   string wbb_name;
   string wbb_cf_name;
+  cout << "Opening W+bb" << endl;
   for(int i=0; i<4; i++){
     wbb_name = "WbbNp" + NumToStr(i) + "_hists";
     wbb_cf_name= cutflow_h_path + wbb_name + ".root";
@@ -1154,6 +1162,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_ttbar[1];
   string ttbar_name = mc_type_ttbar + "_hists";
   string ttbar_cf_name = cutflow_h_path + ttbar_name + ".root";
+  cout << "opening ttbar" << endl;
   ttbar_name += file_suffix;
   fname_ttbar[0] = ttbar_name;
   ttbar_name = mc_path + ttbar_name;
@@ -1187,6 +1196,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_tchan[2];
   string tchan_name;
   string tchan_cf_name;
+  cout << "opening singletop" << endl;
   for(int i=0; i<2; i++){
     if(i==0) tchan_name = "tchanTopPythia_hists";
     else if(i==1) tchan_name = "tchanAntitopPythia_hists";
@@ -1259,6 +1269,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   string fname_WW[1];
   string WW_name;
   string WW_cf_name;
+  cout << "opening diboson" << endl;
   WW_name = "WWtomunuqq_hists";
   WW_cf_name = cutflow_h_path + WW_name + ".root";
   WW_name += file_suffix;
@@ -1320,6 +1331,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
 
   TFile *fdata;
   string data_name = data_path + "alldata";
+  cout << "Opening data" << endl;
   if(isMJ) data_name += "_MJ.root";
   else if(isWide){
     if(isShort) data_name += "_short";

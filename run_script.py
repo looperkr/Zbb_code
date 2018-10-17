@@ -3,9 +3,9 @@ import PyCintex
 import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
-isMC = True
+isMC = False
 isMJ = False
-isWide = False
+isWide = True
 
 #processes until 5k events have passed Z+1jet selection
 isShort = False

@@ -18,10 +18,11 @@ void make_plots(){
   //  analysis_plots("Z_mass",true,true,true);
   
   for(unsigned int i=0; i < log_true; i++){
-    if(plots_log_true[i].substr(0,6) == "Z_mass"){
+    /*    if(plots_log_true[i].substr(0,6) == "Z_mass"){
       cout << plots_log_true[i] << endl;
       analysis_plots(plots_log_true[i], true, true, true);
-    }
+      }*/
+    analysis_plots(plots_log_true[i], true, true, true);
   }
   /*  for(unsigned int l=0; l < bjets; l++){
     analysis_plots(plots_bjets[l], true, true, false);

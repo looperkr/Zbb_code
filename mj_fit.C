@@ -151,16 +151,16 @@ void mj_fit(string process, bool isSherpa=false){
   RooPlot* xframe_sig = x.frame();
 
   string f_name_sregion = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/"+process+"_wide.root";
-  string f_name_0j = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_mass_exactly0j_wide.root";
+  //  string f_name_0j = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/Z_mass_exactly0j_wide.root";
   TFile *f_sregion = TFile::Open(f_name_sregion.c_str(),"READ");
-  TFile *f_0j = TFile::Open(f_name_0j.c_str(),"READ");
+  //  TFile *f_0j = TFile::Open(f_name_0j.c_str(),"READ");
   string mc_name_sregion = process;
   if(isSherpa) mc_name_sregion += "_sherpa";
   else mc_name_sregion += "_mc";
   string data_name_sregion = process+"_data";
   TH1D *h_mc_sregion = (TH1D*)f_sregion->Get(mc_name_sregion.c_str());
   TH1D *h_data_sregion = (TH1D*)f_sregion->Get(data_name_sregion.c_str());
-  TH1D *h_data_nojets = (TH1D*)f_0j->Get("Z_mass_exactly0j_data");
+  //  TH1D *h_data_nojets = (TH1D*)f_0j->Get("Z_mass_exactly0j_data");
 
   double data_max_sig = h_data_sregion->GetMaximum();
 
@@ -171,7 +171,7 @@ void mj_fit(string process, bool isSherpa=false){
   RooHistPdf data_ctrlreg("data_ctrl","data_ctrl",x,data);
   
   RooDataHist data_sregion("data","data_sregion", x, h_data_sregion);
-  RooDataHist data_nojets_hist("nojets","nojets",x,h_data_nojets);
+  //  RooDataHist data_nojets_hist("nojets","nojets",x,h_data_nojets);
 
 
   double n_mj_fit;
@@ -188,8 +188,8 @@ void mj_fit(string process, bool isSherpa=false){
 
   RooRealVar N_mc_sregion("N_{mc}","# of events in signal and MC backgrounds",n_mc_fit,0,10E7);
   RooRealVar N_mj_sregion("N_{multijet}","# of multijet events",n_mj_fit,0,10E7);
-  //  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
-  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,data_ctrlreg),RooArgList(N_mc_sregion,N_mj_sregion));
+  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,mj_sregion),RooArgList(N_mc_sregion,N_mj_sregion));
+  //  RooAddPdf model_sregion("model_sregion","model_sregion", RooArgList(mc_sregion,data_ctrlreg),RooArgList(N_mc_sregion,N_mj_sregion));
   RooFitResult *fitres = model_sregion.fitTo(data_sregion,Save(kTRUE),SumW2Error(kTRUE),PrintEvalErrors(-1));
 
 
@@ -198,8 +198,8 @@ void mj_fit(string process, bool isSherpa=false){
 
   data_sregion.plotOn(xframe_sig,Name("data_sregion"));
   model_sregion.plotOn(xframe_sig,Components(mc_sregion),LineStyle(kDashed),LineColor(kRed),Name("mc_sregion"));
-  //  model_sregion.plotOn(xframe_sig,Components(mj_sregion),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
-  model_sregion.plotOn(xframe_sig,Components(data_ctrlreg),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
+  model_sregion.plotOn(xframe_sig,Components(mj_sregion),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
+  //model_sregion.plotOn(xframe_sig,Components(data_ctrlreg),LineStyle(kDashed),LineColor(kBlue),Name("mj_sregion"));
   model_sregion.plotOn(xframe_sig,LineColor(kBlack),Name("model_sregion"));
   model_sregion.paramOn(xframe_sig,Layout(0.55));
 
@@ -230,14 +230,15 @@ void mj_fit(string process, bool isSherpa=false){
   leg_sig->AddEntry(xframe_sig->findObject("model_sregion"),"Total model","l");
   leg_sig->AddEntry(xframe_sig->findObject("data_sregion"),"data","lp");
   leg_sig->AddEntry(xframe_sig->findObject("mc_sregion"),"non-multijet","l");
-  leg_sig->AddEntry(xframe_sig->findObject("mj_sregion"),"multijet (ctrl-region data)","l");
+  leg_sig->AddEntry(xframe_sig->findObject("mj_sregion"),"multijet","l");
+  //leg_sig->AddEntry(xframe_sig->findObject("mj_sregion"),"multijet (ctrl-region data)","l");
   leg_sig->SetBorderSize(0);
 
   xframe_sig->Draw();
   leg_sig->Draw();
   
   TImage *img_sig = TImage::Create();
-  string sig_name = plt_dir + "/" + process + "_sig_dataasmj";
+  string sig_name = plt_dir + "/" + process + "_sigfit";
   if(!isLog) sig_name += "_linear";
   if(isSherpa) sig_name += "_sherpa";
   string sig_pdf = sig_name + ".pdf";
@@ -245,6 +246,10 @@ void mj_fit(string process, bool isSherpa=false){
 
   //end plot
 
+  x.setRange("my_range",76,106);
+  RooAbsReal *i = mj_sregion.createIntegral(x,RooFit::NormSet(x),RooFit::Range("my_range"));
+
+  cout << "integral value: " << i->getVal() << endl;
   cout << alpha << endl;
 
 }

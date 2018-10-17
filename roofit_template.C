@@ -30,7 +30,7 @@ void create_dir(string & plots_path, string & plots_dir){
 }
 
 
-void roofit_template(bool isPrefit = false, bool isSherpa=false){
+void roofit_template(bool isPrefit = true, bool isSherpa=false){
   using namespace RooFit;
 
   bool isHadMatch = true;

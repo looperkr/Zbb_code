@@ -2039,7 +2039,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     Double_t truth_reco_jet_separation;
     Double_t closest_jet_DeltaR = 1000.;
     int matching_jet_index = -1;
-    bool hasjmatch;
+    bool hasjmatch = false;
     for(unsigned int rj=0; rj<jet_v_tight.size(); rj++){
       truth_reco_jet_separation = v_truthJets[0].second.DeltaR(jet_v_tight[rj].second);
       if(truth_reco_jet_separation < 0.5){
@@ -2085,6 +2085,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
     else h_recoleadb_truebrank->Fill(0.0,weight);
   }
+
   if(isMC) h_Nb_reco->Fill(jet_v_b_reco.size(),weight);
 
   if(isMC){

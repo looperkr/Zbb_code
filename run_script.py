@@ -3,7 +3,7 @@ import PyCintex
 import os,sys
 from ROOT import TChain,TFile,TDirectory,TChain,TTree,gInterpreter,gROOT
 
-isMC = True
+isMC = False
 isMJ = False
 isWide = False
 

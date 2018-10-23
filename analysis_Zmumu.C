@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = true;
+  isMC = false;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
@@ -549,7 +549,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 
   fChain->GetTree()->GetEntry(entry);
 
-  if(isShort && event_counter > 5000){
+  if(isShort && event_counter > 5000 && !isGrid){
     TFile f("output.root","recreate");
     h_jet_pt_2D->Write();
     f.Close();
@@ -2077,6 +2077,10 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  }
 	  if(truth_jet_v_isb[i]){
 	    matching_truth_b = true;
+	    if(delR_recob_truej < delR_recob_trueb_closest){
+	      delR_recob_trueb_closest = delR_Recob_truej;
+	      closets_true_b_index = i;
+	    }
 	  }
 	}
       }
@@ -2326,7 +2330,7 @@ void analysis_Zmumu::Terminate()
   cout << "Duplicate events: " << n_duplicate << endl;
 
   if(isGrid){
-    ofstream f_cf;
+    /*  ofstream f_cf;
     ofstream f_tcf;
     f_cf.open("cutflow.txt");
     f_tcf.open("truth_cutflow.txt");
@@ -2339,7 +2343,7 @@ void analysis_Zmumu::Terminate()
     }
     f_cf.close();
     f_tcf.close();
-
+    */
     output_name = "output.root";
   }
 

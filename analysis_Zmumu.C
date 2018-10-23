@@ -49,7 +49,7 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
   TH1::SetDefaultSumw2(kTRUE);
 
    //run flags
-  isMC = false;
+  isMC = true;
   isData = !isMC;
   isGrid = false;
   isMJ = false;
@@ -2078,8 +2078,8 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
 	  if(truth_jet_v_isb[i]){
 	    matching_truth_b = true;
 	    if(delR_recob_truej < delR_recob_trueb_closest){
-	      delR_recob_trueb_closest = delR_Recob_truej;
-	      closets_true_b_index = i;
+	      delR_recob_trueb_closest = delR_recob_truej;
+	      closest_true_b_index = i;
 	    }
 	  }
 	}

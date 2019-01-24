@@ -96,7 +96,8 @@ void draw_2D(){
 
   bool isSherpa = false;
 
-  string var = "Z_pt_v_p_bjets";
+  //  string var = "Z_pt_v_p_bjets";
+  string var = "Z_pt_v_p_ljets";
   string path = "MC_histograms_root/" + var + ".root";
 
   if(isSherpa){

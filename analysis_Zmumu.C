@@ -434,6 +434,8 @@ void analysis_Zmumu::SlaveBegin(TTree * /*tree*/)
    h_MET = new TH1D("met","MET",4000,0,2000);
    h_MET_1tag = new TH1D("met_1tag","MET (1 b-tag)",4000,0,2000);
    h_MET_2tag =new TH1D("met_2tag","MET (2 b-tag)",4000,0,2000);
+   h_met_leadingb = new TH1D("met_leadingb","MET (leading reco b-jet)",4000,0,2000);
+   h_met_notleadingb = new TH1D("met_notleadingb","MET (no leading reco b-jet)",4000,0,2000);
 
    //crosscheck histograms
    h_d0 = new TH1D("d0","d0",100,-50,50);
@@ -1634,7 +1636,7 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
   if(v_truthJets.size() > 0 && isMC)  h_leadtruth_pt_aftercalib->Fill(v_truthJets[0].second.Pt()/1000.,weight);
 
   //Apply MET cut
-  if(finalMET_et/1000. <= 70) met70 = true;
+  //  if(finalMET_et/1000. <= 70) met70 = true;
   if(!met70) return kFALSE;
   h_cutflow_allcalib->Fill((Float_t)icut,weight);
   cutdes[icut] = "MET cut";
@@ -2089,6 +2091,13 @@ Bool_t analysis_Zmumu::Process(Long64_t entry)
     }
     else h_recoleadb_truebrank->Fill(0.0,weight);
   }
+
+  if(isMC){
+    if(passRecoLeadJetB) h_met_leadingb->Fill(finalMET_et/1000.,weight);
+    else h_met_notleadingb->Fill(finalMET_et/1000.,weight);
+  }
+
+
 
   if(isMC) h_Nb_reco->Fill(jet_v_b_reco.size(),weight);
 
@@ -2654,6 +2663,9 @@ void analysis_Zmumu::Terminate()
   h_MET->Write();
   h_MET_1tag->Write();
   h_MET_2tag->Write();
+  h_met_notleadingb->Write();
+  h_met_leadingb->Write();
+
 
   h_d0->Write();
   h_d0sig->Write();

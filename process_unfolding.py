@@ -57,7 +57,7 @@ for hist in uf_hist_list:
     if isBresult and hist == "":
         var_2_plot = "Z_pt_1b_reco"
     var_2_plot += hist
-    cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,true)"
+    cmd = "analysis_plots(\"" + var_2_plot + "\",true,true,false)"
     print cmd
     gROOT.ProcessLine(cmd)
 
@@ -147,6 +147,12 @@ if isBresult:
     h_data.SetBinContent(1,0)
 #    divideByBFraction(h_data)
 uf_f_data.cd()
+#check errors
+n_bins_data = h_data.GetSize()
+for b in range(0,n_bins_data+1):
+    d_cont = str(h_data.GetBinContent(b))
+    d_err = str(h_data.GetBinError(b))
+    print d_cont + "," + d_err
 h_data.Write()
 uf_f_data.Close()
 

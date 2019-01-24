@@ -158,6 +158,14 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
   else if(var_2_plot == "met_1tag"){
     chooseHistOptions("met_1tag","MET( >= 1 b)","Events/5 GeV", 0., 200., 1, 100000000, 10, ratiomin, ratiomax);
   }
+  else if(var_2_plot == "met_leadingb"){
+    isTruth = true;
+    chooseHistOptions("met_leadingb","MET","Events/5 GeV",0.,2000.,1,1000000000,10,ratiomin,ratiomax);
+  }
+  else if(var_2_plot == "met_noleadingb"){
+    isTruth = true;
+    chooseHistOptions("met_noleadingb","MET","Events/5 GeV",0.,2000.,1,1000000000,10,ratiomin,ratiomax);
+  }
   else if(var_2_plot == "n_jets"){
     chooseHistOptions("jet_n", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
@@ -1743,7 +1751,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     if(isShort) rootfile_name += "_small";
     rootfile_name += "_wide.root";
   }
-  else rootfile_name += ".root";
+  else rootfile_name += "_noMET.root";
   TFile * f_root = TFile::Open(rootfile_name.c_str(),"RECREATE");
   string mc_hist_name = var_2_plot+"_mc";
   string data_hist_name = var_2_plot+"_data";

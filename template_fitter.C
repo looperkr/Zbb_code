@@ -47,6 +47,7 @@ bool isLeadJet = true;
 bool isClosure = false;
 bool isTFF = false;
 bool isTrueZ = false;
+bool isVaried = true;
 
 void create_dir(string & plots_path, string & plots_dir){
   //Get current date and save to vector<string>
@@ -93,6 +94,7 @@ void AddSuffixes(string & starting_name){
   if(isTrueZ) starting_name += "_trueZ";
   if(isTFF) starting_name += "_TFF";
   if(isSherpa) starting_name += "_sherpa";
+  if(isVaried) starting_name += "_variation_asym";
 }
 
 std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status){
@@ -378,6 +380,14 @@ void template_fitter(string kin_variable = "Z_pt"){
     TH1D *hcharm = hcharm_2D->ProjectionX("charm_px", bin_i, bin_i);
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);
     TH1D *hdata = hdata_2D->ProjectionX("data_px", bin_i, bin_i);
+
+
+    //Systematic Variation
+    if(isVaried){
+      hlight->Scale(1.05);
+      hcharm->Scale(1.10);
+      hbottom->Scale(1.15);
+    }
 
     //Dynamic y-axis adjustment
     y_min = (hdata->GetMinimum()) * 0.1;

@@ -246,8 +246,8 @@ std::vector<Double_t> do_template_fit_tff(TH1D *hbottom, TH1D *hcharm, TH1D *hli
 
 std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status, int bin_n){
 
-  TH1D *bfrac_result_check = new TH1D("bfrac_result_check","bfrac_result_check",1000,0.,0.1);
-  TH1D *var_val_check = new TH1D("var_val_check","var_val_check",100,0.,0.16);
+  TH1D *bfrac_result_check = new TH1D("bfrac_result_check","bfrac_result_check",100,0.,0.6);
+  TH1D *var_val_check = new TH1D("var_val_check","var_val_check",100,-.25,0.25);
 
   vector<Int_t> fit_status_var;
   std::vector<Double_t> params_var;

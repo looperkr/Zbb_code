@@ -39,6 +39,7 @@
 #include "THStack.h"
 #include "TSystem.h"
 #include "TFractionFitter.h"
+#include "TRandom3.h"
 
 bool isPrefit = false;
 bool isSherpa= false;
@@ -48,6 +49,7 @@ bool isClosure = false;
 bool isTFF = false;
 bool isTrueZ = false;
 bool isVaried = true;
+TRandom3 *r =new TRandom3(0);
 
 void create_dir(string & plots_path, string & plots_dir){
   //Get current date and save to vector<string>
@@ -96,6 +98,20 @@ void AddSuffixes(string & starting_name){
   if(isSherpa) starting_name += "_sherpa";
   if(isVaried) starting_name += "_variation_asym";
 }
+
+std::vector<Double_t> make_varied_hist(TH1D * h_mv1c, TH1D *h_mv1c_var, Double_t var_val){
+  vector<Double_t> var_i_vec;
+  for(int mv1bin_i=1; mv1bin_i<h_mv1c->GetNbinsX()+1; mv1bin_i++){
+    Double_t var_i = r->Gaus(0,var_val);
+    var_i_vec.push_back(var_i);
+    Double_t scale_i = var_i+1;
+    Double_t bin_cont=h_mv1c->GetBinContent(mv1bin_i);
+    bin_cont*=scale_i;
+    h_mv1c_var->SetBinContent(mv1bin_i,bin_cont);
+  }
+  return var_i_vec;
+}
+
 
 std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status){
   using namespace RooFit;
@@ -225,6 +241,81 @@ std::vector<Double_t> do_template_fit_tff(TH1D *hbottom, TH1D *hcharm, TH1D *hli
 
 
   return params;
+
+}
+
+std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status, int bin_n){
+
+  TH1D *bfrac_result_check = new TH1D("bfrac_result_check","bfrac_result_check",1000,0.,0.1);
+  TH1D *var_val_check = new TH1D("var_val_check","var_val_check",100,0.,0.16);
+
+  vector<Int_t> fit_status_var;
+  std::vector<Double_t> params_var;
+  Double_t b_result_var;
+  Double_t c_result_var;
+  Double_t l_result_var;
+  Double_t b_result_err_var;
+  Double_t c_result_err_var;
+  Double_t l_result_err_var;
+  Double_t chi2_ndf_var;
+
+  Double_t light_var = 0.05;
+  Double_t charm_var = 0.10;
+  Double_t bottom_var = 0.15;
+
+  Int_t n_var = 100;
+  Int_t var_i = 0;
+  vector<Double_t> check_var;
+  //Up variations
+  TH1D *hbottom_var = (TH1D*)hbottom->Clone("bottom_var");
+  TH1D *hcharm_var = (TH1D*)hcharm->Clone("charm_var");
+  TH1D *hlight_var = (TH1D*)hlight->Clone("light_var");
+  while(var_i < 1000){
+    check_var = make_varied_hist(hbottom,hbottom_var,bottom_var);
+    make_varied_hist(hcharm,hcharm_var,charm_var);
+    make_varied_hist(hlight,hlight_var,light_var);
+
+    for(unsigned int n=0;n<check_var.size();n++){
+      var_val_check->Fill(check_var.at(n));
+    }
+    params_var = do_template_fit_rf(hbottom_var,hcharm_var,hlight_var,hdata,fit_status_var);
+
+    b_result_var = params_var[0];
+    c_result_var = params_var[1];
+    l_result_var = params_var[2];
+    b_result_err_var = params_var[3];
+    c_result_err_var = params_var[4];
+    l_result_err_var = params_var[5];
+    chi2_ndf_var = params_var[6];
+
+    bfrac_result_check->Fill(b_result_var);
+    var_i++;
+  }
+  
+  int fit_status_n = 0;
+  for(unsigned int f=0;f<fit_status_var.size();f++){
+    fit_status_n+= fit_status_var.at(f);
+  }
+  fit_status.push_back(fit_status_n);
+  string bin_n_str = NumToStr(bin_n);
+  TCanvas *ccheck = new TCanvas("ccheck","ccheck",800,800);
+  bfrac_result_check->Draw();
+  string bfrac_check_fname = "bfrac_variation/bfrac_check" + bin_n_str + ".pdf";
+  ccheck->SaveAs(bfrac_check_fname.c_str());
+  ccheck->Close();
+
+  TCanvas *ccheck1 = new TCanvas("ccheck1","ccheck1",800,800);
+  var_val_check->Draw();
+  string var_check_fname = "bfrac_variation/var_check" + bin_n_str+".pdf";
+  ccheck1->SaveAs(var_check_fname.c_str());
+  ccheck1->Close();
+
+  return params_var;
+}
+
+void iterate_bins(){
+ 
+
 
 }
 
@@ -441,8 +532,13 @@ void template_fitter(string kin_variable = "Z_pt"){
     }
 
     std::vector<Double_t> parameters;
-    if(isTFF)parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
+    /*if(isTFF)parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
     else parameters = do_template_fit_rf(hbottom,hcharm,hlight,hdata,fit_status);
+    */
+    //BIN VARIATION
+
+    parameters = do_random_var(hbottom,hcharm,hlight,hdata,fit_status,bin_i);
+
 
     Double_t b_result = parameters[0];
     Double_t c_result = parameters[1];
@@ -452,6 +548,7 @@ void template_fitter(string kin_variable = "Z_pt"){
     Double_t l_result_err = parameters[5];
     Double_t chi2_ndf = parameters[6];
     
+    if(bin_i==3) cout << "%%%%%%%%%%%%%%%%%#####################################THIRD BIN B_RESULT == " << b_result;
 
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 

@@ -40,6 +40,8 @@
 #include "TSystem.h"
 #include "TFractionFitter.h"
 #include "TRandom3.h"
+#include "TPaveText.h"
+#include "TF1.h"
 
 bool isPrefit = false;
 bool isSherpa= false;
@@ -246,8 +248,12 @@ std::vector<Double_t> do_template_fit_tff(TH1D *hbottom, TH1D *hcharm, TH1D *hli
 
 std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status, int bin_n){
 
-  TH1D *bfrac_result_check = new TH1D("bfrac_result_check","bfrac_result_check",100,0.,0.6);
+  TH1D *bfrac_result_check = new TH1D("bfrac_result_check","bfrac_result_check",300,0.,0.3);
+  TH1D *cfrac_result_check = new TH1D("cfrac_result_check","cfrac_result_check",1000,0.,1.0);
+  TH1D *lfrac_result_check = new TH1D("lfrac_result_check","lfrac_result_check",1000,0.,1.0);
   TH1D *var_val_check = new TH1D("var_val_check","var_val_check",100,-.25,0.25);
+
+  std::vector<Double_t> param_results;
 
   vector<Int_t> fit_status_var;
   std::vector<Double_t> params_var;
@@ -289,6 +295,8 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
     chi2_ndf_var = params_var[6];
 
     bfrac_result_check->Fill(b_result_var);
+    cfrac_result_check->Fill(c_result_var);
+    lfrac_result_check->Fill(l_result_var);
     var_i++;
   }
   
@@ -299,18 +307,82 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   fit_status.push_back(fit_status_n);
   string bin_n_str = NumToStr(bin_n);
   TCanvas *ccheck = new TCanvas("ccheck","ccheck",800,800);
+  bfrac_result_check->Fit("gaus");
+  bfrac_result_check->GetFunction("gaus")->SetLineColor(kRed);
   bfrac_result_check->Draw();
-  string bfrac_check_fname = "bfrac_variation/bfrac_check" + bin_n_str + ".pdf";
+  double bfrac_rms = bfrac_result_check->GetRMS();
+  double bfrac_mean = bfrac_result_check->GetFunction("gaus")->GetParameter(1);
+  double bfrac_sigma = bfrac_result_check->GetFunction("gaus")->GetParameter(2);
+  param_results.push_back(bfrac_sigma);
+
+  string bfrac_rms_s = NumToStr(bfrac_rms);
+  string bfrac_mean_s = NumToStr(bfrac_mean);
+  string bfrac_sigma_s = NumToStr(bfrac_sigma);
+  
+  TPaveText *b_gaus_labels = new TPaveText(.8,.85,1,1,"brNDC");
+  b_gaus_labels->SetShadowColor(0);
+  b_gaus_labels->SetFillColor(0);
+
+  b_gaus_labels->AddText(("RMS = " + bfrac_rms_s).c_str());
+  b_gaus_labels->AddText(("Fit mean = " + bfrac_mean_s).c_str());
+  b_gaus_labels->AddText(("Fit sigma = " + bfrac_sigma_s).c_str());
+  b_gaus_labels->Draw();
+
+  string bfrac_check_fname = "bfrac_variation/bfrac_check_rms" + bin_n_str + ".pdf";
   ccheck->SaveAs(bfrac_check_fname.c_str());
   ccheck->Close();
 
-  TCanvas *ccheck1 = new TCanvas("ccheck1","ccheck1",800,800);
+  /*  TCanvas *ccheck1 = new TCanvas("ccheck1","ccheck1",800,800);
   var_val_check->Draw();
   string var_check_fname = "bfrac_variation/var_check" + bin_n_str+".pdf";
   ccheck1->SaveAs(var_check_fname.c_str());
-  ccheck1->Close();
+  ccheck1->Close();*/
 
-  return params_var;
+  TCanvas *c_charm = new TCanvas("c_charm","c_charm",800,800);
+  cfrac_result_check->Fit("gaus");
+  cfrac_result_check->GetFunction("gaus")->SetLineColor(kRed);
+  cfrac_result_check->Draw();
+  double cfrac_rms = cfrac_result_check->GetRMS();
+  double cfrac_mean = cfrac_result_check->GetFunction("gaus")->GetParameter(1);
+  double cfrac_sigma = cfrac_result_check->GetFunction("gaus")->GetParameter(2);
+  string cfrac_rms_s = NumToStr(cfrac_rms);
+  string cfrac_mean_s = NumToStr(cfrac_mean);
+  string cfrac_sigma_s = NumToStr(cfrac_sigma);
+  param_results.push_back(cfrac_sigma);
+  TPaveText *c_gaus_labels = new TPaveText(.8,.85,1,1,"brNDC");
+  c_gaus_labels->SetShadowColor(0);
+  c_gaus_labels->SetFillColor(0);
+  c_gaus_labels->AddText(("RMS = " + cfrac_rms_s).c_str());
+  c_gaus_labels->AddText(("Fit mean = " + cfrac_mean_s).c_str());
+  c_gaus_labels->AddText(("Fit sigma = " + cfrac_sigma_s).c_str());
+  c_gaus_labels->Draw();
+  string cfrac_check_fname = "bfrac_variation/cfrac_check_rms" + bin_n_str + ".pdf";
+  c_charm->SaveAs(cfrac_check_fname.c_str());
+  c_charm->Close();
+  
+  TCanvas *c_light = new TCanvas("c_light","c_light",800,800);
+  lfrac_result_check->Fit("gaus");
+  lfrac_result_check->GetFunction("gaus")->SetLineColor(kRed);
+  lfrac_result_check->Draw();
+  double lfrac_rms = lfrac_result_check->GetRMS();
+  double lfrac_mean = lfrac_result_check->GetFunction("gaus")->GetParameter(1);
+  double lfrac_sigma = lfrac_result_check->GetFunction("gaus")->GetParameter(2);
+  string lfrac_rms_s = NumToStr(lfrac_result_check->GetRMS());
+  string lfrac_mean_s = NumToStr(lfrac_result_check->GetFunction("gaus")->GetParameter(1));
+  string lfrac_sigma_s = NumToStr(lfrac_result_check->GetFunction("gaus")->GetParameter(2));
+  param_results.push_back(lfrac_sigma);
+  TPaveText *l_gaus_labels = new TPaveText(.8,.85,1,1,"brNDC");
+  l_gaus_labels->SetShadowColor(0);
+  l_gaus_labels->SetFillColor(0);
+  l_gaus_labels->AddText(("RMS = " + lfrac_rms_s).c_str());
+  l_gaus_labels->AddText(("Fit mean = " + lfrac_mean_s).c_str());
+  l_gaus_labels->AddText(("Fit sigma = " + lfrac_sigma_s).c_str());
+  l_gaus_labels->Draw();
+  string lfrac_check_fname = "bfrac_variation/lfrac_check_rms" + bin_n_str + ".pdf";
+  c_light->SaveAs(lfrac_check_fname.c_str());
+  c_light->Close();
+
+  return param_results;
 }
 
 void iterate_bins(){
@@ -463,6 +535,7 @@ void template_fitter(string kin_variable = "Z_pt"){
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
+    //for(int bin_i=3;bin_i<4;bin_i++){
     bool hasEmptyBin = false;
     cout << "BEGIN LOOP " << bin_i << " OF " << n_kinbins << endl;
     cout << "###############################################" << endl;
@@ -472,13 +545,6 @@ void template_fitter(string kin_variable = "Z_pt"){
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);
     TH1D *hdata = hdata_2D->ProjectionX("data_px", bin_i, bin_i);
 
-
-    //Systematic Variation
-    if(isVaried){
-      hlight->Scale(1.05);
-      hcharm->Scale(1.10);
-      hbottom->Scale(1.15);
-    }
 
     //Dynamic y-axis adjustment
     y_min = (hdata->GetMinimum()) * 0.1;
@@ -532,13 +598,14 @@ void template_fitter(string kin_variable = "Z_pt"){
     }
 
     std::vector<Double_t> parameters;
-    /*if(isTFF)parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
+    std::vector<Double_t> var_parameters;
+
+    if(isTFF)parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
     else parameters = do_template_fit_rf(hbottom,hcharm,hlight,hdata,fit_status);
-    */
+    
     //BIN VARIATION
-
-    parameters = do_random_var(hbottom,hcharm,hlight,hdata,fit_status,bin_i);
-
+    if(isVaried) var_parameters = do_random_var(hbottom,hcharm,hlight,hdata,fit_status,bin_i);
+      
 
     Double_t b_result = parameters[0];
     Double_t c_result = parameters[1];
@@ -547,8 +614,13 @@ void template_fitter(string kin_variable = "Z_pt"){
     Double_t c_result_err = parameters[4];
     Double_t l_result_err = parameters[5];
     Double_t chi2_ndf = parameters[6];
-    
-    if(bin_i==3) cout << "%%%%%%%%%%%%%%%%%#####################################THIRD BIN B_RESULT == " << b_result;
+
+    if(isVaried){
+      b_result_err = var_parameters[0];
+      c_result_err = var_parameters[1];
+      l_result_err = var_parameters[2];
+    }
+
 
     TCanvas *c1 = new TCanvas("c1","c1",1200,800);
 

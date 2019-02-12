@@ -25,6 +25,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <iostream>
 #include "TFile.h"
 #include "TString.h"
 #include "TH1.h"
@@ -42,6 +43,7 @@
 #include "TRandom3.h"
 #include "TPaveText.h"
 #include "TF1.h"
+#include "RooMsgService.h"
 
 bool isPrefit = false;
 bool isSherpa= false;
@@ -51,7 +53,9 @@ bool isClosure = false;
 bool isTFF = false;
 bool isTrueZ = false;
 bool isVaried = true;
+bool isOneBin = true;
 TRandom3 *r =new TRandom3(0);
+
 
 void create_dir(string & plots_path, string & plots_dir){
   //Get current date and save to vector<string>
@@ -99,6 +103,7 @@ void AddSuffixes(string & starting_name){
   if(isTFF) starting_name += "_TFF";
   if(isSherpa) starting_name += "_sherpa";
   if(isVaried) starting_name += "_variation_asym";
+  if(isOneBin) starting_name += "_onebin";
 }
 
 std::vector<Double_t> make_varied_hist(TH1D * h_mv1c, TH1D *h_mv1c_var, Double_t var_val){
@@ -145,7 +150,7 @@ std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hli
   Double_t template_sum_c = cjetMC.sum(kTRUE);
   Double_t template_sum_l = ljetMC.sum(kTRUE);
 
-  cout << "TEMPLATE SUMS: " << "b = " << template_sum_b << " c = " << template_sum_c << " l = " << template_sum_l << endl;
+  //  cout << "TEMPLATE SUMS: " << "b = " << template_sum_b << " c = " << template_sum_c << " l = " << template_sum_l << endl;
 
 
   RooArgList shapes;
@@ -160,7 +165,7 @@ std::vector<Double_t> do_template_fit_rf(TH1D * hbottom, TH1D *hcharm, TH1D *hli
   RooPlot* xframe = x.frame();
 
   RooFit::Minimizer("Minuit2");
-  RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save());
+  RooFitResult* r = template_model.fitTo(data,SumW2Error(kTRUE),Save(),PrintEvalErrors(-1),PrintLevel(-1),Verbose(kFALSE));
   double p_b = frbottom.getVal();
   double p_c = frcharm.getVal();
   double p_l = 1-p_b-p_c;
@@ -277,6 +282,9 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   TH1D *hcharm_var = (TH1D*)hcharm->Clone("charm_var");
   TH1D *hlight_var = (TH1D*)hlight->Clone("light_var");
   while(var_i < 1000){
+    std::cout.clear();
+    if(var_i % 100 == 0) cout << "Variation # " << var_i << ", bin # " << bin_n << endl;
+    std::cout.setstate(std::ios_base::failbit);
     check_var = make_varied_hist(hbottom,hbottom_var,bottom_var);
     make_varied_hist(hcharm,hcharm_var,charm_var);
     make_varied_hist(hlight,hlight_var,light_var);
@@ -313,22 +321,26 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   double bfrac_rms = bfrac_result_check->GetRMS();
   double bfrac_mean = bfrac_result_check->GetFunction("gaus")->GetParameter(1);
   double bfrac_sigma = bfrac_result_check->GetFunction("gaus")->GetParameter(2);
+  double bchi2 = bfrac_result_check->GetFunction("gaus")->GetChisquare();
+  double bndf = bfrac_result_check->GetFunction("gaus")->GetNDF();
+  double bchi2ndf = bchi2/bndf;
   param_results.push_back(bfrac_sigma);
 
   string bfrac_rms_s = NumToStr(bfrac_rms);
   string bfrac_mean_s = NumToStr(bfrac_mean);
   string bfrac_sigma_s = NumToStr(bfrac_sigma);
   
-  TPaveText *b_gaus_labels = new TPaveText(.8,.85,1,1,"brNDC");
+  TPaveText *b_gaus_labels = new TPaveText(.8,.8,1,1,"brNDC");
   b_gaus_labels->SetShadowColor(0);
   b_gaus_labels->SetFillColor(0);
 
   b_gaus_labels->AddText(("RMS = " + bfrac_rms_s).c_str());
   b_gaus_labels->AddText(("Fit mean = " + bfrac_mean_s).c_str());
   b_gaus_labels->AddText(("Fit sigma = " + bfrac_sigma_s).c_str());
+  b_gaus_labels->AddText(("Fit chi2/ndf = " + NumToStr(bchi2) + "/" + NumToStr(bndf) + " = " + NumToStr(bchi2ndf)).c_str());
   b_gaus_labels->Draw();
 
-  string bfrac_check_fname = "bfrac_variation/bfrac_check_rms" + bin_n_str + ".pdf";
+  string bfrac_check_fname = "bfrac_variation/bfrac_check_rms" + bin_n_str + "_10000_var.pdf";
   ccheck->SaveAs(bfrac_check_fname.c_str());
   ccheck->Close();
 
@@ -345,18 +357,22 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   double cfrac_rms = cfrac_result_check->GetRMS();
   double cfrac_mean = cfrac_result_check->GetFunction("gaus")->GetParameter(1);
   double cfrac_sigma = cfrac_result_check->GetFunction("gaus")->GetParameter(2);
+  double cchi2 =cfrac_result_check->GetFunction("gaus")->GetChisquare();
+  double cndf = cfrac_result_check->GetFunction("gaus")->GetNDF();
+  double cchi2ndf = cchi2/bndf;
   string cfrac_rms_s = NumToStr(cfrac_rms);
   string cfrac_mean_s = NumToStr(cfrac_mean);
   string cfrac_sigma_s = NumToStr(cfrac_sigma);
   param_results.push_back(cfrac_sigma);
-  TPaveText *c_gaus_labels = new TPaveText(.8,.85,1,1,"brNDC");
+  TPaveText *c_gaus_labels = new TPaveText(.8,.8,1,1,"brNDC");
   c_gaus_labels->SetShadowColor(0);
   c_gaus_labels->SetFillColor(0);
   c_gaus_labels->AddText(("RMS = " + cfrac_rms_s).c_str());
   c_gaus_labels->AddText(("Fit mean = " + cfrac_mean_s).c_str());
   c_gaus_labels->AddText(("Fit sigma = " + cfrac_sigma_s).c_str());
+  c_gaus_labels->AddText(("Fit chi2/ndf = " + NumToStr(cchi2) + "/" + NumToStr(cndf) + " = " + NumToStr(cchi2ndf)).c_str());
   c_gaus_labels->Draw();
-  string cfrac_check_fname = "bfrac_variation/cfrac_check_rms" + bin_n_str + ".pdf";
+  string cfrac_check_fname = "bfrac_variation/cfrac_check_rms" + bin_n_str + "_10000_var.pdf";
   c_charm->SaveAs(cfrac_check_fname.c_str());
   c_charm->Close();
   
@@ -367,6 +383,9 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   double lfrac_rms = lfrac_result_check->GetRMS();
   double lfrac_mean = lfrac_result_check->GetFunction("gaus")->GetParameter(1);
   double lfrac_sigma = lfrac_result_check->GetFunction("gaus")->GetParameter(2);
+  double lchi2 =lfrac_result_check->GetFunction("gaus")->GetChisquare();
+  double lndf = lfrac_result_check->GetFunction("gaus")->GetNDF();
+  double lchi2ndf = lchi2/bndf;
   string lfrac_rms_s = NumToStr(lfrac_result_check->GetRMS());
   string lfrac_mean_s = NumToStr(lfrac_result_check->GetFunction("gaus")->GetParameter(1));
   string lfrac_sigma_s = NumToStr(lfrac_result_check->GetFunction("gaus")->GetParameter(2));
@@ -377,10 +396,28 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   l_gaus_labels->AddText(("RMS = " + lfrac_rms_s).c_str());
   l_gaus_labels->AddText(("Fit mean = " + lfrac_mean_s).c_str());
   l_gaus_labels->AddText(("Fit sigma = " + lfrac_sigma_s).c_str());
+  l_gaus_labels->AddText(("Fit chi2/ndf = " + NumToStr(lchi2) + "/" + NumToStr(lndf) + " = " + NumToStr(lchi2ndf)).c_str());
   l_gaus_labels->Draw();
-  string lfrac_check_fname = "bfrac_variation/lfrac_check_rms" + bin_n_str + ".pdf";
+  string lfrac_check_fname = "bfrac_variation/lfrac_check_rms" + bin_n_str + "_10000_var.pdf";
   c_light->SaveAs(lfrac_check_fname.c_str());
   c_light->Close();
+
+  delete bfrac_result_check;
+  delete cfrac_result_check;
+  delete lfrac_result_check;
+  delete var_val_check;
+
+  delete hbottom_var;
+  delete hcharm_var;
+  delete hlight_var;
+
+  delete b_gaus_labels;
+  delete c_gaus_labels;
+  delete l_gaus_labels;
+
+  delete ccheck;
+  delete c_charm;
+  delete c_light;
 
   return param_results;
 }
@@ -394,6 +431,10 @@ void iterate_bins(){
 
 void template_fitter(string kin_variable = "Z_pt"){
   using namespace RooFit;
+
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+
+  std::cout.setstate(std::ios_base::failbit);
 
   string hist_dir = "/n/atlas02/user_codes/looper.6/Vbb/analysis_code/MC_histograms_root/";
   string light_f = hist_dir + kin_variable + "mv1c_light_jets_hmatch.root";
@@ -534,12 +575,13 @@ void template_fitter(string kin_variable = "Z_pt"){
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
-  for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
-    //for(int bin_i=3;bin_i<4;bin_i++){
+  //  for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
+  for(int bin_i=3;bin_i<4;bin_i++){
     bool hasEmptyBin = false;
+    std::cout.clear();
     cout << "BEGIN LOOP " << bin_i << " OF " << n_kinbins << endl;
     cout << "###############################################" << endl;
-
+    std::cout.setstate(std::ios_base::failbit);
     TH1D *hlight = hlight_2D->ProjectionX("light_px", bin_i, bin_i);
     TH1D *hcharm = hcharm_2D->ProjectionX("charm_px", bin_i, bin_i);
     TH1D *hbottom = hbottom_2D->ProjectionX("bottom_px", bin_i, bin_i);

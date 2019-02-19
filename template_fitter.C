@@ -53,7 +53,7 @@ bool isClosure = false;
 bool isTFF = false;
 bool isTrueZ = false;
 bool isVaried = true;
-bool isOneBin = true;
+bool isOneBin = false;
 TRandom3 *r =new TRandom3(0);
 
 
@@ -340,7 +340,7 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   b_gaus_labels->AddText(("Fit chi2/ndf = " + NumToStr(bchi2) + "/" + NumToStr(bndf) + " = " + NumToStr(bchi2ndf)).c_str());
   b_gaus_labels->Draw();
 
-  string bfrac_check_fname = "bfrac_variation/bfrac_check_rms" + bin_n_str + "_10000_var.pdf";
+  string bfrac_check_fname = "bfrac_variation/bfrac_check_rms" + bin_n_str + "_var.pdf";
   ccheck->SaveAs(bfrac_check_fname.c_str());
   ccheck->Close();
 
@@ -372,7 +372,7 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   c_gaus_labels->AddText(("Fit sigma = " + cfrac_sigma_s).c_str());
   c_gaus_labels->AddText(("Fit chi2/ndf = " + NumToStr(cchi2) + "/" + NumToStr(cndf) + " = " + NumToStr(cchi2ndf)).c_str());
   c_gaus_labels->Draw();
-  string cfrac_check_fname = "bfrac_variation/cfrac_check_rms" + bin_n_str + "_10000_var.pdf";
+  string cfrac_check_fname = "bfrac_variation/cfrac_check_rms" + bin_n_str + "_var.pdf";
   c_charm->SaveAs(cfrac_check_fname.c_str());
   c_charm->Close();
   
@@ -398,7 +398,7 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   l_gaus_labels->AddText(("Fit sigma = " + lfrac_sigma_s).c_str());
   l_gaus_labels->AddText(("Fit chi2/ndf = " + NumToStr(lchi2) + "/" + NumToStr(lndf) + " = " + NumToStr(lchi2ndf)).c_str());
   l_gaus_labels->Draw();
-  string lfrac_check_fname = "bfrac_variation/lfrac_check_rms" + bin_n_str + "_10000_var.pdf";
+  string lfrac_check_fname = "bfrac_variation/lfrac_check_rms" + bin_n_str + "_var.pdf";
   c_light->SaveAs(lfrac_check_fname.c_str());
   c_light->Close();
 
@@ -575,8 +575,8 @@ void template_fitter(string kin_variable = "Z_pt"){
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
-  //  for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
-  for(int bin_i=3;bin_i<4;bin_i++){
+  for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
+  //  for(int bin_i=3;bin_i<4;bin_i++){
     bool hasEmptyBin = false;
     std::cout.clear();
     cout << "BEGIN LOOP " << bin_i << " OF " << n_kinbins << endl;
@@ -647,7 +647,6 @@ void template_fitter(string kin_variable = "Z_pt"){
     
     //BIN VARIATION
     if(isVaried) var_parameters = do_random_var(hbottom,hcharm,hlight,hdata,fit_status,bin_i);
-      
 
     Double_t b_result = parameters[0];
     Double_t c_result = parameters[1];
@@ -658,9 +657,9 @@ void template_fitter(string kin_variable = "Z_pt"){
     Double_t chi2_ndf = parameters[6];
 
     if(isVaried){
-      b_result_err = var_parameters[0];
-      c_result_err = var_parameters[1];
-      l_result_err = var_parameters[2];
+      b_result_err = sqrt(var_parameters[0]*var_parameters[0] + parameters[3]*parameters[3]);
+      c_result_err = sqrt(var_parameters[1]*var_parameters[1] + parameters[4]*parameters[4]);
+      l_result_err = sqrt(var_parameters[2]*var_parameters[2] + parameters[5]*parameters[5]);
     }
 
 

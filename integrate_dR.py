@@ -13,4 +13,3 @@ for i in range(1,n_bins+1):
     print h.GetBinLowEdge(i)
 
 print bin_contents[0]/sum(bin_contents)
-

@@ -26,6 +26,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include "TFile.h"
 #include "TString.h"
 #include "TH1.h"
@@ -54,6 +55,7 @@ bool isTFF = false;
 bool isTrueZ = false;
 bool isVaried = true;
 bool isOneBin = false;
+bool isErrorTesting = false;
 TRandom3 *r =new TRandom3(0);
 
 
@@ -104,6 +106,46 @@ void AddSuffixes(string & starting_name){
   if(isSherpa) starting_name += "_sherpa";
   if(isVaried) starting_name += "_variation_asym";
   if(isOneBin) starting_name += "_onebin";
+  if(isErrorTesting) starting_name += "_errortests";
+}
+
+vector<vector<double> > read_bjet_uncertainties(std::string csv_f_n){
+  string line;
+  vector<string> line_v;
+  vector<vector<double> > value_v;
+  ifstream csv_f(csv_f_n);
+  while(getline(csv_f,line)){
+    line_v.push_back(line);
+  }
+  for(unsigned int i=0;i<line_v.size();i++){
+    std::istringstream ss(line_v[i]);
+    std::string token;
+    double value;
+    vector<double> l_v_v;
+    while(std::getline(ss, token, ',')){
+      stringstream vs(token);
+      vs >> value;
+      l_v_v.push_back(value);
+    }
+    value_v.push_back(l_v_v);
+  }
+  return value_v;
+}
+
+vector<double> add_uncertainties(vector<vector<double> > btag_uncertainty, double jes_val,double jer_val, double jvf_val, double lumi_val){
+  vector<double> uncert_v;
+  for(unsigned int b=0;b<btag_uncertainty[0].size();b++){
+    double quad_v = 0;
+    for(unsigned int i=0;i<btag_uncertainty.size();i++){
+      quad_v+=pow(btag_uncertainty[i][b],2);
+    }
+    quad_v+=pow(jes_val,2);
+    quad_v+=pow(jer_val,2);
+    quad_v+=pow(jvf_val,2);
+    quad_v+=pow(lumi_val,2);
+    uncert_v.push_back(sqrt(quad_v)/100.);
+  }
+  return uncert_v;
 }
 
 std::vector<Double_t> make_varied_hist(TH1D * h_mv1c, TH1D *h_mv1c_var, Double_t var_val){
@@ -116,6 +158,7 @@ std::vector<Double_t> make_varied_hist(TH1D * h_mv1c, TH1D *h_mv1c_var, Double_t
     bin_cont*=scale_i;
     h_mv1c_var->SetBinContent(mv1bin_i,bin_cont);
   }
+
   return var_i_vec;
 }
 
@@ -251,7 +294,8 @@ std::vector<Double_t> do_template_fit_tff(TH1D *hbottom, TH1D *hcharm, TH1D *hli
 
 }
 
-std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status, int bin_n){
+std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, TH1D *hdata,vector<Int_t> & fit_status, int bin_n,vector<double> & b_uncert, vector<double> & c_uncert, 
+				    vector<double> & l_uncert){
 
   TH1D *bfrac_result_check = new TH1D("bfrac_result_check","bfrac_result_check",300,0.,0.3);
   TH1D *cfrac_result_check = new TH1D("cfrac_result_check","cfrac_result_check",1000,0.,1.0);
@@ -273,6 +317,34 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   Double_t light_var = 0.05;
   Double_t charm_var = 0.10;
   Double_t bottom_var = 0.15;
+
+  map<int,int> uncert_el;
+  uncert_el.insert(pair<int,int>(0,0));
+  uncert_el.insert(pair<int,int>(1,0));
+  uncert_el.insert(pair<int,int>(2,0));
+  uncert_el.insert(pair<int,int>(3,0));
+  uncert_el.insert(pair<int,int>(4,1));
+  uncert_el.insert(pair<int,int>(5,1));
+  uncert_el.insert(pair<int,int>(6,2));
+  uncert_el.insert(pair<int,int>(7,2));
+  uncert_el.insert(pair<int,int>(8,3));
+  uncert_el.insert(pair<int,int>(9,3));
+  uncert_el.insert(pair<int,int>(10,4));
+  uncert_el.insert(pair<int,int>(11,4));
+  uncert_el.insert(pair<int,int>(12,5));
+  uncert_el.insert(pair<int,int>(13,5));
+  uncert_el.insert(pair<int,int>(14,6));
+  uncert_el.insert(pair<int,int>(15,6));
+  uncert_el.insert(pair<int,int>(16,7));
+  uncert_el.insert(pair<int,int>(17,8));
+  uncert_el.insert(pair<int,int>(18,9));
+  uncert_el.insert(pair<int,int>(19,10));
+  uncert_el.insert(pair<int,int>(20,11));
+  
+  int uncert_i = uncert_el[bin_n];
+  light_var = l_uncert[uncert_i];
+  charm_var = c_uncert[uncert_i];
+  bottom_var = b_uncert[uncert_i];
 
   Int_t n_var = 100;
   Int_t var_i = 0;
@@ -572,6 +644,18 @@ void template_fitter(string kin_variable = "Z_pt"){
   f_results.open(fname_results.c_str());
   f_results << "binlow,binhigh,bfraction,berr,cfraction,cerr,lfraction,lerr,chi2,Ndata\n";
 
+  vector<vector<double> > btag_uncertainty_b = read_bjet_uncertainties("uncertainty_block_b.csv");
+  vector<vector<double> > btag_uncertainty_c = read_bjet_uncertainties("uncertainty_block_c.csv");
+  vector<vector<double> > btag_uncertainty_l = read_bjet_uncertainties("uncertainty_block_l.csv");
+
+  double jes_val = 4.8;
+  double jer_val = 2.4;
+  double jvf_val = 1.0;
+  double lumi_val = 1.9;
+  
+  vector<double> b_uncertainties = add_uncertainties(btag_uncertainty_b, jes_val, jer_val, jvf_val, lumi_val);
+  vector<double> c_uncertainties = add_uncertainties(btag_uncertainty_c, jes_val, jer_val, jvf_val, lumi_val);
+  vector<double> l_uncertainties = add_uncertainties(btag_uncertainty_l, jes_val, jer_val, jvf_val, lumi_val);
 
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
@@ -641,12 +725,22 @@ void template_fitter(string kin_variable = "Z_pt"){
 
     std::vector<Double_t> parameters;
     std::vector<Double_t> var_parameters;
+    
+    if(isErrorTesting){
+      for(int k = 1; k < hdata->GetNbinsX()+1; k++){
+	double bin_error = 100;
+	hdata->SetBinError(k,bin_error);
+	hbottom->SetBinError(k,bin_error);
+	hcharm->SetBinError(k,bin_error);
+	hlight->SetBinError(k,bin_error);
+      }
+      }
 
     if(isTFF)parameters = do_template_fit_tff(hbottom,hcharm,hlight,hdata,fit_status);
     else parameters = do_template_fit_rf(hbottom,hcharm,hlight,hdata,fit_status);
     
     //BIN VARIATION
-    if(isVaried) var_parameters = do_random_var(hbottom,hcharm,hlight,hdata,fit_status,bin_i);
+    if(isVaried) var_parameters = do_random_var(hbottom,hcharm,hlight,hdata,fit_status,bin_i,b_uncertainties,c_uncertainties,l_uncertainties);
 
     Double_t b_result = parameters[0];
     Double_t c_result = parameters[1];
@@ -824,6 +918,12 @@ void template_fitter(string kin_variable = "Z_pt"){
 
   TH1F *frame = c2.DrawFrame(x_axis_min,y_axis_min,x_axis_max,y_axis_max);
   TGraphAsymmErrors *gr = new TGraphAsymmErrors(bin_center_vec.size(),&bin_center_vec[0],&b_frac_vec[0],&err_x_vec[0],&err_x_vec[0],&err_down_vec[0],&err_up_vec[0]);
+  if(isErrorTesting){
+    std::cout.clear();
+    for(unsigned int j=0;j<err_down_vec.size();j++){
+      cout << "Error on b-frac, up = " << err_up_vec[j] << ", down = " << err_down_vec[j] << endl;
+    }
+  }
   gr->SetMarkerStyle(21);
   gr->Draw("p");
   frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");

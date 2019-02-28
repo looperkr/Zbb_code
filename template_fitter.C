@@ -127,7 +127,10 @@ vector<vector<double> > read_bjet_uncertainties(std::string csv_f_n){
       vs >> value;
       l_v_v.push_back(value);
     }
-    value_v.push_back(l_v_v);
+    l_v_v.erase(l_v_v.begin());
+    if(i%2==0){
+      value_v.push_back(l_v_v);
+    }
   }
   return value_v;
 }

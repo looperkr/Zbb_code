@@ -921,12 +921,11 @@ void template_fitter(string kin_variable = "Z_pt"){
 
   TH1F *frame = c2.DrawFrame(x_axis_min,y_axis_min,x_axis_max,y_axis_max);
   TGraphAsymmErrors *gr = new TGraphAsymmErrors(bin_center_vec.size(),&bin_center_vec[0],&b_frac_vec[0],&err_x_vec[0],&err_x_vec[0],&err_down_vec[0],&err_up_vec[0]);
-  if(isErrorTesting){
-    std::cout.clear();
-    for(unsigned int j=0;j<err_down_vec.size();j++){
-      cout << "Error on b-frac, up = " << err_up_vec[j] << ", down = " << err_down_vec[j] << endl;
-    }
+  std::cout.clear();
+  for(unsigned int j=0;j<err_down_vec.size();j++){
+    cout << "bfrac =  " << b_frac_vec[j] << ", error = " << err_up_vec[j] << endl;
   }
+  
   gr->SetMarkerStyle(21);
   gr->Draw("p");
   frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");

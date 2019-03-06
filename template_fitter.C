@@ -326,24 +326,25 @@ std::vector<Double_t> do_random_var(TH1D * hbottom, TH1D *hcharm, TH1D *hlight, 
   uncert_el.insert(pair<int,int>(1,0));
   uncert_el.insert(pair<int,int>(2,0));
   uncert_el.insert(pair<int,int>(3,0));
-  uncert_el.insert(pair<int,int>(4,1));
+  uncert_el.insert(pair<int,int>(4,0));
   uncert_el.insert(pair<int,int>(5,1));
-  uncert_el.insert(pair<int,int>(6,2));
+  uncert_el.insert(pair<int,int>(6,1));
   uncert_el.insert(pair<int,int>(7,2));
-  uncert_el.insert(pair<int,int>(8,3));
+  uncert_el.insert(pair<int,int>(8,2));
   uncert_el.insert(pair<int,int>(9,3));
-  uncert_el.insert(pair<int,int>(10,4));
+  uncert_el.insert(pair<int,int>(10,3));
   uncert_el.insert(pair<int,int>(11,4));
-  uncert_el.insert(pair<int,int>(12,5));
+  uncert_el.insert(pair<int,int>(12,4));
   uncert_el.insert(pair<int,int>(13,5));
-  uncert_el.insert(pair<int,int>(14,6));
+  uncert_el.insert(pair<int,int>(14,5));
   uncert_el.insert(pair<int,int>(15,6));
-  uncert_el.insert(pair<int,int>(16,7));
-  uncert_el.insert(pair<int,int>(17,8));
-  uncert_el.insert(pair<int,int>(18,9));
-  uncert_el.insert(pair<int,int>(19,10));
-  uncert_el.insert(pair<int,int>(20,11));
-  
+  uncert_el.insert(pair<int,int>(16,6));
+  uncert_el.insert(pair<int,int>(17,7));
+  uncert_el.insert(pair<int,int>(18,8));
+  uncert_el.insert(pair<int,int>(19,9));
+  uncert_el.insert(pair<int,int>(20,10));
+  uncert_el.insert(pair<int,int>(21,11));
+
   int uncert_i = uncert_el[bin_n];
   light_var = l_uncert[uncert_i];
   charm_var = c_uncert[uncert_i];

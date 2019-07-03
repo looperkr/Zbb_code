@@ -2,11 +2,11 @@ from ROOT import TFile, TH1D, TH2D, gROOT, TH1
 import os,sys
 import csv
 
-def divideByBFraction(histo):
+'''def divideByBFraction(histo):
     f = TFile("flavor_fractions/ffrac.root","READ")
     h_bfrac = f.Get("bfrac_Z_pt")
     histo.Multiply(h_bfrac)
-    f.Close()
+    f.Close()'''
 
 isBresult = False
 #Dictionary stores list with ["distributionname",min,max,binning]

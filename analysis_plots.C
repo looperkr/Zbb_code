@@ -170,7 +170,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     chooseHistOptions("jet_n", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_pt"){
-    chooseHistOptions("jet_pt","jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000, 20, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt","jet pT [GeV]", "Events/10 GeV", 0., 500., 1, 10000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_y"){
     chooseHistOptions("jet_y", "jet rapidity", "Events/0.4", -5, 5, 1, 1000000000, 4, ratiomin, ratiomax);
@@ -182,7 +182,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     chooseHistOptions("jet_mu_ht","HT [GeV]", "Events/10 GeV", 0., 1000., 1, 1000000000, 20, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_pt"){
-    chooseHistOptions("jet_pt_lead","leading jet pT [GeV]", "Events/GeV", 0., 500., 1, 10000000,20, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt_lead","leading jet pT [GeV]", "Events/GeV", 0., 500., 1, 10000000,1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "lead_jet_y"){
     chooseHistOptions("jet_y_lead","leading jet rapidity", "Events/0.4", -4.5, 4.5, 1, 100000000, 4, ratiomin, ratiomax);
@@ -194,7 +194,7 @@ void analysis_plots(string var_2_plot,bool scale_to_lumi=true, bool make_log=tru
     chooseHistOptions("jet_n_tighteta", "#jets/events", "Events", 0, 7, 1., 100000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_pt_tight"){
-    chooseHistOptions("jet_pt_tighteta","jet pT [GeV]","Events/10 GeV", 0., 500., 1, 10000000, 20, ratiomin, ratiomax);
+    chooseHistOptions("jet_pt_tighteta","jet pT [GeV]","Events/10 GeV", 0., 500., 1, 10000000, 1, ratiomin, ratiomax);
   }
   else if(var_2_plot == "jet_y_tight"){
     chooseHistOptions("jet_y_tighteta", "jet rapidity", "Events/0.4",  -3.5, 3.5, 1, 1000000000, 4, ratiomin, ratiomax);

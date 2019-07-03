@@ -661,6 +661,16 @@ void template_fitter(string kin_variable = "Z_pt"){
   vector<double> c_uncertainties = add_uncertainties(btag_uncertainty_c, jes_val, jer_val, jvf_val, lumi_val);
   vector<double> l_uncertainties = add_uncertainties(btag_uncertainty_l, jes_val, jer_val, jvf_val, lumi_val);
 
+  vector<float> b_stat;
+  vector<float> c_stat;
+  vector<float> l_stat;
+  vector<float> b_syst;
+  vector<float> c_syst;
+  vector<float> l_syst;
+  vector<float> b_all;
+  vector<float> c_all;
+  vector<float> l_all;
+
   //begin loop over kinematic variable
   int n_kinbins = hdata_2D->GetNbinsY();
   for(int bin_i = 1; bin_i < n_kinbins+1; bin_i++){
@@ -755,9 +765,19 @@ void template_fitter(string kin_variable = "Z_pt"){
     Double_t chi2_ndf = parameters[6];
 
     if(isVaried){
+      b_stat.push_back(parameters[3]);
+      c_stat.push_back(parameters[4]);
+      l_stat.push_back(parameters[5]);
+      b_syst.push_back(var_parameters[0]);
+      c_syst.push_back(var_parameters[1]);
+      l_syst.push_back(var_parameters[2]);
       b_result_err = sqrt(var_parameters[0]*var_parameters[0] + parameters[3]*parameters[3]);
       c_result_err = sqrt(var_parameters[1]*var_parameters[1] + parameters[4]*parameters[4]);
       l_result_err = sqrt(var_parameters[2]*var_parameters[2] + parameters[5]*parameters[5]);
+      b_all.push_back(b_result_err);
+      c_all.push_back(c_result_err);
+      l_all.push_back(l_result_err);
+      //if(bin_i == 4) b_result_err*= 2.0;
     }
 
 
@@ -908,6 +928,7 @@ void template_fitter(string kin_variable = "Z_pt"){
   f_results.close();
 
   string f_frac_fname = "flavor_fractions/ffrac.root";
+  if(isVaried) f_frac_fname = "flavor_fractions/ffrac_var_test.root";
   TFile *f_ffrac = TFile::Open(f_frac_fname.c_str(),"RECREATE");
   h_bfrac->Write();
   h_cfrac->Write();
@@ -956,7 +977,19 @@ void template_fitter(string kin_variable = "Z_pt"){
   c3.Update();
   c3.SaveAs(bfrac_plot_n_dif.c_str());
 				 
-    
+
+  /* vector<float> b_stat;
+  vector<float> c_stat;
+  vector<float> l_stat;
+  vector<float> b_syst;
+  vector<float> c_syst;
+  vector<float> l_syst;
+  vector<float> b_all;
+  vector<float> c_all;
+  vector<float> l_all;*/
+  for(int i=0; i<b_stat.size(); i++){
+    cout << "b stat: " << b_stat[i] << ", b syst: " << b_syst[i] << ", b all" << b_all[i] << endl;
+  }
   for(unsigned int i=0; i<fit_status.size(); i++){
     if(fit_status.at(i) != 0) cout << "FIT #" << i << " DID NOT CONVERGE" << endl;
   }
